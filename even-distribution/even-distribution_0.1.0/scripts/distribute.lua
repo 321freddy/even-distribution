@@ -6,20 +6,19 @@ function distribute.on_tick(event) -- handles distribution events
 	
 	if distrEvents[event.tick] then
 		for player_index, cache in pairs(distrEvents[event.tick]) do
-			distribute.applyDistribution(player_index, cache.half) -- distribute items
+			distribute.applyDistribution(player_index, cache) -- distribute items
 			cache.half = false -- reset half flag after distribution
 		end
 		distrEvents[event.tick] = nil
 	end
 end
 
-function distribute.applyDistribution(player_index, half)
+function distribute.applyDistribution(player_index, cache)
 	local player = game.players[player_index]
-	local cache = global.cache[player_index]
 	
 	local takeFromCar = settings.get_player_settings(player)["take-from-car"].value
 	local totalItems = distribute.getPlayerItemCount(player, cache.item, takeFromCar)
-	if half then totalItems = math.ceil(totalItems / 2) end
+	if cache.half then totalItems = math.ceil(totalItems / 2) end
 	
 	local insertAmount = math.floor(totalItems / #cache.entities)
 	local remainder = totalItems % #cache.entities
@@ -135,7 +134,6 @@ function distribute.on_player_cursor_stack_changed(event)
 		if cache.itemCount > 0 then
 			-- determine if half a stack has been transferred (buggy if player only has 1 of the item in inventory but more in car!)
 			cache.half = (cache.itemCount == math.floor(cache.cursorStackCount / 2))
-			--dlog("itemCount = "..cache.itemCount..", cursor stack = "..cache.cursorStackCount.." --> half = "..tostring(cache.half))
 			
 			distribute.stackTransferred(selected, player, cache) -- handle stack transfer
 		end
@@ -169,7 +167,7 @@ function distribute.getRecipeIngredientCount(recipe, item) -- get count of a spe
 	return 0
 end
 
-function distribute.getOutputEntityItemCount(origin, item, outputType)
+function distribute.getOutputEntityItemCount(origin, item, outputType) -- get count of a specific item in any output inserters/loaders
 	local count = 0
 	for _,entity in pairs(origin.surface.find_entities_filtered{
 		type = outputType, area = util.offsetBox(util.extendBox(origin.prototype.collision_box, 3), origin.position)
@@ -187,8 +185,6 @@ function distribute.getOutputEntityItemCount(origin, item, outputType)
 end
 
 function distribute.stackTransferred(entity, player, cache) -- handle vanilla stack transfer
-	--dlog(player.name.." transferred "..cache.itemCount.." "..cache.item.." to "..entity.name)
-	
 	local distrEvents = global.distrEvents -- register new distribution event
 	if cache.applyTick and distrEvents[cache.applyTick] then distrEvents[cache.applyTick][player.index] = nil end
 	
@@ -258,7 +254,7 @@ function distribute.spawnDistributedText(entity, item, amount) -- spawn distribu
 		name = "flying-text",
 		position = { pos.x - 1, pos.y },
 		text = {"", "       ", -amount, " ", game.item_prototypes[item].localised_name},
-		color = { r = 1, g = 1, b = 1}
+		color = { r = 1, g = 1, b = 1 }
 	}
 end
 
