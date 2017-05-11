@@ -11,3 +11,4 @@ Pick an item, hold CTRL and Click Drag it over multiple buildings.
 - CTRL + Right Click Drag = Evenly distribute **half the items** in your inventory
 
 ## [Mod Portal Link](https://mods.factorio.com/mods/321freddy/even-distribution)
+## [Forum Link](https://forums.factorio.com/viewtopic.php?f=92&t=46278&p=265917#p265917)
