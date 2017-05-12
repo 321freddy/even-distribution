@@ -185,18 +185,26 @@ function distribute.getOutputEntityItemCount(origin, item, outputType) -- get co
 end
 
 function distribute.stackTransferred(entity, player, cache) -- handle vanilla stack transfer
-	local distrEvents = global.distrEvents -- register new distribution event
-	if cache.applyTick and distrEvents[cache.applyTick] then distrEvents[cache.applyTick][player.index] = nil end
-	
-	local delay = settings.get_player_settings(player)["distribution-delay"].value
-	cache.applyTick = game.tick + math.ceil(60 * delay) -- wait before applying distribution (seconds defined in mod config)
-	
-	distrEvents[cache.applyTick] = distrEvents[cache.applyTick] or {}
-	distrEvents[cache.applyTick][player.index] = cache
+	if entity.type ~= "player" and not entity.prototype.has_flag("pushable") then
+		local distrEvents = global.distrEvents -- register new distribution event
+		if cache.applyTick and distrEvents[cache.applyTick] then distrEvents[cache.applyTick][player.index] = nil end
+		
+		local delay = settings.get_player_settings(player)["distribution-delay"].value
+		cache.applyTick = game.tick + math.ceil(60 * delay) -- wait before applying distribution (seconds defined in mod config)
+		
+		distrEvents[cache.applyTick] = distrEvents[cache.applyTick] or {}
+		distrEvents[cache.applyTick][player.index] = cache
+		
+		if not cache.entities[entity] then
+			distribute.markEntity(entity) -- visuals
+			cache.entities[entity] = entity
+		end
+	end
 	
 	cache.tick = nil -- reset event handler tick to avoid invalid on_player_cursor_stack_changed execution
 	
-	local giveToPlayer = entity.remove_item{ name = cache.item, count = cache.itemCount } -- give items back to player
+	-- give items back to player
+	local giveToPlayer = entity.remove_item{ name = cache.item, count = cache.itemCount }
 	local cursor_stack = player.cursor_stack
 	
 	if giveToPlayer > 0 then
@@ -208,10 +216,6 @@ function distribute.stackTransferred(entity, player, cache) -- handle vanilla st
 	end
 	
 	distribute.destroyTransferText(entity)
-	if not cache.entities[entity] then
-		distribute.markEntity(entity) -- visuals
-		cache.entities[entity] = entity
-	end
 end
 
 function distribute.markEntity(entity) -- create distribution marker
