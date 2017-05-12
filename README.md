@@ -4,7 +4,7 @@ A mod for the game [Factorio](https://www.factorio.com/).
 ## Description
 Modifies vanilla behaviour for CTRL + Click Drag to evenly distribute the items over multiple buildings.
 
-Pick an item, hold CTRL and Click Drag it over multiple buildings.
+Pick an item, hold CTRL and Click Drag it over multiple buildings. Start dragging **OFF** the first building.
 
 ## Modes
 - CTRL + Left Click Drag = Evenly distribute **all items** in your inventory
