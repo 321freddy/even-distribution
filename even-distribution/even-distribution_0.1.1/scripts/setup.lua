@@ -109,14 +109,21 @@ end
 
 function setup.createPlayerCache(index)
 	global.cache[index] = global.cache[index] or {}
+	global.cache[index].markers = global.cache[index].markers or {}
+	setup.useEntityAsIndex(global.cache[index].markers)
 	global.cache[index].entities = global.cache[index].entities or {}
-	setmetatable(global.cache[index].entities, entityAsIndex)
+	setup.useEntityAsIndex(global.cache[index].entities)
 end
 
 function setup.on_load()
 	for _,cache in pairs(global.cache) do
-		setmetatable(cache.entities, entityAsIndex)
+		setup.useEntityAsIndex(cache.markers)
+		setup.useEntityAsIndex(cache.entities)
 	end
+end
+
+function setup.useEntityAsIndex(tbl)
+	if tbl then setmetatable(tbl, entityAsIndex) end
 end
 
 return setup

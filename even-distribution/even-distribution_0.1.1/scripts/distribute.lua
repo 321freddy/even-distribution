@@ -1,5 +1,6 @@
 local distribute = {}
 local util = scripts.util
+local setup = scripts.setup
 
 function distribute.on_tick(event) -- handles distribution events
 	local distrEvents = global.distrEvents
@@ -47,10 +48,11 @@ function distribute.applyDistribution(player_index, cache)
 				distribute.spawnDistributedText(entity, cache.item, itemsInserted)
 			end
 			
-			distribute.unmarkEntity(entity)
 			cache.entities[entity] = nil
 		end
 	end
+	
+	distribute.unmarkEntities(cache)
 end
 
 function distribute.getPlayerItemCount(player, item, includeCar)
@@ -189,14 +191,15 @@ function distribute.stackTransferred(entity, player, cache) -- handle vanilla st
 		local distrEvents = global.distrEvents -- register new distribution event
 		if cache.applyTick and distrEvents[cache.applyTick] then distrEvents[cache.applyTick][player.index] = nil end
 		
+		-- wait before applying distribution (seconds defined in mod config)
 		local delay = settings.get_player_settings(player)["distribution-delay"].value
-		cache.applyTick = game.tick + math.ceil(60 * delay) -- wait before applying distribution (seconds defined in mod config)
+		cache.applyTick = game.tick + math.max(math.ceil(60 * delay), 1)
 		
 		distrEvents[cache.applyTick] = distrEvents[cache.applyTick] or {}
 		distrEvents[cache.applyTick][player.index] = cache
 		
 		if not cache.entities[entity] then
-			distribute.markEntity(entity) -- visuals
+			cache.markers[entity] = distribute.markEntity(entity) -- visuals
 			cache.entities[entity] = entity
 		end
 	end
@@ -222,7 +225,7 @@ function distribute.markEntity(entity) -- create distribution marker
 	local surface = entity.surface
 	local pos = entity.position
 	
-	surface.create_entity{
+	return surface.create_entity{
 		name = "distribution-marker",
 		position = { pos.x, pos.y + 1 }
 	}
@@ -239,15 +242,13 @@ function distribute.destroyTransferText(entity) -- remove flying text from stack
 	}[1])
 end
 
-function distribute.unmarkEntity(entity) -- destroy distribution marker
-	local surface = entity.surface
-	local pos = entity.position
+function distribute.unmarkEntities(cache) -- destroy all distribution markers of a player (using cache)
+	for marker in util.epairs(cache.markers) do
+		util.destroyIfValid(marker)
+	end
 	
-	util.destroyIfValid(surface.find_entities_filtered{ 
-		name = "distribution-marker",
-		area = {{ pos.x - 0.1, pos.y + 0.9 }, { pos.x + 0.1, pos.y + 1.1 }},
-		limit = 1
-	}[1])
+	cache.markers = {} -- clear table
+	setup.useEntityAsIndex(cache.markers)
 end
 
 function distribute.spawnDistributedText(entity, item, amount) -- spawn distribution text
@@ -268,12 +269,34 @@ function distribute.on_preplayer_mined_item(event) -- remove mined/dead entities
 	for _,cache in pairs(global.cache) do
 		if cache.entities[entity] then
 			cache.entities[entity] = nil
-			distribute.unmarkEntity(entity)
+			util.destroyIfValid(cache.markers[entity]) -- remove marker
+			cache.markers[entity] = nil
 		end
 	end
 end
 
 distribute.on_robot_pre_mined = distribute.on_preplayer_mined_item
 distribute.on_entity_died = distribute.on_preplayer_mined_item
+
+
+-- picker extended dollies fix
+function distribute.on_picker_dollies_moved(event)
+	local entity = event.moved_entity
+	
+	if util.isValid(entity) then
+		for index,cache in pairs(global.cache) do
+			local marker = cache.markers[entity]
+			local pos = entity.position
+			if util.isValid(marker) then marker.teleport{ pos.x, pos.y + 1 } end
+		end
+	end
+end
+
+if remote.interfaces["picker"] and remote.interfaces["picker"]["dolly_moved_entity_id"] then
+	local eventID = remote.call("picker", "dolly_moved_entity_id")
+	if type(eventID) == "number" then
+		script.on_event(remote.call("picker", "dolly_moved_entity_id"), distribute.on_picker_dollies_moved)
+	end
+end
 
 return distribute
