@@ -109,6 +109,7 @@ end
 
 function setup.createPlayerCache(index)
 	global.cache[index] = global.cache[index] or {}
+	global.cache[index].items = global.cache[index].items or {}
 	global.cache[index].markers = global.cache[index].markers or {}
 	setup.useEntityAsIndex(global.cache[index].markers)
 	global.cache[index].entities = global.cache[index].entities or {}
@@ -124,6 +125,12 @@ end
 
 function setup.useEntityAsIndex(tbl)
 	if tbl then setmetatable(tbl, entityAsIndex) end
+end
+
+function setup.newEAITable() -- creates new table with entity as index
+	local tbl = {}
+	setup.useEntityAsIndex(tbl)
+	return tbl
 end
 
 return setup

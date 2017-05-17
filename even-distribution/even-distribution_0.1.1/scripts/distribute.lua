@@ -2,29 +2,58 @@ local distribute = {}
 local util = scripts.util
 local setup = scripts.setup
 
+local colors = { -- flying text colors
+	insufficientItems = { r = 1, g = 0, b = 0 }, -- red
+	targetFull = { r = 1, g = 1, b = 0 }, -- yellow
+	default = { r = 1, g = 1, b = 1 }, -- white
+}
+
 function distribute.on_tick(event) -- handles distribution events
 	local distrEvents = global.distrEvents
 	
 	if distrEvents[event.tick] then
 		for player_index, cache in pairs(distrEvents[event.tick]) do
-			distribute.applyDistribution(player_index, cache) -- distribute items
+			distribute.distributeItems(player_index, cache) -- distribute items
 			cache.half = false -- reset half flag after distribution
 		end
 		distrEvents[event.tick] = nil
 	end
 end
 
-function distribute.applyDistribution(player_index, cache)
+function distribute.distributeItems(player_index, cache)
 	local player = game.players[player_index]
+	local takeFromCar = player.mod_settings["take-from-car"].value
+	local half, entities = cache.half, cache.entities
 	
-	local takeFromCar = settings.get_player_settings(player)["take-from-car"].value
-	local totalItems = distribute.getPlayerItemCount(player, cache.item, takeFromCar)
-	if cache.half then totalItems = math.ceil(totalItems / 2) end
+	if cache.item then
+		cache.items[cache.item] = true
+		cache.item = nil
+	end
 	
-	local insertAmount = math.floor(totalItems / #cache.entities)
-	local remainder = totalItems % #cache.entities
+	--cache.items["iron-plate"] = true
+	--cache.items["iron-ore"] = true
 	
-	for entity in util.epairs(cache.entities) do
+	local offY = 0
+	for item,val in pairs(cache.items) do
+		if val then
+			distribute.distributeItem(player, item, takeFromCar, half, entities, offY)
+			offY = offY - 0.5
+		end
+	end
+	
+	cache.items = {}
+	cache.entities = setup.newEAITable()
+	distribute.unmarkEntities(cache)
+end
+
+function distribute.distributeItem(player, item, takeFromCar, half, entities, offY)
+	local totalItems = distribute.getPlayerItemCount(player, item, takeFromCar)
+	if half then totalItems = math.ceil(totalItems / 2) end
+	
+	local insertAmount = math.floor(totalItems / #entities)
+	local remainder = totalItems % #entities
+	
+	for entity in util.epairs(entities) do
 		if util.isValid(entity) then
 			local amount = insertAmount
 			if remainder > 0 then
@@ -32,27 +61,31 @@ function distribute.applyDistribution(player_index, cache)
 				remainder = remainder - 1
 			end
 			
+			local itemsInserted = 0
+			local color
+			
 			if amount > 0 then
-				local takenFromPlayer = distribute.removePlayerItems(player, cache.item, amount, takeFromCar)
-				local itemsInserted = 0
+				local takenFromPlayer = distribute.removePlayerItems(player, item, amount, takeFromCar)
+				
+				if takenFromPlayer < amount then color = colors.insufficientItems end
 				
 				if takenFromPlayer > 0 then
-					itemsInserted = entity.insert{ name = cache.item, count = takenFromPlayer }
+					itemsInserted = entity.insert{ name = item, count = takenFromPlayer }
 					local failedToInsert = takenFromPlayer - itemsInserted
 					
+					
 					if failedToInsert > 0 then
-						distribute.returnToPlayer(player, cache.item, failedToInsert, takeFromCar)
+						distribute.returnToPlayer(player, item, failedToInsert, takeFromCar)
+						color = colors.targetFull
 					end
 				end
-				
-				distribute.spawnDistributedText(entity, cache.item, itemsInserted)
+			else
+				color = colors.insufficientItems
 			end
 			
-			cache.entities[entity] = nil
+			distribute.spawnDistributionText(entity, item, itemsInserted, offY, color)
 		end
 	end
-	
-	distribute.unmarkEntities(cache)
 end
 
 function distribute.getPlayerItemCount(player, item, includeCar)
@@ -192,7 +225,7 @@ function distribute.stackTransferred(entity, player, cache) -- handle vanilla st
 		if cache.applyTick and distrEvents[cache.applyTick] then distrEvents[cache.applyTick][player.index] = nil end
 		
 		-- wait before applying distribution (seconds defined in mod config)
-		local delay = settings.get_player_settings(player)["distribution-delay"].value
+		local delay = player.mod_settings["distribution-delay"].value
 		cache.applyTick = game.tick + math.max(math.ceil(60 * delay), 1)
 		
 		distrEvents[cache.applyTick] = distrEvents[cache.applyTick] or {}
@@ -247,19 +280,18 @@ function distribute.unmarkEntities(cache) -- destroy all distribution markers of
 		util.destroyIfValid(marker)
 	end
 	
-	cache.markers = {} -- clear table
-	setup.useEntityAsIndex(cache.markers)
+	cache.markers = setup.newEAITable()
 end
 
-function distribute.spawnDistributedText(entity, item, amount) -- spawn distribution text
+function distribute.spawnDistributionText(entity, item, amount, offY, color) -- spawn distribution text
 	local surface = entity.surface
 	local pos = entity.position
 
 	surface.create_entity{ -- spawn text
-		name = "flying-text",
-		position = { pos.x - 1, pos.y },
+		name = "distribution-text",
+		position = { pos.x - 0.5, pos.y + offY },
 		text = {"", "       ", -amount, " ", game.item_prototypes[item].localised_name},
-		color = { r = 1, g = 1, b = 1 }
+		color = color or colors.default
 	}
 end
 
