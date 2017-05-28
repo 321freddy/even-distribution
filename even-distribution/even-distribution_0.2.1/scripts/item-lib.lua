@@ -45,7 +45,7 @@ function item_lib.getPlayerRequests(player)
 			local request = character.get_request_slot(i)
 			if request then
 				local item, amount = request.name, request.count
-				requests[item] = (requests[item] or 0) + amount
+				requests[item] = math.max(requests[item] or 0, amount)
 			end
 		end
 	end
@@ -55,9 +55,8 @@ end
 
 function item_lib.getBuildingItemCount(entity, item) -- counts the items and also includes items that are being consumed (fuel in burners, ingredients in assemblers, etc.)
 	local count = entity.get_item_count(item)
-	local type = entity.prototype.type
 	
-	if type == "assembling-machine" or type == "furnace" then
+	if util.isCraftingMachine(entity) then
 		if entity.recipe and entity.crafting_progress > 0 then
 			count = count + item_lib.getRecipeIngredientCount(entity.recipe, item)
 		end
@@ -115,14 +114,14 @@ function item_lib.getRequestAmount(item, requester)
 	if requester.request_slot_count > 0 then
 		for i = 1, requester.request_slot_count do
 			local request = requester.get_request_slot(i)
-			if request and request.name == item then count = count + request.count end
+			if request and request.name == item and request.count > count then count = request.count end
 		end
 	end
 	return count
 end
 
 function item_lib.getRemainingRequest(item, requester)
-	return item_lib.getRequestAmount(item, requester) - item_lib.getBuildingItemCount(requester, item)
+	return item_lib.getRequestAmount(item, requester) - requester.get_item_count(item)
 end
 
 function item_lib.getInputInventory(entity)
