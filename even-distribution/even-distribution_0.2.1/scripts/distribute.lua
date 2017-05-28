@@ -93,6 +93,13 @@ function distribute.on_selected_entity_changed(event)
 		cache.item = cursor_stack.name
 		cache.itemCount = item_lib.getBuildingItemCount(selected, cursor_stack.name)
 		cache.cursorStackCount = cursor_stack.count
+		
+		if util.isCraftingMachine(selected) then
+			cache.craftingProgress = selected.crafting_progress
+			cache.inputContents = item_lib.getInputContents(selected)
+		end
+		
+		if selected.burner then cache.remainingFuel = selected.burner.remaining_burning_fuel end
 	end
 end
 
@@ -138,6 +145,10 @@ function distribute.stackTransferred(entity, player, cache) -- handle vanilla st
 	local giveToPlayer = entity.remove_item{ name = cache.item, count = cache.itemCount }
 	local cursor_stack = player.cursor_stack
 	
+	if not player.mod_settings["immediately-start-crafting"].value then
+		giveToPlayer = giveToPlayer + distribute.undoConsumption(entity, player, cache)
+	end
+	
 	if giveToPlayer > 0 then
 		if cursor_stack.valid_for_read then
 			player.insert{ name = cache.item, count = giveToPlayer }
@@ -147,6 +158,30 @@ function distribute.stackTransferred(entity, player, cache) -- handle vanilla st
 	end
 	
 	distribute.destroyTransferText(entity)
+end
+
+function distribute.undoConsumption(entity, player, cache) -- some entities consume items directly after vanilla stack transfer
+	local item = cache.item
+	local burner = entity.burner
+	
+	if util.isCraftingMachine(entity) and entity.crafting_progress > cache.craftingProgress and item_lib.isIngredient(item, entity.recipe)then
+		local returnCount = item_lib.getRecipeIngredientCount(entity.recipe, item)
+		local inputContents = item_lib.getInputContents(entity)
+		
+		for name,count in pairs(cache.inputContents) do
+			local missing = count - (inputContents[name] or 0)
+			if missing > 0 then entity.insert{ name = name, count = missing } end
+			if item == name then returnCount = returnCount - missing end
+		end
+		
+		entity.crafting_progress = 0
+		return returnCount
+	elseif burner and burner.remaining_burning_fuel > cache.remainingFuel and burner.currently_burning.name == item then
+		burner.remaining_burning_fuel = 0
+		return 1
+	end
+	
+	return 0
 end
 
 function distribute.markEntity(entity, name, x, y) -- create distribution marker

@@ -3,7 +3,7 @@ data:extend{
 		type = "double-setting",
 		name = "distribution-delay",
 		setting_type = "runtime-per-user",
-		order = "a",
+		order = "aa",
 		default_value = 0.9,
 		minimum_value = 0.01
 	},
@@ -11,13 +11,20 @@ data:extend{
 		type = "bool-setting",
 		name = "take-from-car",
 		setting_type = "runtime-per-user",
-		order = "b",
+		order = "ab",
 		default_value = true
+	},
+	{
+		type = "bool-setting",
+		name = "immediately-start-crafting",
+		order = "ac",
+		setting_type = "runtime-per-user",
+		default_value = true,
 	},
 	{
 		type = "string-setting",
 		name = "inventory-cleanup-custom-trash",
-		order = "d",
+		order = "bb",
 		setting_type = "runtime-per-user",
 		default_value = "iron-plate:600 copper-plate:600",
 		allow_blank = true
@@ -25,7 +32,7 @@ data:extend{
 	{
 		type = "int-setting",
 		name = "max-inventory-cleanup-drop-range",
-		order = "c",
+		order = "ba",
 		setting_type = "runtime-per-user",
 		default_value = 30,
 		minimum_value = 0,
@@ -34,7 +41,7 @@ data:extend{
 	{
 		type = "bool-setting",
 		name = "cleanup-logistic-request-overflow",
-		order = "e",
+		order = "bc",
 		setting_type = "runtime-per-user",
 		default_value = true
 	},

@@ -90,10 +90,22 @@ function item_lib.getOutputEntityItemCount(origin, item, outputType) -- get coun
 end
 
 function item_lib.getRecipeIngredientCount(recipe, item) -- get count of a specific item in recipe ingredients
+	if not recipe then return 0 end
 	for _,ingredient in pairs(recipe.ingredients) do
 		if ingredient.name == item then return ingredient.amount end
 	end
 	return 0
+end
+
+function item_lib.getRecipeIngredients(recipe)
+	local ingredients = {}
+	
+	for _,ingredient in pairs(recipe.ingredients) do
+		local type, name, amount = ingredient.type, ingredient.name, ingredient.amount
+		if type == "item" then ingredients[name] = amount end
+	end
+	
+	return ingredients
 end
 
 function item_lib.isIngredient(item, recipe)
@@ -129,6 +141,12 @@ function item_lib.getInputInventory(entity)
 		   entity.get_inventory(defines.inventory.assembling_machine_input) or
 		   entity.get_inventory(defines.inventory.lab_input) or
 		   entity.get_inventory(defines.inventory.rocket_silo_rocket)
+end
+
+function item_lib.getInputContents(entity)
+	local input = item_lib.getInputInventory(entity)
+	if input then return input.get_contents() end
+	return {}
 end
 
 function item_lib.isInputItem(item, entity) -- is item already in one of the input slots?
