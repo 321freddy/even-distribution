@@ -1,4 +1,4 @@
-local DEBUG = false
+local DEBUG = true
 
 scripts = {} -- custom scripts
 local funcs = {} -- Functions bound to their respective game event
@@ -40,10 +40,15 @@ end
 -- Load all custom scripts
 addScript("util")
 addScript("setup")
+addScript("item-lib")
 addScript("distribute")
+addScript("cleanup")
 
 -- Register every script-function with the same name as a game event to be called when it occurs
 registerHandler("on_init")
 registerHandler("on_load")
 registerHandler("on_configuration_changed")
 for name,event in pairs(defines.events) do registerHandler(name, event) end
+
+-- Register custom input events
+registerHandler("on_inventory_cleanup", "inventory-cleanup")

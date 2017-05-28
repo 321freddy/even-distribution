@@ -1,12 +1,27 @@
+-- Input --
+
 data:extend{
 	{
+		type = "custom-input",
+		name = "inventory-cleanup",
+		key_sequence = "SHIFT + C",
+		consuming = "all"
+	}
+}
+
+
+-- Entities --
+
+local function createMarker(name, duration, spread_duration, fade_away_duration, start_scale, end_scale)
+	return {
 		type = "smoke",
-		name = "distribution-marker",
+		name = name,
 		flags = {"not-repairable", "not-blueprintable", "not-deconstructable", "placeable-off-grid", "not-on-map"},
-		duration = 9999999,
-		spread_duration = 10,
-		start_scale = 0.001,
-		end_scale = 1,
+		duration = duration,
+		spread_duration = spread_duration,
+		fade_away_duration = fade_away_duration,
+		start_scale = start_scale,
+		end_scale = end_scale,
 		color = { r = 1, g = 1, b = 1, a = 1 },
 		cyclic = true,
 		affected_by_wind = false,
@@ -22,12 +37,18 @@ data:extend{
 			scale = 0.5,
 			frame_count = 1
 		}
-	},
+	}
+end
+
+data:extend{
+	createMarker("distribution-marker", 9999999, 10, nil, 0.001, 1),
+	createMarker("distribution-final-anim", 20, 20, 20, 1, 2),
+	createMarker("cleanup-distribution-anim", 28, 28, 20, 0.001, 2),
 	{
 		type = "flying-text",
 		name = "distribution-text",
 		flags = {"not-on-map", "placeable-off-grid"},
 		time_to_live = 150,
 		speed = 0.05
-	},
+	}
 }

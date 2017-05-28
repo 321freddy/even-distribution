@@ -3,6 +3,8 @@
 local setup = {}
 local util = scripts.util
 
+local defaultTrash = require("default-trash")
+
 local entityAsIndex = { -- metatable for using an entity as a table index
 	__index = function (tbl, entity)
 		if type(entity) == "table" and entity.valid then
@@ -95,9 +97,12 @@ local entityAsIndex = { -- metatable for using an entity as a table index
 function setup.on_init()
 	global.cache = global.cache or {}
 	global.distrEvents = global.distrEvents or {}
+	global.settings = {}
+	global.defaultTrash = setup.generateTrashItemList()
 	
 	for player_index,_ in pairs(game.players) do
 		setup.createPlayerCache(player_index)
+		setup.parsePlayerSettings(player_index)
 	end
 end
 
@@ -105,6 +110,13 @@ setup.on_configuration_changed = setup.on_init
 
 function setup.on_player_created(event)
 	setup.createPlayerCache(event.player_index)
+	setup.parsePlayerSettings(event.player_index)
+end
+
+function setup.on_runtime_mod_setting_changed(event)
+	if event.setting == "inventory-cleanup-custom-trash" then
+		setup.parsePlayerSettings(event.player_index)
+	end
 end
 
 function setup.createPlayerCache(index)
@@ -114,6 +126,23 @@ function setup.createPlayerCache(index)
 	setup.useEntityAsIndex(global.cache[index].markers)
 	global.cache[index].entities = global.cache[index].entities or {}
 	setup.useEntityAsIndex(global.cache[index].entities)
+end
+
+function setup.parsePlayerSettings(index)
+	global.settings[index] = {
+		customTrash = setup.parseCustomTrashSetting(index)
+	}
+end
+
+function setup.parseCustomTrashSetting(index)
+	local setting = game.players[index].mod_settings["inventory-cleanup-custom-trash"].value
+	local result = {}
+	
+	for item,count in string.gmatch(setting, "%s*([^ :]+):(%d+)%s*") do
+		result[item] = count
+	end
+	
+	return result
 end
 
 function setup.on_load()
@@ -131,6 +160,26 @@ function setup.newEAITable() -- creates new table with entity as index
 	local tbl = {}
 	setup.useEntityAsIndex(tbl)
 	return tbl
+end
+
+function setup.generateTrashItemList()
+	local items = {}
+	
+	for name,item in pairs(game.item_prototypes) do
+		if not (item.place_result or item.place_as_equipment_result or item.flags.hidden) then -- or item.place_as_tile_result
+			local default = defaultTrash[name] or defaultTrash[item.subgroup.name] or defaultTrash[item.group.name]
+			
+			if default and default ~= "ignore" then
+				if item.fuel_category and not defaultTrash[name] then -- fuels default to 2 stacks as desired amount
+					items[name] = 2 * item.stack_size
+				else
+					items[name] = default
+				end
+			end
+		end
+	end
+	
+	return items
 end
 
 return setup

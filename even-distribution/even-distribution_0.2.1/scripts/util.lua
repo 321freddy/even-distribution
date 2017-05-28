@@ -14,12 +14,24 @@ function util.extendBox(box, tiles)
 	return {left_top = {x = x1 - tiles, y = y1 - tiles}, right_bottom = {x = x2 + tiles, y = y2 + tiles}}
 end
 
+function util.getPerimeter(pos, radius)
+	return {left_top = {x = pos.x - radius, y = pos.y - radius}, right_bottom = {x = pos.x + radius, y = pos.y + radius}}
+end
+
 function util.isValid(object)
 	return object and object.valid
 end
 
 function util.destroyIfValid(object)
 	if util.isValid(object) then object.destroy() end
+end
+
+function util.isValidPlayer(player) -- valid, connected and alive player
+	return util.isValid(player) and util.isValid(player.character) and player.connected
+end
+
+function util.isCraftingMachine(entity)
+	return entity.type == "furnace" or entity.type == "assembling-machine" or entity.type == "rocket-silo"
 end
 
 function util.shallowCopy(original) -- Creates a shallow copy of a table
