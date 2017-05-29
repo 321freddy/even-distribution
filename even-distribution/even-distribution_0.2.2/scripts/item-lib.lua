@@ -57,8 +57,13 @@ function item_lib.getBuildingItemCount(entity, item) -- counts the items and als
 	local count = entity.get_item_count(item)
 	
 	if util.isCraftingMachine(entity) then
-		if entity.recipe and entity.crafting_progress > 0 then
-			count = count + item_lib.getRecipeIngredientCount(entity.recipe, item)
+		if entity.recipe then
+			local ingredients = item_lib.getRecipeIngredientCount(entity.recipe, item)
+			if entity.is_crafting() then count = count + ingredients end
+			count = count + entity.products_finished * ingredients
+			if entity.type == "rocket-silo" then
+				count = count + entity.rocket_parts * ingredients
+			end
 		end
 	else
 		count = count + item_lib.getOutputEntityItemCount(entity, item, "inserter")
@@ -149,9 +154,22 @@ function item_lib.getInputContents(entity)
 	return {}
 end
 
-function item_lib.isInputItem(item, entity) -- is item already in one of the input slots?
-	local inventory = item_lib.getInputInventory(entity)
-	if inventory then return inventory.get_item_count(item) > 0 end
+function item_lib.isFurnaceIngredient(item, furnace)
+	local inventory = item_lib.getInputInventory(furnace)
+	if inventory and inventory.get_item_count(item) > 0 then return true end -- detect if input matches item
+	
+	inventory = furnace.get_output_inventory()
+	if not inventory or inventory.is_empty() then return false end
+	
+	local furnaceRecipes = global.furnaceRecipes
+	local contents = inventory.get_contents()
+	if next(contents, next(contents)) then return false end -- furnace has more than one output item
+	local output = next(contents)
+	
+	for category,_ in pairs(furnace.prototype.crafting_categories) do -- detect if item is ingredient in recipe of output item
+		if furnaceRecipes[category] and furnaceRecipes[category][output] and furnaceRecipes[category][output][item] then return true end
+	end
+	
 	return false
 end
 
@@ -189,15 +207,24 @@ end
 
 function item_lib.entityInsert(entity, item, amount, safemode)
 	if safemode then
-		if entity.type == "furnace" and not (entity.recipe or item_lib.isInputItem(item, entity)) then -- furnace recipe fix
+		local prototype = game.item_prototypes[item]
+		if entity.type == "furnace" and not (entity.recipe or item_lib.isFurnaceIngredient(item, entity)) then
 			local inventory = entity.get_fuel_inventory()
 			if inventory then return inventory.insert{ name = item, count = amount } else return 0 end
 		elseif entity.prototype.logistic_mode == "requester" then
 			local requested = item_lib.getRemainingRequest(item, entity)
 			if requested > 0 then return entity.insert{ name = item, count = math.min(amount, requested) } else return 0 end
-		elseif game.item_prototypes[item].type == "module" and entity.get_module_inventory() then -- module slot fix
+		elseif prototype.type == "module" and entity.get_module_inventory() then
 			local inventory = item_lib.getInputInventory(entity)  
 			if inventory then return inventory.insert{ name = item, count = amount } else return 0 end
+		elseif entity.type == "car" then
+			if prototype.type == "ammo" then
+				local inventory = entity.get_inventory(defines.inventory.car_ammo)
+				if inventory then return inventory.insert{ name = item, count = amount } else return 0 end
+			elseif prototype.fuel_category then
+				local inventory = entity.get_fuel_inventory()
+				if inventory then return inventory.insert{ name = item, count = amount } else return 0 end
+			end
 		end
 	end
 	

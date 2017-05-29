@@ -39,13 +39,15 @@ function cleanup.filterEntities(entities, item)
 		if entity.can_insert{ name = item } then
 			if entity.burner and entity.burner.fuel_category == prototype.fuel_category and entity.get_fuel_inventory().can_insert{ name = item } then
 				result[entity] = entity
-			elseif util.isCraftingMachine(entity) and (item_lib.isIngredient(item, entity.recipe) or item_lib.isInputItem(item, entity)) then
+			elseif util.isCraftingMachine(entity) and (item_lib.isIngredient(item, entity.recipe) or item_lib.isFurnaceIngredient(item, entity)) then
 				result[entity] = entity
 			elseif entity.prototype.logistic_mode == "requester" and item_lib.getRemainingRequest(item, entity) > 0 then
 				result[entity] = entity
 			elseif entity.type == "lab" and prototype.subgroup.name == "science-pack" then
 				result[entity] = entity
 			elseif entity.type == "ammo-turret" and item_lib.isTurretAmmo(prototype, entity) then
+				result[entity] = entity
+			elseif entity.type == "car" and prototype.type == "ammo" then
 				result[entity] = entity
 			end
 		end

@@ -95,7 +95,7 @@ function distribute.on_selected_entity_changed(event)
 		cache.cursorStackCount = cursor_stack.count
 		
 		if util.isCraftingMachine(selected) then
-			cache.craftingProgress = selected.crafting_progress
+			cache.isCrafting = selected.is_crafting()
 			cache.inputContents = item_lib.getInputContents(selected)
 		end
 		
@@ -164,7 +164,7 @@ function distribute.undoConsumption(entity, player, cache) -- some entities cons
 	local item = cache.item
 	local burner = entity.burner
 	
-	if util.isCraftingMachine(entity) and entity.crafting_progress > cache.craftingProgress and item_lib.isIngredient(item, entity.recipe)then
+	if util.isCraftingMachine(entity) and not cache.isCrafting and entity.is_crafting() and item_lib.isIngredient(item, entity.recipe)then
 		local returnCount = item_lib.getRecipeIngredientCount(entity.recipe, item)
 		local inputContents = item_lib.getInputContents(entity)
 		

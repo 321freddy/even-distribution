@@ -99,6 +99,7 @@ function setup.on_init()
 	global.distrEvents = global.distrEvents or {}
 	global.settings = {}
 	global.defaultTrash = setup.generateTrashItemList()
+	global.furnaceRecipes = setup.parseFurnaceRecipes()
 	
 	for player_index,_ in pairs(game.players) do
 		setup.createPlayerCache(player_index)
@@ -180,6 +181,24 @@ function setup.generateTrashItemList()
 	end
 	
 	return items
+end
+
+function setup.parseFurnaceRecipes()
+	local list = {}
+	for name,recipe in pairs(game.recipe_prototypes) do
+		local category = recipe.category
+		list[category] = list[category] or {}
+		
+		local ingredients, products = recipe.ingredients, recipe.products
+		if #ingredients == 1 and #products == 1 then
+			local ingredient, product = ingredients[1], products[1]
+			if ingredient.type == "item" and product.type == "item" then
+				list[category][product.name] = list[category][product.name] or {}
+				list[category][product.name][ingredient.name] = true
+			end
+		end
+	end
+	return list
 end
 
 return setup
