@@ -47,6 +47,8 @@ function cleanup.filterEntities(entities, item)
 				result[entity] = entity
 			elseif entity.type == "ammo-turret" and item_lib.isTurretAmmo(prototype, entity) then
 				result[entity] = entity
+			elseif entity.type == "roboport" then
+				result[entity] = entity
 			elseif entity.type == "car" and prototype.type == "ammo" then
 				result[entity] = entity
 			end
