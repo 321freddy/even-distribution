@@ -7,5 +7,5 @@
   "contact": "https://forums.factorio.com/viewtopic.php?f=92&t=46278",
   "homepage": "",
   "description": "Modifies vanilla behaviour for CTRL + Click Drag to evenly distribute the items over multiple buildings.",
-  "dependencies": ["base >= 0.15.0"]
+  "dependencies": ["base >= 0.15.17"]
 }
