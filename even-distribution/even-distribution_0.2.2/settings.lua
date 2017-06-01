@@ -26,7 +26,7 @@ data:extend{
 		name = "inventory-cleanup-custom-trash",
 		order = "bb",
 		setting_type = "runtime-per-user",
-		default_value = "iron-plate:600 copper-plate:600",
+		default_value = "iron-plate:600 copper-plate:600 steel-plate:600 stone-brick:400",
 		allow_blank = true
 	},
 	{

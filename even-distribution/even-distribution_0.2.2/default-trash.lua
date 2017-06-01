@@ -1,6 +1,7 @@
 return {
 	-- VANILLA GROUPS
 	["intermediate-products"] = 0,
+	["terrain"] = 600,
 	
 	--VANILLA ITEMS
 	["iron-plate"] = "ignore",
