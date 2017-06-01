@@ -20,8 +20,9 @@ function cleanup.on_inventory_cleanup(event)
 		if #entities == 0 then return end
 		
 		local offY, marked = 0, setup.newEAITable()
+		local dropToChests = player.mod_settings["drop-trash-to-chests"].value
 		for item,count in pairs(items) do
-			local filtered = cleanup.filterEntities(entities, item)
+			local filtered = cleanup.filterEntities(entities, item, dropToChests)
 			
 			if #filtered > 0 then
 				distribute.distributeItem(player, filtered, item, false, count, true, offY, marked)
@@ -31,7 +32,7 @@ function cleanup.on_inventory_cleanup(event)
 	end
 end
 
-function cleanup.filterEntities(entities, item)
+function cleanup.filterEntities(entities, item, dropToChests)
 	local result = setup.newEAITable()
 	local prototype = game.item_prototypes[item]
 	
@@ -42,6 +43,8 @@ function cleanup.filterEntities(entities, item)
 			elseif util.isCraftingMachine(entity) and item_lib.isIngredient(item, entity.recipe or (entity.type == "furnace" and entity.previous_recipe)) then
 				result[entity] = entity
 			elseif entity.prototype.logistic_mode == "requester" and item_lib.getRemainingRequest(item, entity) > 0 then
+				result[entity] = entity
+			elseif dropToChests and (entity.type == "container" or entity.type == "logistic-container") and entity.get_item_count(item) > 0 then
 				result[entity] = entity
 			elseif entity.type == "lab" and prototype.subgroup.name == "science-pack" then
 				result[entity] = entity

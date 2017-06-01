@@ -26,7 +26,7 @@ data:extend{
 		name = "inventory-cleanup-custom-trash",
 		order = "bb",
 		setting_type = "runtime-per-user",
-		default_value = "iron-plate:600 copper-plate:600 steel-plate:600 stone-brick:400",
+		default_value = "iron-plate:800 copper-plate:600 steel-plate:600 stone-brick:400",
 		allow_blank = true
 	},
 	{
@@ -42,6 +42,13 @@ data:extend{
 		type = "bool-setting",
 		name = "cleanup-logistic-request-overflow",
 		order = "bc",
+		setting_type = "runtime-per-user",
+		default_value = true
+	},
+	{
+		type = "bool-setting",
+		name = "drop-trash-to-chests",
+		order = "bd",
 		setting_type = "runtime-per-user",
 		default_value = true
 	},
