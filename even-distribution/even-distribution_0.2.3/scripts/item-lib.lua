@@ -4,9 +4,12 @@ local item_lib = {}
 local util = scripts.util
 
 function item_lib.getPlayerItemCount(player, item, includeCar)
+	local main = util.getPlayerMainInventory(player)
+	local quickbar = util.getPlayerQuickbar(player)
 	local cursor_stack = player.cursor_stack
-	local count = player.get_inventory(defines.inventory.player_main).get_item_count(item) +
-				  player.get_inventory(defines.inventory.player_quickbar).get_item_count(item)
+	if not main or not quickbar then return 0 end
+	
+	local count = main.get_item_count(item) + quickbar.get_item_count(item)
 	
 	if cursor_stack.valid_for_read and cursor_stack.name == item then
 		count = count + cursor_stack.count
@@ -21,9 +24,12 @@ function item_lib.getPlayerItemCount(player, item, includeCar)
 end
 
 function item_lib.getPlayerContents(player)
-	local contents = player.get_inventory(defines.inventory.player_main).get_contents()
+	local main = util.getPlayerMainInventory(player)
+	local quickbar = util.getPlayerQuickbar(player)
+	if not main or not quickbar then return {} end
+	local contents = main.get_contents()
 	
-	for item,count in pairs(player.get_quickbar().get_contents()) do
+	for item,count in pairs(quickbar.get_contents()) do
 		contents[item] = (contents[item] or 0) + count
 	end
 	
@@ -39,6 +45,8 @@ end
 function item_lib.getPlayerRequests(player)
 	local requests = {}
 	local character = player.character
+	
+	if not util.isValid(player.character) then return {} end
 	
 	if character.request_slot_count > 0 then -- fetch requests
 		for i = 1, character.request_slot_count do

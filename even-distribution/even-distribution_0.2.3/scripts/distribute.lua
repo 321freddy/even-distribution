@@ -86,6 +86,8 @@ end
 function distribute.on_selected_entity_changed(event)
 	local index = event.player_index
 	local player = game.players[index]
+	if not util.isValidPlayer(player) then return end
+	
 	local cursor_stack = player.cursor_stack
 	local selected = player.selected
 

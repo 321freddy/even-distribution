@@ -34,6 +34,22 @@ function util.isCraftingMachine(entity)
 	return entity.type == "furnace" or entity.type == "assembling-machine" or entity.type == "rocket-silo"
 end
 
+function util.getPlayerMainInventory(player)
+	if player.controller_type == defines.controllers.character then
+		return player.get_inventory(defines.inventory.player_main)
+	elseif player.controller_type == defines.controllers.god then
+		return player.get_inventory(defines.inventory.god_main)
+	end
+end
+
+function util.getPlayerQuickbar(player)
+	if player.controller_type == defines.controllers.character then
+		return player.get_inventory(defines.inventory.player_quickbar)
+	elseif player.controller_type == defines.controllers.god then
+		return player.get_inventory(defines.inventory.god_quickbar)
+	end
+end
+
 function util.shallowCopy(original) -- Creates a shallow copy of a table
     copy = {}
     for key,value in pairs(original) do copy[key] = value  end

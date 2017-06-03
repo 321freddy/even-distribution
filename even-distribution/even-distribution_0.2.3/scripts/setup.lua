@@ -139,10 +139,23 @@ function setup.parseCustomTrashSetting(index)
 	local result = {}
 	
 	for item,count in string.gmatch(setting, "%s*([^ :]+):(%d+)%s*") do
-		result[item] = count
+		count = tonumber(count)
+		if game.item_prototypes[item] and type(count) == "number" and count >= 0 then
+			result[item] = count
+		else
+			setup.logCustomTrashSettingsError(index, tostring(item)..":"..tostring(count))
+		end
 	end
 	
 	return result
+end
+
+function setup.logCustomTrashSettingsError(playerIndex, setting)
+	local player, playerName = game.players[playerIndex]
+	if util.isValid(player) then playerName = player.name else playerName = "<UNKNOWN>" end
+	
+	log("Even Distribution: Invalid custom trash setting '"..setting.."' for user "..playerName..". Value has been ignored.")
+	if util.isValid(player) then player.print("Even Distribution: Invalid custom trash setting '"..setting.."'. Value has been ignored.") end
 end
 
 function setup.on_load()

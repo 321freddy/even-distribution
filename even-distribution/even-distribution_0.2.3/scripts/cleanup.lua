@@ -73,18 +73,18 @@ end
 
 function cleanup.getTrashItems(player)
 	local playerContents = item_lib.getPlayerContents(player)
-	local trash = player.get_inventory(defines.inventory.player_trash).get_contents()
-	
-	local autoTrash = player.auto_trash_filters
-	local requests
 	local customTrash = global.settings[player.index].customTrash
 	local defaultTrash = global.defaultTrash
 	
-	if player.mod_settings["cleanup-logistic-request-overflow"].value then
-		requests = item_lib.getPlayerRequests(player)
-	else
-		requests = {}
-	end
+	local trashslots = player.get_inventory(defines.inventory.player_trash)
+	local trash
+	if util.isValid(trashslots) then trash = trashslots.get_contents() else trash = {} end
+	
+	local autoTrash
+	if util.isValid(player.character) then autoTrash = player.auto_trash_filters else autoTrash = {} end
+	
+	local requests
+	if player.mod_settings["cleanup-logistic-request-overflow"].value then requests = item_lib.getPlayerRequests(player) else requests = {} end
 	
 	for item,count in pairs(playerContents) do
 		local targetAmount = autoTrash[item] or requests[item] or customTrash[item] or defaultTrash[item]
