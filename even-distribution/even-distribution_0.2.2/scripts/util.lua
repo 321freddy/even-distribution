@@ -27,7 +27,7 @@ function util.destroyIfValid(object)
 end
 
 function util.isValidPlayer(player) -- valid, connected and alive player
-	return util.isValid(player) and util.isValid(player.character) and player.connected
+	return util.isValid(player) and player.connected and player.controller_type ~= defines.controllers.ghost
 end
 
 function util.isCraftingMachine(entity)

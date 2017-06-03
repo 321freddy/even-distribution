@@ -9,6 +9,8 @@ local colors = { -- flying text colors
 	default = { r = 1, g = 1, b = 1 }, -- white
 }
 
+local ignoredEntities = { player = true, ["character-corpse"] = true }
+
 function distribute.on_tick(event) -- handles distribution events
 	local distrEvents = global.distrEvents
 	
@@ -122,7 +124,7 @@ function distribute.on_player_cursor_stack_changed(event)
 end
 
 function distribute.stackTransferred(entity, player, cache) -- handle vanilla stack transfer
-	if entity.type ~= "player" then
+	if not ignoredEntities[entity.type] then
 		local distrEvents = global.distrEvents -- register new distribution event
 		if cache.applyTick and distrEvents[cache.applyTick] then distrEvents[cache.applyTick][player.index] = nil end
 		
