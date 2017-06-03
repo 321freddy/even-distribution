@@ -1,4 +1,4 @@
-local DEBUG = true
+local DEBUG = false
 
 scripts = {} -- custom scripts
 local funcs = {} -- Functions bound to their respective game event
