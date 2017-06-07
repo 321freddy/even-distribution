@@ -179,7 +179,7 @@ function setup.generateTrashItemList()
 	local items = {}
 	
 	for name,item in pairs(game.item_prototypes) do
-		if not (item.place_result or item.place_as_equipment_result or item.flags.hidden) then -- or item.place_as_tile_result
+		if not (item.place_result or item.place_as_equipment_result or item.has_flag("hidden")) then -- or item.place_as_tile_result
 			local default = defaultTrash[name] or defaultTrash[item.subgroup.name] or defaultTrash[item.group.name]
 			
 			if default and default ~= "ignore" then
