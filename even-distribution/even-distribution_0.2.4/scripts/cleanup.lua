@@ -64,7 +64,7 @@ end
 function cleanup.getEntities(area, player)
 	local entities = {}
 	for _,entity in ipairs(player.surface.find_entities_filtered{ area = area, force = player.force }) do
-		if util.isValid(entity) and entity.type ~= "player" then
+		if util.isValid(entity) and entity.operable and not distribute.isIgnoredEntity(entity, player) then
 			entities[#entities + 1] = entity
 		end
 	end
