@@ -12,7 +12,7 @@ local colors = { -- flying text colors
 local ignoredEntities = { ["player"] = true, ["character-corpse"] = true, ["factory-overlay-controller"] = true }
 
 function distribute.isIgnoredEntity(entity, player)
-	return ignoredEntities[entity.type] or ignoredEntities[entity.name]
+	return ignoredEntities[entity.type] or ignoredEntities[entity.name] or global.settings[player.index].ignoredEntities[entity.name]
 end
 
 function distribute.on_tick(event) -- handles distribution events
@@ -153,7 +153,7 @@ function distribute.stackTransferred(entity, player, cache) -- handle vanilla st
 	local giveToPlayer = entity.remove_item{ name = cache.item, count = cache.itemCount }
 	local cursor_stack = player.cursor_stack
 	
-	if not player.mod_settings["immediately-start-crafting"].value then
+	if not player.mod_settings["immediately-start-crafting"].value or distribute.isIgnoredEntity(entity, player) then
 		giveToPlayer = giveToPlayer + distribute.undoConsumption(entity, player, cache)
 	end
 	

@@ -114,9 +114,8 @@ function setup.on_player_created(event)
 end
 
 function setup.on_runtime_mod_setting_changed(event)
-	if event.setting == "inventory-cleanup-custom-trash" then
-		setup.parsePlayerSettings(event.player_index)
-	end
+	local setting = setup.parsedSettings[event.setting]
+	if setting then setting.parse(event.player_index) end
 end
 
 function setup.createPlayerCache(index)
@@ -129,34 +128,57 @@ function setup.createPlayerCache(index)
 end
 
 function setup.parsePlayerSettings(index)
-	global.settings[index] = {
-		customTrash = setup.parseCustomTrashSetting(index)
+	global.settings[index] = {}
+	for _,setting in pairs(setup.parsedSettings) do setting.parse(index) end
+end
+
+local function logSettingParseError(playerIndex, setting, value)
+	local player, playerName = game.players[playerIndex], "<UNKNOWN>"
+	local msg = {"message.setting-parse-error", {"mod-setting-name."..setting}, value, ""}
+	
+	if util.isValid(player) then
+		player.print(msg)
+		playerName = player.name
+	end
+	
+	msg[4] = {"message.for-user", playerName}
+	log(msg)
+end
+
+local function parsedListSetting(settingName, settingInternal, regex, toString, isValid)
+	return {
+		parse = function (index)
+			local setting = game.players[index].mod_settings[settingName].value
+			local parsed = {}
+			
+			for name,value in string.gmatch(setting, regex) do
+				name = string.lower(name)
+				value = value and tonumber(value)
+				
+				if isValid(name, value) then
+					parsed[name] = value or true
+				else
+					logSettingParseError(index, settingName, toString(name, value))
+				end
+			end
+			
+			global.settings[index][settingInternal] = parsed
+		end
 	}
 end
 
-function setup.parseCustomTrashSetting(index)
-	local setting = game.players[index].mod_settings["inventory-cleanup-custom-trash"].value
-	local result = {}
-	
-	for item,count in string.gmatch(setting, "%s*([^ :]+):(%d+)%s*") do
-		count = tonumber(count)
-		if game.item_prototypes[item] and type(count) == "number" and count >= 0 then
-			result[item] = count
-		else
-			setup.logCustomTrashSettingsError(index, tostring(item)..":"..tostring(count))
-		end
-	end
-	
-	return result
-end
-
-function setup.logCustomTrashSettingsError(playerIndex, setting)
-	local player, playerName = game.players[playerIndex]
-	if util.isValid(player) then playerName = player.name else playerName = "<UNKNOWN>" end
-	
-	log("Even Distribution: Invalid custom trash setting '"..setting.."' for user "..playerName..". Value has been ignored.")
-	if util.isValid(player) then player.print("Even Distribution: Invalid custom trash setting '"..setting.."'. Value has been ignored.") end
-end
+setup.parsedSettings = {
+	["inventory-cleanup-custom-trash"] = parsedListSetting(
+		"inventory-cleanup-custom-trash", "customTrash", "%s*([^ :]+):(%d+)%s*",
+		function (name, value) return tostring(name)..":"..tostring(value) end, -- toString
+		function (name, value) return game.item_prototypes[name] and type(value) == "number" and value >= 0 end -- isValid
+	),
+	["ignored-entities"] = parsedListSetting(
+		"ignored-entities", "ignoredEntities", "%s*([^ ]+)%s*",
+		function (name) return tostring(name) end, -- toString
+		function (name) return game.entity_prototypes[name] end -- isValid
+	),
+}
 
 function setup.on_load()
 	for _,cache in pairs(global.cache) do

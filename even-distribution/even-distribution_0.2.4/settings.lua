@@ -22,14 +22,6 @@ data:extend{
 		default_value = true,
 	},
 	{
-		type = "string-setting",
-		name = "inventory-cleanup-custom-trash",
-		order = "bb",
-		setting_type = "runtime-per-user",
-		default_value = "iron-plate:800 copper-plate:600 steel-plate:600 stone-brick:400",
-		allow_blank = true
-	},
-	{
 		type = "int-setting",
 		name = "max-inventory-cleanup-drop-range",
 		order = "ba",
@@ -37,6 +29,14 @@ data:extend{
 		default_value = 30,
 		minimum_value = 0,
 		maximum_value = 100
+	},
+	{
+		type = "string-setting",
+		name = "inventory-cleanup-custom-trash",
+		order = "bb",
+		setting_type = "runtime-per-user",
+		default_value = "iron-plate:800 copper-plate:600 steel-plate:600 stone-brick:400",
+		allow_blank = true
 	},
 	{
 		type = "bool-setting",
@@ -51,6 +51,14 @@ data:extend{
 		order = "bd",
 		setting_type = "runtime-per-user",
 		default_value = true
+	},
+	{
+		type = "string-setting",
+		name = "ignored-entities",
+		order = "c",
+		setting_type = "runtime-per-user",
+		default_value = "",
+		allow_blank = true
 	},
 	{
 		type = "bool-setting",
