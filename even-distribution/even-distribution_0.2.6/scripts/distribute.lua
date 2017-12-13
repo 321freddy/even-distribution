@@ -172,8 +172,8 @@ function distribute.undoConsumption(entity, player, cache) -- some entities cons
 	local item = cache.item
 	local burner = entity.burner
 	
-	if util.isCraftingMachine(entity) and not cache.isCrafting and entity.is_crafting() and item_lib.isIngredient(item, entity.recipe)then
-		local returnCount = item_lib.getRecipeIngredientCount(entity.recipe, item)
+	if util.isCraftingMachine(entity) and not cache.isCrafting and entity.is_crafting() and item_lib.isIngredient(item, entity.get_recipe())then
+		local returnCount = item_lib.getRecipeIngredientCount(entity.get_recipe(), item)
 		local inputContents = item_lib.getInputContents(entity)
 		
 		for name,count in pairs(cache.inputContents) do
@@ -193,12 +193,19 @@ function distribute.undoConsumption(entity, player, cache) -- some entities cons
 end
 
 function distribute.markEntity(entity, name, x, y) -- create distribution marker
+	name = name or "distribution-marker"
 	local pos = entity.position
-	
-	return entity.surface.create_entity{
-		name = name or "distribution-marker",
-		position = { pos.x + (x or 0), pos.y + (y or 1) }
+	local params = {
+		name = name,
+		position = { pos.x + (x or 0), pos.y + (y or 0) },
+		force = entity.force,
 	}
+	
+	if name == "distribution-marker" then
+		return entity.surface.create_entity(params)
+	else
+		entity.surface.create_trivial_smoke(params)
+	end
 end
 
 function distribute.destroyTransferText(entity) -- remove flying text from stack transfer
@@ -272,7 +279,7 @@ end
 
 distribute.on_player_left_game = distribute.on_player_died
 
-
+--[[
 -- picker extended dollies fix
 function distribute.on_picker_dollies_moved(event)
 	local entity = event.moved_entity
@@ -292,5 +299,6 @@ if remote.interfaces["picker"] and remote.interfaces["picker"]["dolly_moved_enti
 		script.on_event(remote.call("picker", "dolly_moved_entity_id"), distribute.on_picker_dollies_moved)
 	end
 end
+]]--
 
 return distribute

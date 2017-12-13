@@ -65,8 +65,8 @@ function item_lib.getBuildingItemCount(entity, item) -- counts the items and als
 	local count = entity.get_item_count(item)
 	
 	if util.isCraftingMachine(entity) then
-		if entity.recipe then
-			local ingredients = item_lib.getRecipeIngredientCount(entity.recipe, item)
+		if entity.get_recipe() then
+			local ingredients = item_lib.getRecipeIngredientCount(entity.get_recipe(), item)
 			if entity.is_crafting() then count = count + ingredients end
 			count = count + entity.products_finished * ingredients
 			if entity.type == "rocket-silo" then
@@ -197,7 +197,7 @@ end
 function item_lib.entityInsert(entity, item, amount, safemode)
 	if safemode then
 		local prototype = game.item_prototypes[item]
-		if entity.type == "furnace" and not (entity.recipe or entity.previous_recipe) then
+		if entity.type == "furnace" and not (entity.get_recipe() or entity.previous_recipe) then
 			local inventory = entity.get_fuel_inventory()
 			if inventory then return inventory.insert{ name = item, count = amount } else return 0 end
 		elseif entity.prototype.logistic_mode == "requester" then
