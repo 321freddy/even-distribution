@@ -38,7 +38,7 @@ function cleanup.filterEntities(entities, item, dropToChests)
 	
 	for _,entity in ipairs(entities) do
 		if entity.can_insert{ name = item } then
-			if entity.burner and entity.burner.fuel_category == prototype.fuel_category and entity.get_fuel_inventory().can_insert{ name = item } then
+			if entity.burner and entity.burner.fuel_categories[prototype.fuel_category] and entity.get_fuel_inventory().can_insert{ name = item } then
 				result[entity] = entity
 			elseif util.isCraftingMachine(entity) and item_lib.isIngredient(item, entity.get_recipe() or (entity.type == "furnace" and entity.previous_recipe)) then
 				result[entity] = entity
