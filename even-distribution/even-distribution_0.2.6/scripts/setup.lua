@@ -111,6 +111,9 @@ setup.on_configuration_changed = setup.on_init
 function setup.on_player_created(event)
 	setup.createPlayerCache(event.player_index)
 	setup.parsePlayerSettings(event.player_index)
+	
+	local player = game.players[event.player_index]
+	player.print({"message.usage"}, {r=1, g=0.85, b=0})
 end
 
 function setup.on_runtime_mod_setting_changed(event)
