@@ -263,6 +263,13 @@ end
 distribute.on_robot_pre_mined = distribute.on_pre_player_mined_item
 distribute.on_entity_died = distribute.on_pre_player_mined_item
 
+function distribute.script_raised_destroy(event)
+	event = event or {}
+	event.entity = event.entity or event.destroyed_entity or event.destroyedEntity or event.target or nil
+	
+	if (util.isValid(event.entity)) then distribute.on_pre_player_mined_item(event) end
+end
+
 function distribute.on_player_died(event) -- resets distribution cache and events for that player
 	local cache = global.cache[event.player_index]
 	
