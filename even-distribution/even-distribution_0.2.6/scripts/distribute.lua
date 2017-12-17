@@ -248,7 +248,7 @@ function distribute.resetCache(cache)
 	distribute.unmarkEntities(cache)
 end
 
-function distribute.on_preplayer_mined_item(event) -- remove mined/dead entities from cache
+function distribute.on_pre_player_mined_item(event) -- remove mined/dead entities from cache
 	local entity = event.entity
 	
 	for _,cache in pairs(global.cache) do
@@ -260,8 +260,8 @@ function distribute.on_preplayer_mined_item(event) -- remove mined/dead entities
 	end
 end
 
-distribute.on_robot_pre_mined = distribute.on_preplayer_mined_item
-distribute.on_entity_died = distribute.on_preplayer_mined_item
+distribute.on_robot_pre_mined = distribute.on_pre_player_mined_item
+distribute.on_entity_died = distribute.on_pre_player_mined_item
 
 function distribute.on_player_died(event) -- resets distribution cache and events for that player
 	local cache = global.cache[event.player_index]
