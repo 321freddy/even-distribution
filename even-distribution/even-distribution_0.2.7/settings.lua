@@ -1,5 +1,12 @@
 data:extend{
 	{
+		type = "bool-setting",
+		name = "enable-ed",
+		setting_type = "runtime-per-user",
+		order = "a",
+		default_value = true
+	},
+	{
 		type = "double-setting",
 		name = "distribution-delay",
 		setting_type = "runtime-per-user",
