@@ -1,0 +1,10 @@
+\.build\
+exclude.txt
+build.bat
+_zipIt.vbs
+*.zip
+.zip
+\.git\
+\.github\
+.gitignore
+isdebug.lua
