@@ -202,7 +202,9 @@ function distribute.markEntity(entity, name, x, y) -- create distribution marker
 	}
 	
 	if name == "distribution-marker" then
-		return entity.surface.create_entity(params)
+		marker = entity.surface.create_entity(params)
+		marker.destructible = false
+		return marker
 	else
 		entity.surface.create_trivial_smoke(params)
 	end
