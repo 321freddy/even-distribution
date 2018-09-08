@@ -195,7 +195,8 @@ function item_lib.removePlayerItems(player, item, amount, takeFromCar, takeFromT
 end
 
 function item_lib.entityInsert(entity, item, amount, safemode)
-	if safemode then
+
+	if safemode then -- Safemode is only used by inventory cleanup hotkey
 		local prototype = game.item_prototypes[item]
 		if entity.type == "furnace" and not (entity.get_recipe() or entity.previous_recipe) then
 			local inventory = entity.get_fuel_inventory()
@@ -205,7 +206,7 @@ function item_lib.entityInsert(entity, item, amount, safemode)
 			if requested > 0 then return entity.insert{ name = item, count = math.min(amount, requested) } else return 0 end
 		elseif prototype.type == "module" and entity.get_module_inventory() then
 			local inventory = item_lib.getInputInventory(entity)  
-			if inventory then return inventory.insert{ name = item, count = amount } else return 0 end
+			if inventory then return inventory.insert{ name = item, count = amount } else return 0 end -- Only insert modules in craftng machine input inventory
 		elseif entity.type == "car" then
 			if prototype.type == "ammo" then
 				local inventory = entity.get_inventory(defines.inventory.car_ammo)
@@ -217,7 +218,7 @@ function item_lib.entityInsert(entity, item, amount, safemode)
 		end
 	end
 	
-	return entity.insert{ name = item, count = amount }
+	return entity.insert{ name = item, count = amount } -- Default distribution
 end
 
 function item_lib.returnToPlayer(player, item, amount, takenFromCar, takenFromTrash)

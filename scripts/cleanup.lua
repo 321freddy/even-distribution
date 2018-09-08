@@ -37,8 +37,8 @@ function cleanup.filterEntities(entities, item, dropToChests)
 	local prototype = game.item_prototypes[item]
 	
 	for _,entity in ipairs(entities) do
-		if entity.can_insert{ name = item } then
-			if entity.burner and entity.burner.fuel_categories[prototype.fuel_category] and entity.get_fuel_inventory().can_insert{ name = item } then
+		if entity.can_insert(item) then
+			if entity.burner and entity.burner.fuel_categories[prototype.fuel_category] and entity.get_fuel_inventory().can_insert(item) then
 				result[entity] = entity
 			elseif util.isCraftingMachine(entity) and item_lib.isIngredient(item, entity.get_recipe() or (entity.type == "furnace" and entity.previous_recipe)) then
 				result[entity] = entity
@@ -46,7 +46,7 @@ function cleanup.filterEntities(entities, item, dropToChests)
 				result[entity] = entity
 			elseif dropToChests and (entity.type == "container" or entity.type == "logistic-container") and entity.get_item_count(item) > 0 then
 				result[entity] = entity
-			elseif entity.type == "lab" and prototype.subgroup.name == "science-pack" then
+			elseif entity.type == "lab" and entity.get_inventory(defines.inventory.lab_input).can_insert(item) then
 				result[entity] = entity
 			elseif entity.type == "ammo-turret" and item_lib.isTurretAmmo(prototype, entity) then
 				result[entity] = entity

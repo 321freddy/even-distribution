@@ -4,7 +4,7 @@ if settings.startup["early-autotrash-research"].value then
 	local tech = data.raw.technology["character-logistic-trash-slots-1"]
 	tech.prerequisites = { "logistics" }
 	tech.unit = {
-		count = 30,
+		count = mods["SeaBlock"] and 15 or 30,
 		ingredients = { {"science-pack-1", 1} },
 		time = 15
     }
@@ -12,7 +12,7 @@ if settings.startup["early-autotrash-research"].value then
 	tech = data.raw.technology["auto-character-logistic-trash-slots"]
 	tech.prerequisites = { "character-logistic-trash-slots-1" }
 	tech.unit = {
-		count = 50,
+		count = mods["SeaBlock"] and 25 or 50,
 		ingredients = { {"science-pack-1", 1} },
 		time = 15
     }
