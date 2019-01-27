@@ -8,3 +8,4 @@ _zipIt.vbs
 \.github\
 .gitignore
 isdebug.lua
+.pdn
