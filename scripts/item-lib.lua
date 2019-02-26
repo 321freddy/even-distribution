@@ -5,11 +5,10 @@ local util = scripts.util
 
 function item_lib.getPlayerItemCount(player, item, includeCar)
 	local main = util.getPlayerMainInventory(player)
-	local quickbar = util.getPlayerQuickbar(player)
+	if not main then return 0 end
+
 	local cursor_stack = player.cursor_stack
-	if not main or not quickbar then return 0 end
-	
-	local count = main.get_item_count(item) + quickbar.get_item_count(item)
+	local count = main.get_item_count(item)
 	
 	if cursor_stack.valid_for_read and cursor_stack.name == item then
 		count = count + cursor_stack.count
@@ -25,15 +24,11 @@ end
 
 function item_lib.getPlayerContents(player)
 	local main = util.getPlayerMainInventory(player)
-	local quickbar = util.getPlayerQuickbar(player)
-	if not main or not quickbar then return {} end
-	local contents = main.get_contents()
-	
-	for item,count in pairs(quickbar.get_contents()) do
-		contents[item] = (contents[item] or 0) + count
-	end
-	
+	if not main then return {} end
+
 	local cursor_stack = player.cursor_stack
+	local contents = main.get_contents()
+
 	if cursor_stack.valid_for_read then
 		local item = cursor_stack.name
 		contents[item] = (contents[item] or 0) + cursor_stack.count
@@ -173,9 +168,6 @@ function item_lib.removePlayerItems(player, item, amount, takeFromCar, takeFromT
 	end	
 	
 	removed = removed + player.get_inventory(defines.inventory.player_main).remove{ name = item, count = amount - removed }
-	if amount <= removed then return removed end
-	
-	removed = removed + player.get_inventory(defines.inventory.player_quickbar).remove{ name = item, count = amount - removed }
 	if amount <= removed then return removed end
 	
 	local cursor_stack = player.cursor_stack
