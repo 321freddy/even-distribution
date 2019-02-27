@@ -166,10 +166,13 @@ function item_lib.removePlayerItems(player, item, amount, takeFromCar, takeFromT
 			if amount <= removed then return removed end
 		end
 	end	
-	
-	removed = removed + player.get_inventory(defines.inventory.player_main).remove{ name = item, count = amount - removed }
-	if amount <= removed then return removed end
-	
+
+	local main = util.getPlayerMainInventory(player)
+	if util.isValid(main) then
+		removed = removed + main.remove{ name = item, count = amount - removed }
+		if amount <= removed then return removed end
+	end
+
 	local cursor_stack = player.cursor_stack
 	if cursor_stack.valid_for_read and cursor_stack.name == item then
 		local result = math.min(cursor_stack.count, amount - removed)

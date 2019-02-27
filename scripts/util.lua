@@ -35,11 +35,11 @@ function util.isCraftingMachine(entity)
 end
 
 function util.getPlayerMainInventory(player)
-	if player.controller_type == defines.controllers.character then
-		return player.get_inventory(defines.inventory.player_main)
-	elseif player.controller_type == defines.controllers.god then
+	if player.controller_type == defines.controllers.god then
 		return player.get_inventory(defines.inventory.god_main)
 	end
+
+	return player.get_inventory(defines.inventory.player_main)
 end
 
 function util.shallowCopy(original) -- Creates a shallow copy of a table
