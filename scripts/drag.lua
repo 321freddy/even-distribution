@@ -1,93 +1,62 @@
-local distribute = {}
+local this = {}
 local util = scripts.util
 local setup = scripts.setup
 local item_lib = scripts["item-lib"]
+local config = require("config")
 
-local colors = { -- flying text colors
-	insufficientItems = { r = 1, g = 0, b = 0 }, -- red
-	targetFull = { r = 1, g = 1, b = 0 }, -- yellow
-	default = { r = 1, g = 1, b = 1 }, -- white
-}
-
-local ignoredEntities = { ["player"] = true, ["character-corpse"] = true, ["factory-overlay-controller"] = true }
-
-function distribute.isIgnoredEntity(entity, player)
-	return ignoredEntities[entity.type] or ignoredEntities[entity.name] or global.settings[player.index].ignoredEntities[entity.name]
-end
-
-function distribute.on_tick(event) -- handles distribution events
+function this.on_tick(event) -- handles distribution events
 	local distrEvents = global.distrEvents
 	
 	if distrEvents[event.tick] then
 		for player_index, cache in pairs(distrEvents[event.tick]) do
-			distribute.distributeItems(player_index, cache) -- distribute items
-			cache.half = false -- reset half flag after distribution
+			this.distributeItems(player_index, cache) -- distribute items
 		end
 		distrEvents[event.tick] = nil
 	end
 end
 
-function distribute.distributeItems(player_index, cache)
+function this.distributeItems(player_index, cache)
 	local player = game.players[player_index]
 	
 	if util.isValidPlayer(player) then
 		local takeFromCar = player.mod_settings["take-from-car"].value
-		local totalItems = item_lib.getPlayerItemCount(player, cache.item, takeFromCar)
+		local item = cache.item
+		local totalItems = item_lib.getPlayerItemCount(player, item, takeFromCar)
 		if cache.half then totalItems = math.ceil(totalItems / 2) end
-		
-		distribute.distributeItem(player, cache.entities, cache.item, takeFromCar, totalItems, false)
-	end
-		
-	distribute.resetCache(cache)
-end
 
-function distribute.distributeItem(player, entities, item, takeFromCar, totalItems, cleanup, offY, marked)
-	local insertAmount = math.floor(totalItems / #entities)
-	local remainder = totalItems % #entities
-	
-	for entity in util.epairs(entities) do
-		if util.isValid(entity) then
-			local amount = insertAmount
-			if remainder > 0 then
-				amount = amount + 1
-				remainder = remainder - 1
-			end
-			
+		util.distribute(cache.entities, totalItems, function(entity, amount)
+
 			local itemsInserted = 0
 			local color
 			
 			if amount > 0 then
-				local takenFromPlayer = item_lib.removePlayerItems(player, item, amount, takeFromCar, cleanup)
+				local takenFromPlayer = item_lib.removePlayerItems(player, item, amount, takeFromCar, false)
 				
-				if not cleanup and takenFromPlayer < amount then color = colors.insufficientItems end
+				if takenFromPlayer < amount then color = config.colors.insufficientItems end
 				
 				if takenFromPlayer > 0 then
-					itemsInserted = item_lib.entityInsert(entity, item, takenFromPlayer, cleanup)
+					itemsInserted = entity.insert{ name = item, count = takenFromPlayer }
 					local failedToInsert = takenFromPlayer - itemsInserted
 					
 					if failedToInsert > 0 then
-						item_lib.returnToPlayer(player, item, failedToInsert, takeFromCar, cleanup)
-						color = colors.targetFull
+						item_lib.returnToPlayer(player, item, failedToInsert, takeFromCar, false)
+						color = config.colors.targetFull
 					end
 				end
-			elseif not cleanup then
-				color = colors.insufficientItems
+			else
+				color = config.colors.insufficientItems
 			end
 			
 			-- visuals
-			if not cleanup or itemsInserted > 0 then
-				distribute.spawnDistributionText(entity, item, itemsInserted, offY, color)
-				
-				if cleanup and marked and not marked[entity] then
-					distribute.markEntity(entity, "cleanup-distribution-anim")
-					marked[entity] = true
-				end
-			end
-		end
+			this.spawnDistributionText(entity, item, itemsInserted, 0, color)
+
+		end)
 	end
+		
+	this.resetCache(cache)
 end
 
-function distribute.on_selected_entity_changed(event)
+function this.on_selected_entity_changed(event)
 	local index = event.player_index
 	local player = game.players[index]
 	if not util.isValidPlayer(player) or not player.mod_settings["enable-ed"].value then return end
@@ -111,26 +80,35 @@ function distribute.on_selected_entity_changed(event)
 	end
 end
 
-function distribute.on_player_cursor_stack_changed(event)
+function this.on_player_fast_transferred(event)
 	local index = event.player_index
 	local player = game.players[index]
 	local cache = global.cache[index]
 	local selected = player.selected
 
-	if cache.tick == event.tick and util.isValid(selected) and cache.item then
-		cache.itemCount = item_lib.getBuildingItemCount(selected, cache.item) - cache.itemCount
-		
-		if cache.itemCount > 0 then
-			-- determine if half a stack has been transferred (buggy if player only has 1 of the item in inventory but more in car!)
-			cache.half = (cache.itemCount == math.floor(cache.cursorStackCount / 2))
-			
-			distribute.stackTransferred(selected, player, cache) -- handle stack transfer
+	if cache.tick == event.tick and util.isValid(selected) and event.entity == selected then
+
+		if event.from_player then
+			if cache.item then
+				cache.itemCount = item_lib.getBuildingItemCount(selected, cache.item) - cache.itemCount
+				
+				cache.half = false
+				if cache.itemCount > 0 then
+					-- determine if half a stack has been transferred (buggy if player only has 1 of the item in inventory but more in car!)
+					cache.half = (cache.itemCount == math.floor(cache.cursorStackCount / 2))
+				end
+
+				this.stackTransferred(selected, player, cache) -- handle stack transfer
+			end
+		else
+			-- ...
 		end
+
 	end
 end
 
-function distribute.stackTransferred(entity, player, cache) -- handle vanilla stack transfer
-	if not distribute.isIgnoredEntity(entity, player) then
+function this.stackTransferred(entity, player, cache) -- handle vanilla stack transfer
+	if not util.isIgnoredEntity(entity, player) then
 		local distrEvents = global.distrEvents -- register new distribution event
 		if cache.applyTick and distrEvents[cache.applyTick] then distrEvents[cache.applyTick][player.index] = nil end
 		
@@ -142,8 +120,26 @@ function distribute.stackTransferred(entity, player, cache) -- handle vanilla st
 		distrEvents[cache.applyTick][player.index] = cache
 		
 		if not cache.entities[entity] then
-			cache.markers[entity] = distribute.markEntity(entity) -- visuals
+			--cache.markers[entity] = this.markEntity(entity) -- visuals
 			cache.entities[entity] = entity
+
+			rendering.draw_sprite{
+				sprite = "item/"..cache.item,
+				render_layer = "selection-box",
+				target = entity,
+				players = {player},
+				surface = entity.surface,
+			}
+
+			local pos = entity.position
+			cache.markers[entity] = entity.surface.create_entity{
+				name = "highlight-box",
+				position = { pos.x + (x or 0), pos.y + (y or 0) },
+				source = entity,
+				render_player_index = player.index,
+				box_type = "electricity",
+				blink_interval = 0,
+			}
 		end
 	end
 	
@@ -153,8 +149,8 @@ function distribute.stackTransferred(entity, player, cache) -- handle vanilla st
 	local giveToPlayer = entity.remove_item{ name = cache.item, count = cache.itemCount }
 	local cursor_stack = player.cursor_stack
 	
-	if not player.mod_settings["immediately-start-crafting"].value or distribute.isIgnoredEntity(entity, player) then
-		giveToPlayer = giveToPlayer + distribute.undoConsumption(entity, player, cache)
+	if not player.mod_settings["immediately-start-crafting"].value or util.isIgnoredEntity(entity, player) then
+		giveToPlayer = giveToPlayer + this.undoConsumption(entity, player, cache)
 	end
 	
 	if giveToPlayer > 0 then
@@ -165,10 +161,10 @@ function distribute.stackTransferred(entity, player, cache) -- handle vanilla st
 		end
 	end
 	
-	distribute.destroyTransferText(entity)
+	this.destroyTransferText(entity)
 end
 
-function distribute.undoConsumption(entity, player, cache) -- some entities consume items directly after vanilla stack transfer
+function this.undoConsumption(entity, player, cache) -- some entities consume items directly after vanilla stack transfer
 	local item = cache.item
 	local burner = entity.burner
 	
@@ -192,7 +188,7 @@ function distribute.undoConsumption(entity, player, cache) -- some entities cons
 	return 0
 end
 
-function distribute.markEntity(entity, name, x, y) -- create distribution marker
+function this.markEntity(entity, name, x, y) -- create distribution marker
 	name = name or "distribution-marker"
 	local pos = entity.position
 	local params = {
@@ -210,7 +206,7 @@ function distribute.markEntity(entity, name, x, y) -- create distribution marker
 	end
 end
 
-function distribute.destroyTransferText(entity) -- remove flying text from stack transfer
+function this.destroyTransferText(entity) -- remove flying text from stack transfer
 	local surface = entity.surface
 	local pos = entity.position
 	
@@ -221,10 +217,10 @@ function distribute.destroyTransferText(entity) -- remove flying text from stack
 	}[1])
 end
 
-function distribute.unmarkEntities(cache) -- destroy all distribution markers of a player (using cache)
+function this.unmarkEntities(cache) -- destroy all distribution markers of a player (using cache)
 	for marker in util.epairs(cache.markers) do
 		if util.isValid(marker) then
-			distribute.markEntity(marker, "distribution-final-anim", 0, 0)
+			this.markEntity(marker, "distribution-final-anim", 0, 0)
 			marker.destroy()
 		end
 	end
@@ -232,7 +228,7 @@ function distribute.unmarkEntities(cache) -- destroy all distribution markers of
 	cache.markers = setup.newEAITable()
 end
 
-function distribute.spawnDistributionText(entity, item, amount, offY, color) -- spawn distribution text
+function this.spawnDistributionText(entity, item, amount, offY, color) -- spawn distribution text
 	local surface = entity.surface
 	local pos = entity.position
 
@@ -240,17 +236,19 @@ function distribute.spawnDistributionText(entity, item, amount, offY, color) -- 
 		name = "distribution-text",
 		position = { pos.x - 0.5, pos.y + (offY or 0) },
 		text = {"", "       ", -amount, " ", game.item_prototypes[item].localised_name},
-		color = color or colors.default
+		color = color or config.colors.default
 	}
 end
 
-function distribute.resetCache(cache)
+function this.resetCache(cache)
 	cache.item = nil
+	cache.half = false
 	cache.entities = setup.newEAITable()
-	distribute.unmarkEntities(cache)
+	this.unmarkEntities(cache)
+	rendering.clear() -- TODO: fix
 end
 
-function distribute.on_pre_player_mined_item(event) -- remove mined/dead entities from cache
+function this.on_pre_player_mined_item(event) -- remove mined/dead entities from cache
 	local entity = event.entity
 	
 	for _,cache in pairs(global.cache) do
@@ -262,21 +260,21 @@ function distribute.on_pre_player_mined_item(event) -- remove mined/dead entitie
 	end
 end
 
-distribute.on_robot_pre_mined = distribute.on_pre_player_mined_item
-distribute.on_entity_died = distribute.on_pre_player_mined_item
+this.on_robot_pre_mined = this.on_pre_player_mined_item
+this.on_entity_died = this.on_pre_player_mined_item
 
-function distribute.script_raised_destroy(event)
+function this.script_raised_destroy(event)
 	event = event or {}
 	event.entity = event.entity or event.destroyed_entity or event.destroyedEntity or event.target or nil
 	
-	if (util.isValid(event.entity)) then distribute.on_pre_player_mined_item(event) end
+	if (util.isValid(event.entity)) then this.on_pre_player_mined_item(event) end
 end
 
-function distribute.on_player_died(event) -- resets distribution cache and events for that player
+function this.on_player_died(event) -- resets distribution cache and events for that player
 	local cache = global.cache[event.player_index]
 	
 	if cache then
-		distribute.resetCache(cache)
+		this.resetCache(cache)
 		
 		local distrEvents = global.distrEvents -- remove distribution event
 		if cache.applyTick and distrEvents[cache.applyTick] then
@@ -286,28 +284,6 @@ function distribute.on_player_died(event) -- resets distribution cache and event
 	end
 end
 
-distribute.on_player_left_game = distribute.on_player_died
+this.on_player_left_game = this.on_player_died
 
---[[
--- picker extended dollies fix
-function distribute.on_picker_dollies_moved(event)
-	local entity = event.moved_entity
-	
-	if util.isValid(entity) then
-		for index,cache in pairs(global.cache) do
-			local marker = cache.markers[entity]
-			local pos = entity.position
-			if util.isValid(marker) then marker.teleport{ pos.x, pos.y + 1 } end
-		end
-	end
-end
-
-if remote.interfaces["picker"] and remote.interfaces["picker"]["dolly_moved_entity_id"] then
-	local eventID = remote.call("picker", "dolly_moved_entity_id")
-	if type(eventID) == "number" then
-		script.on_event(remote.call("picker", "dolly_moved_entity_id"), distribute.on_picker_dollies_moved)
-	end
-end
-]]--
-
-return distribute
+return this

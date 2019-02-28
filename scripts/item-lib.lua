@@ -189,33 +189,6 @@ function item_lib.removePlayerItems(player, item, amount, takeFromCar, takeFromT
 	return removed
 end
 
-function item_lib.entityInsert(entity, item, amount, safemode)
-
-	if safemode then -- Safemode is only used by inventory cleanup hotkey
-		local prototype = game.item_prototypes[item]
-		if entity.type == "furnace" and not (entity.get_recipe() or entity.previous_recipe) then
-			local inventory = entity.get_fuel_inventory()
-			if inventory then return inventory.insert{ name = item, count = amount } else return 0 end
-		elseif entity.prototype.logistic_mode == "requester" then
-			local requested = item_lib.getRemainingRequest(item, entity)
-			if requested > 0 then return entity.insert{ name = item, count = math.min(amount, requested) } else return 0 end
-		elseif prototype.type == "module" and entity.get_module_inventory() then
-			local inventory = item_lib.getInputInventory(entity)  
-			if inventory then return inventory.insert{ name = item, count = amount } else return 0 end -- Only insert modules in craftng machine input inventory
-		elseif entity.type == "car" then
-			if prototype.type == "ammo" then
-				local inventory = entity.get_inventory(defines.inventory.car_ammo)
-				if inventory then return inventory.insert{ name = item, count = amount } else return 0 end
-			elseif prototype.fuel_category then
-				local inventory = entity.get_fuel_inventory()
-				if inventory then return inventory.insert{ name = item, count = amount } else return 0 end
-			end
-		end
-	end
-	
-	return entity.insert{ name = item, count = amount } -- Default distribution
-end
-
 function item_lib.returnToPlayer(player, item, amount, takenFromCar, takenFromTrash)
 	local remaining = amount - player.insert{ name = item, count = amount }
 	

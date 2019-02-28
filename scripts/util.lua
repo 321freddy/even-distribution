@@ -1,4 +1,5 @@
 local util = {}
+local config = require("config")
 
 function util.doEvery(tick, func, args)
 	if (game.tick % tick) == 0 then func(args) end
@@ -34,6 +35,12 @@ function util.isCraftingMachine(entity)
 	return entity.type == "furnace" or entity.type == "assembling-machine" or entity.type == "rocket-silo"
 end
 
+function util.isIgnoredEntity(entity, player)
+	return config.ignoredEntities[entity.type] or 
+		   config.ignoredEntities[entity.name] or 
+		   global.settings[player.index].ignoredEntities[entity.name]
+end
+
 function util.getPlayerMainInventory(player)
 	if player.controller_type == defines.controllers.god then
 		return player.get_inventory(defines.inventory.god_main)
@@ -56,6 +63,23 @@ end
 
 function util.isEmpty(tbl)
 	return next(tbl) == nil
+end
+
+function util.distribute(entities, totalItems, func)
+	local insertAmount = math.floor(totalItems / #entities)
+	local remainder = totalItems % #entities
+	
+	for entity in util.epairs(entities) do
+		if util.isValid(entity) then
+			local amount = insertAmount
+			if remainder > 0 then
+				amount = amount + 1
+				remainder = remainder - 1
+			end
+
+			func(entity, amount)
+		end
+	end
 end
 
 function util.epairs(tbl) -- iterator for tables with entity based indices

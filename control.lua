@@ -5,7 +5,7 @@ require("framework"){
 		"util",
 		"setup",
 		"item-lib",
-		"distribute",
+		"drag",
 		"cleanup",
 
 	},
