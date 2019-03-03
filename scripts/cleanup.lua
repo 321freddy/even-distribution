@@ -5,6 +5,7 @@ local drag = scripts.drag
 local item_lib = scripts["item-lib"]
 local util = scripts.util
 local setup = scripts.setup
+local metatables = scripts.metatables
 local config = require("config")
 
 function cleanup.on_inventory_cleanup(event)
@@ -18,7 +19,7 @@ function cleanup.on_inventory_cleanup(event)
 		local entities = cleanup.getEntities(area, player)
 		if #entities == 0 then return end
 		
-		local offY, marked = 0, setup.newEAITable()
+		local offY, marked = 0, metatables.new("entityAsIndex")
 		local dropToChests = player.mod_settings["drop-trash-to-chests"].value
 		for item,totalItems in pairs(items) do
 			local filtered = cleanup.filterEntities(entities, item, dropToChests)
@@ -84,7 +85,7 @@ function cleanup.insert(entity, item, amount)
 end
 
 function cleanup.filterEntities(entities, item, dropToChests)
-	local result = setup.newEAITable()
+	local result = metatables.new("entityAsIndex")
 	local prototype = game.item_prototypes[item]
 	
 	for _,entity in ipairs(entities) do

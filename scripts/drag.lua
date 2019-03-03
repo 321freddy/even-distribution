@@ -1,6 +1,7 @@
 local this = {}
 local util = scripts.util
 local setup = scripts.setup
+local metatables = scripts.metatables
 local item_lib = scripts["item-lib"]
 local config = require("config")
 
@@ -225,7 +226,7 @@ function this.unmarkEntities(cache) -- destroy all distribution markers of a pla
 		end
 	end
 	
-	cache.markers = setup.newEAITable()
+	cache.markers = metatables.new("entityAsIndex")
 end
 
 function this.spawnDistributionText(entity, item, amount, offY, color) -- spawn distribution text
@@ -243,7 +244,7 @@ end
 function this.resetCache(cache)
 	cache.item = nil
 	cache.half = false
-	cache.entities = setup.newEAITable()
+	cache.entities = metatables.new("entityAsIndex")
 	this.unmarkEntities(cache)
 	rendering.clear() -- TODO: fix
 end

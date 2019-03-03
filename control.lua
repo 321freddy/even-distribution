@@ -2,6 +2,7 @@ require("framework"){
 
 	scripts = { -- custom scripts
 
+		"metatables",
 		"util",
 		"setup",
 		"item-lib",
