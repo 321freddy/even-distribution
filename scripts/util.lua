@@ -27,6 +27,10 @@ function util.destroyIfValid(object)
 	if util.isValid(object) then object.destroy() end
 end
 
+function util.isValidStack(stack)
+	return util.isValid(stack) and stack.valid_for_read
+end
+
 function util.isValidPlayer(player) -- valid, connected and alive player
 	return util.isValid(player) and player.connected and player.controller_type ~= defines.controllers.ghost
 end
@@ -65,6 +69,10 @@ function util.isEmpty(tbl)
 	return next(tbl) == nil
 end
 
+function util.isFilled(tbl)
+	return next(tbl) ~= nil
+end
+
 function util.distribute(entities, totalItems, func)
 	local insertAmount = math.floor(totalItems / #entities)
 	local remainder = totalItems % #entities
@@ -95,7 +103,7 @@ function util.epairs(tbl) -- iterator for tables with entity based indices
 		return function () end
 	end
 	
-	return function ()
+	return function () 		-- Iterator
 		if id or start then
 			start = false
 			id, value = next(tblId, id)
