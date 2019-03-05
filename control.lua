@@ -5,6 +5,7 @@ require("framework"){
 		"metatables",
 		"util",
 		"helpers",
+		"player",
 		"setup",
 		"item-lib",
 		"drag",
