@@ -43,7 +43,7 @@ end
 
 function setup.parsePlayerSettings(index)
 	global.settings[index] = {}
-	for _,setting in pairs(setup.parsedSettings) do setting.parse(index) end
+	for __,setting in pairs(setup.parsedSettings) do setting.parse(index) end
 end
 
 local function logSettingParseError(playerIndex, setting, value)
@@ -95,7 +95,7 @@ setup.parsedSettings = {
 }
 
 function setup.on_load()
-	for _,cache in pairs(global.cache) do
+	for __,cache in pairs(global.cache) do
 		metatables.use(cache.markers, "entityAsIndex")
 		metatables.use(cache.entities, "entityAsIndex")
 	end

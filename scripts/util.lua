@@ -45,14 +45,6 @@ function util.isIgnoredEntity(entity, player)
 		   global.settings[player.index].ignoredEntities[entity.name]
 end
 
-function util.getPlayerMainInventory(player)
-	if player.controller_type == defines.controllers.god then
-		return player.get_inventory(defines.inventory.god_main)
-	end
-
-	return player.get_inventory(defines.inventory.player_main)
-end
-
 function util.shallowCopy(original) -- Creates a shallow copy of a table
     copy = {}
     for key,value in pairs(original) do copy[key] = value  end
@@ -61,7 +53,7 @@ end
 
 function util.countTable(tbl)
 	local count = 0
-	for _,__ in pairs(tbl) do count = count + 1 end
+	for in pairs(tbl) do count = count + 1 end
 	return count
 end
 

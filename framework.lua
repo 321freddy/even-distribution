@@ -112,13 +112,13 @@ end
 
 local function registerFunc(name, id)
 	funcs[id or name] = {}
-	for _,script in pairs(scripts) do
+	for __,script in pairs(scripts) do
 		if script[name] then table.insert(funcs[id or name], script[name]) end
 	end
 end
 
 function handleEvent(event) -- Calls all script-functions with the same name as the game event that was just triggered
-	for _,func in pairs(funcs[event.input_name or event.name]) do try(func, event) end
+	for __,func in pairs(funcs[event.input_name or event.name]) do try(func, event) end
 end
 
 local function registerHandler(name, id) -- Register appropriate handler functions for game events if needed
@@ -154,7 +154,7 @@ end
 local function addScripts(scripts)
     dlog("Registering custom scripts...")
 
-    for _,script in ipairs(scripts) do
+    for __,script in ipairs(scripts) do
         if type(script) == "table" then
             if (script.type == "GUI") then
                 dlog("GUI-Script:", script.name)
@@ -172,7 +172,7 @@ end
 local function addInputs(inputs)
     dlog("Registering custom inputs...")
 
-    for _,input in ipairs(inputs) do
+    for __,input in ipairs(inputs) do
         local event = "on_"..input:gsub("-", "_")
 
         dlog("Input:", input, "  event:", event)

@@ -5,7 +5,8 @@ local metatables = scripts.metatables
 local item_lib = scripts["item-lib"]
 local config = require("config")
 
-local on = scripts.helpers.on
+local helpers = scripts.helpers
+local _ = helpers.on
 
 function this.on_tick(event) -- handles distribution events
 	local distrEvents = global.distrEvents
@@ -20,7 +21,7 @@ function this.on_tick(event) -- handles distribution events
 end
 
 function this.distributeItems(player_index, cache)
-	local player = on(game.players[player_index])
+	local player = _(game.players[player_index])
 	
 	if player:is("valid player") then
 		local takeFromCar = player:setting("take-from-car")
@@ -63,11 +64,11 @@ end
 
 function this.on_selected_entity_changed(event)
 	local index        = event.player_index
-	local player       = on(game.players[index]); if player:isnot("valid player", {"mod_settings", "enable-ed", "value"}) then return end
-	local cursor_stack = on(player.cursor_stack); if cursor_stack:isnot("valid stack") then return end
-	local selected     = on(player.selected)    ; if selected:isnot("valid") then return end
+	local player       = _(game.players[index]); if player:isnot("valid player", {"mod_settings", "enable-ed", "value"}) then return end
+	local cursor_stack = _(player.cursor_stack); if cursor_stack:isnot("valid stack") then return end
+	local selected     = _(player.selected)    ; if selected:isnot("valid") then return end
 
-	local cache = on(global.cache[index]):set{
+	local cache = _(global.cache[index]):set{
 		tick             = event.tick,
 		item             = cursor_stack.name,
 		itemCount        = item_lib.getBuildingItemCount(selected, cursor_stack.name),
@@ -88,9 +89,9 @@ end
 
 function this.on_player_fast_transferred(event)
 	local index    = event.player_index
-	local player   = on(game.players[index]); if player:isnot("valid player", {"mod_settings", "enable-ed", "value"}) then return end
-	local cache    = on(global.cache[index])
-	local selected = on(player.selected)    ; if selected:isnot("valid") then return end
+	local player   = _(game.players[index]); if player:isnot("valid player", {"mod_settings", "enable-ed", "value"}) then return end
+	local cache    = _(global.cache[index])
+	local selected = _(player.selected)    ; if selected:isnot("valid") then return end
 
 	if cache.tick == event.tick and event.entity == selected:toPlain() then
 
@@ -123,7 +124,7 @@ function this.stackTransferred(entity, player, cache) -- handle vanilla stack tr
 		if cache.applyTick and distrEvents[cache.applyTick] then distrEvents[cache.applyTick][player.index] = nil end
 		
 		-- wait before applying distribution (seconds defined in mod config)
-		cache.applyTick = game.tick + math.max(math.ceil(60 * on(player):setting("distribution-delay")), 1)
+		cache.applyTick = game.tick + math.max(math.ceil(60 * _(player):setting("distribution-delay")), 1)
 		
 		distrEvents[cache.applyTick] = distrEvents[cache.applyTick] or {}
 		distrEvents[cache.applyTick][player.index] = cache
@@ -159,7 +160,7 @@ function this.stackTransferred(entity, player, cache) -- handle vanilla stack tr
 	if cache.itemCount > 0 then
 		local giveToPlayer = entity.remove_item{ name = cache.item, count = cache.itemCount }
 		
-		if not on(player):setting("immediately-start-crafting") or util.isIgnoredEntity(entity, player) then
+		if not _(player):setting("immediately-start-crafting") or util.isIgnoredEntity(entity, player) then
 			giveToPlayer = giveToPlayer + this.undoConsumption(entity, player, cache)
 		end
 		
@@ -180,7 +181,7 @@ function this.undoConsumption(entity, player, cache) -- some entities consume it
 	local item = cache.item
 	local burner = entity.burner
 	
-	if on(entity):is("crafting machine") and not cache.isCrafting and entity.is_crafting() and item_lib.isIngredient(item, entity.get_recipe())then
+	if _(entity):is("crafting machine") and not cache.isCrafting and entity.is_crafting() and item_lib.isIngredient(item, entity.get_recipe())then
 		local returnCount = item_lib.getRecipeIngredientCount(entity.get_recipe(), item)
 		local inputContents = item_lib.getInputContents(entity)
 		
@@ -230,7 +231,7 @@ function this.destroyTransferText(entity) -- remove flying text from stack trans
 end
 
 function this.unmarkEntities(cache) -- destroy all distribution markers of a player (using cache)
-	on(cache.markers):where("valid", function(marker)
+	_(cache.markers):where("valid", function(marker)
 		this.markEntity(marker, "distribution-final-anim", 0, 0)
 		marker.destroy()
 	end)
@@ -261,7 +262,7 @@ end
 function this.on_pre_player_mined_item(event) -- remove mined/dead entities from cache
 	local entity = event.entity
 	
-	for _,cache in pairs(global.cache) do
+	for __,cache in pairs(global.cache) do
 		if cache.entities[entity] then
 			cache.entities[entity] = nil
 			util.destroyIfValid(cache.markers[entity]) -- remove marker
