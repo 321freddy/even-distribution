@@ -3,59 +3,6 @@
 local item_lib = {}
 local util = scripts.util
 
-function item_lib.getPlayerItemCount(player, item, includeCar)
-	local main = util.getPlayerMainInventory(player)
-	if not main then return 0 end
-
-	local cursor_stack = player.cursor_stack
-	local count = main.get_item_count(item)
-	
-	if cursor_stack.valid_for_read and cursor_stack.name == item then
-		count = count + cursor_stack.count
-	end
-	
-	if includeCar and player.driving and util.isValid(player.vehicle) then
-		local vehicle = player.vehicle.get_inventory(defines.inventory.car_trunk)
-		if util.isValid(vehicle) then count = count + vehicle.get_item_count(item) end
-	end
-		   
-	return count
-end
-
-function item_lib.getPlayerContents(player)
-	local main = util.getPlayerMainInventory(player)
-	if not main then return {} end
-
-	local cursor_stack = player.cursor_stack
-	local contents = main.get_contents()
-
-	if cursor_stack.valid_for_read then
-		local item = cursor_stack.name
-		contents[item] = (contents[item] or 0) + cursor_stack.count
-	end
-		   
-	return contents
-end
-
-function item_lib.getPlayerRequests(player)
-	local requests = {}
-	local character = player.character
-	
-	if not util.isValid(player.character) then return {} end
-	
-	if character.request_slot_count > 0 then -- fetch requests
-		for i = 1, character.request_slot_count do
-			local request = character.get_request_slot(i)
-			if request then
-				local item, amount = request.name, request.count
-				requests[item] = math.max(requests[item] or 0, amount)
-			end
-		end
-	end
-	
-	return requests
-end
-
 function item_lib.getBuildingItemCount(entity, item) -- counts the items and also includes items that are being consumed (fuel in burners, ingredients in assemblers, etc.)
 	local count = entity.get_item_count(item)
 	
@@ -82,7 +29,7 @@ end
 
 function item_lib.getOutputEntityItemCount(origin, item, outputType) -- get count of a specific item in any output inserters/loaders
 	local count = 0
-	for _,entity in pairs(origin.surface.find_entities_filtered{
+	for __,entity in pairs(origin.surface.find_entities_filtered{
 		type = outputType, area = util.offsetBox(util.extendBox(origin.prototype.collision_box, 3), origin.position)
 	}) do
 		if outputType == "inserter" then
@@ -99,7 +46,7 @@ end
 
 function item_lib.getRecipeIngredientCount(recipe, item) -- get count of a specific item in recipe ingredients
 	if not recipe then return 0 end
-	for _,ingredient in pairs(recipe.ingredients) do
+	for __,ingredient in pairs(recipe.ingredients) do
 		if ingredient.name == item then return ingredient.amount end
 	end
 	return 0
@@ -108,7 +55,7 @@ end
 function item_lib.getRecipeIngredients(recipe)
 	local ingredients = {}
 	
-	for _,ingredient in pairs(recipe.ingredients) do
+	for __,ingredient in pairs(recipe.ingredients) do
 		local type, name, amount = ingredient.type, ingredient.name, ingredient.amount
 		if type == "item" then ingredients[name] = amount end
 	end
@@ -118,7 +65,7 @@ end
 
 function item_lib.isIngredient(item, recipe)
 	if not recipe then return false end
-	for _,ingredient in ipairs(recipe.ingredients) do
+	for __,ingredient in ipairs(recipe.ingredients) do
 		if ingredient.type == "item" and ingredient.name == item then return true end
 	end
 end
