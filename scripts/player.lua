@@ -97,4 +97,54 @@ function player:inventory(name)
     return self.get_inventory(defines.inventory[name])
 end
 
+function player:removeItems(item, amount, takeFromCar, takeFromTrash)
+	local removed = 0
+	if takeFromTrash then
+		local trash = self:inventory("player_trash")
+		if _(trash):is("valid") then
+			removed = trash.remove{ name = item, count = amount }
+			if amount <= removed then return removed end
+		end
+	end	
+
+	local main = self:inventory()
+	if _(main):is("valid") then
+		removed = removed + main.remove{ name = item, count = amount - removed }
+		if amount <= removed then return removed end
+	end
+
+	local cursor_stack = self.cursor_stack
+	if cursor_stack.valid_for_read and cursor_stack.name == item then
+		local result = math.min(cursor_stack.count, amount - removed)
+		removed = removed + result
+		cursor_stack.count = cursor_stack.count - result
+		if amount <= removed then return removed end
+	end
+	
+	if takeFromCar and self.driving and self:has("valid", "vehicle") then
+		local vehicleInv = _(self.vehicle):inventory("car_trunk")
+		if _(vehicleInv):is("valid") then removed = removed + vehicleInv.remove{ name = item, count = amount - removed } end
+	end
+	
+	return removed
+end
+
+function player:returnItems(item, amount, takenFromCar, takenFromTrash)
+	local remaining = amount - self.insert{ name = item, count = amount }
+	
+	if remaining > 0 and takenFromCar and self.driving and self:has("valid", "vehicle") then
+        local vehicleInv = _(self.vehicle):inventory("car_trunk")
+        if _(vehicleInv):is("valid") then remaining = remaining - vehicleInv.insert{ name = item, count = remaining } end
+	end
+	
+	if remaining > 0 and takenFromTrash then
+        local trash = self:inventory("player_trash")
+        if _(trash):is("valid") then remaining = remaining - trash.insert{ name = item, count = remaining } end
+	end
+	
+	if remaining > 0 then
+		self.surface.spill_item_stack(self.position, { name = item, count = remaining }, false)
+	end
+end
+
 return this

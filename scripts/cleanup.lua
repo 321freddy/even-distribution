@@ -8,55 +8,56 @@ local setup = scripts.setup
 local metatables = scripts.metatables
 local config = require("config")
 
+local helpers = scripts.helpers
+local _ = helpers.on
+
 function cleanup.on_inventory_cleanup(event)
-	local player = game.players[event.player_index]
+	local player = _(game.players[event.player_index]); if player:isnot("valid player") then return end
+	local items  = _(player:trashItems())             ; if items:is("empty") then return end
+
+	local area = util.getPerimeter(player.position, cleanup.getDropRange(player))
+	local entities = _(cleanup.getEntities(area, player)); if entities:is("empty") then return end
 	
-	if util.isValidPlayer(player) then
-		local items = cleanup.getTrashItems(player)
-		if util.isEmpty(items) then return end
-		
-		local area = util.getPerimeter(player.position, cleanup.getDropRange(player))
-		local entities = cleanup.getEntities(area, player)
-		if #entities == 0 then return end
-		
-		local offY, marked = 0, metatables.new("entityAsIndex")
-		local dropToChests = player.mod_settings["drop-trash-to-chests"].value
-		for item,totalItems in pairs(items) do
-			local filtered = cleanup.filterEntities(entities, item, dropToChests)
-			
-			if #filtered > 0 then
-				util.distribute(filtered, totalItems, function(entity, amount)
+	local offY, marked = 0, metatables.new("entityAsIndex")
+	local dropToChests = player:setting("drop-trash-to-chests")
 
-					local itemsInserted = 0
+
+	items:each(function(item, totalItems)
+
+		local filtered = cleanup.filterEntities(entities, item, dropToChests)
+		
+		if #filtered > 0 then
+			util.distribute(filtered, totalItems, function(entity, amount)
+
+				local itemsInserted = 0
+				
+				if amount > 0 then
+					local takenFromPlayer = player:removeItems(item, amount, false, true)
 					
-					if amount > 0 then
-						local takenFromPlayer = item_lib.removePlayerItems(player, item, amount, false, true)
+					if takenFromPlayer > 0 then
+						itemsInserted = cleanup.insert(entity, item, takenFromPlayer)
+						local failedToInsert = takenFromPlayer - itemsInserted
 						
-						if takenFromPlayer > 0 then
-							itemsInserted = cleanup.insert(entity, item, takenFromPlayer)
-							local failedToInsert = takenFromPlayer - itemsInserted
-							
-							if failedToInsert > 0 then
-								item_lib.returnToPlayer(player, item, failedToInsert, false, true)
-							end
+						if failedToInsert > 0 then
+							player:returnItems(item, failedToInsert, false, true)
 						end
 					end
+				end
+				
+				-- visuals
+				if itemsInserted > 0 then
+					drag.spawnDistributionText(entity, item, itemsInserted, offY)
 					
-					-- visuals
-					if itemsInserted > 0 then
-						drag.spawnDistributionText(entity, item, itemsInserted, offY)
-						
-						if not marked[entity] then
-							drag.markEntity(entity, "cleanup-distribution-anim")
-							marked[entity] = true
-						end
+					if not marked[entity] then
+						drag.markEntity(entity, "cleanup-distribution-anim")
+						marked[entity] = true
 					end
+				end
 
-				end)
-				offY = offY - 0.5
-			end
+			end)
+			offY = offY - 0.5
 		end
-	end
+	end)
 end
 
 function cleanup.insert(entity, item, amount)
@@ -88,7 +89,7 @@ function cleanup.filterEntities(entities, item, dropToChests)
 	local result = metatables.new("entityAsIndex")
 	local prototype = game.item_prototypes[item]
 	
-	for _,entity in ipairs(entities) do
+	for __,entity in ipairs(entities) do
 		if entity.can_insert(item) then
 			if entity.burner and entity.burner.fuel_categories[prototype.fuel_category] and entity.get_fuel_inventory().can_insert(item) then
 				result[entity] = entity
@@ -115,7 +116,7 @@ end
 
 function cleanup.getEntities(area, player)
 	local entities = {}
-	for _,entity in ipairs(player.surface.find_entities_filtered{ area = area, force = player.force }) do
+	for __,entity in ipairs(player.surface.find_entities_filtered{ area = area, force = player.force }) do
 		if util.isValid(entity) and entity.operable and not util.isIgnoredEntity(entity, player) then
 			entities[#entities + 1] = entity
 		end
@@ -123,35 +124,6 @@ function cleanup.getEntities(area, player)
 	return entities
 end
 
-function cleanup.getTrashItems(player)
-	local playerContents = item_lib.getPlayerContents(player)
-	local customTrash = global.settings[player.index].customTrash
-	local defaultTrash = global.defaultTrash
-	
-	local trashslots = player.get_inventory(defines.inventory.player_trash)
-	local trash
-	if util.isValid(trashslots) then trash = trashslots.get_contents() else trash = {} end
-	
-	local autoTrash
-	if util.isValid(player.character) then autoTrash = player.auto_trash_filters else autoTrash = {} end
-	
-	local requests
-	if player.mod_settings["cleanup-logistic-request-overflow"].value then requests = item_lib.getPlayerRequests(player) else requests = {} end
-	
-	for item,count in pairs(playerContents) do
-		local targetAmount = autoTrash[item] or requests[item] or customTrash[item] or defaultTrash[item]
-		
-		if targetAmount then
-			local surplus = count - targetAmount
-			if surplus > 0 then trash[item] = (trash[item] or 0) + surplus end
-		end
-	end
-	
-	return trash
-end
 
-function cleanup.getDropRange(player)
-	return math.min(player.reach_distance * config.rangeMultiplier, player.mod_settings["max-inventory-cleanup-drop-range"].value)
-end
 
 return cleanup
