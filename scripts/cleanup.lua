@@ -25,10 +25,10 @@ function cleanup.on_inventory_cleanup(event)
 	items:each(function(item, totalItems)
 
 		local filtered = cleanup.filterEntities(entities, item, dropToChests)
-		dlog("filtered", filtered, item, totalItems, entities)
+		
 		if #filtered > 0 then
 			util.distribute(filtered, totalItems, function(entity, amount)
-				dlog("util distributing ", entity, amount)
+				
 				local itemsInserted = 0
 				
 				if amount > 0 then
