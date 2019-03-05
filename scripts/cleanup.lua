@@ -15,7 +15,7 @@ function cleanup.on_inventory_cleanup(event)
 	local player = _(game.players[event.player_index]); if player:isnot("valid player") then return end
 	local items  = _(player:trashItems())             ; if items:is("empty") then return end
 
-	local area = util.getPerimeter(player.position, cleanup.getDropRange(player))
+	local area = util.getPerimeter(player.position, player:droprange())
 	local entities = _(cleanup.getEntities(area, player)); if entities:is("empty") then return end
 	
 	local offY, marked = 0, metatables.new("entityAsIndex")
@@ -25,10 +25,10 @@ function cleanup.on_inventory_cleanup(event)
 	items:each(function(item, totalItems)
 
 		local filtered = cleanup.filterEntities(entities, item, dropToChests)
-		
+		dlog("filtered", filtered, item, totalItems, entities)
 		if #filtered > 0 then
 			util.distribute(filtered, totalItems, function(entity, amount)
-
+				dlog("util distributing ", entity, amount)
 				local itemsInserted = 0
 				
 				if amount > 0 then
@@ -89,7 +89,8 @@ function cleanup.filterEntities(entities, item, dropToChests)
 	local result = metatables.new("entityAsIndex")
 	local prototype = game.item_prototypes[item]
 	
-	for __,entity in ipairs(entities) do
+	_(entities):each(function(__, entity)
+
 		if entity.can_insert(item) then
 			if entity.burner and entity.burner.fuel_categories[prototype.fuel_category] and entity.get_fuel_inventory().can_insert(item) then
 				result[entity] = entity
@@ -109,7 +110,7 @@ function cleanup.filterEntities(entities, item, dropToChests)
 				result[entity] = entity
 			end
 		end
-	end
+	end)
 	
 	return result
 end

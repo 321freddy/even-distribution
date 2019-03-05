@@ -1,4 +1,5 @@
 local this = {}
+local config = require("config")
 local player = scripts.helpers
 local _ = scripts.helpers.on
 
