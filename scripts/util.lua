@@ -53,7 +53,7 @@ end
 
 function util.countTable(tbl)
 	local count = 0
-	for in pairs(tbl) do count = count + 1 end
+	for __ in pairs(tbl) do count = count + 1 end
 	return count
 end
 
