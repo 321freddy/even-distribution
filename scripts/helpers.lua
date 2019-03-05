@@ -13,14 +13,14 @@ metatables.helpers = {
     end,
 }
 
-function this.on(obj)
+function this.on(obj) -- wraps object in table with helper methods
     if type(obj) == "table" and not obj.__self and rawget(obj, "__on") then -- reapply metatable
         return metatables.use(obj, "helpers")
     else                                                         -- new metatable
         return metatables.use({ __on = obj }, "helpers")
     end
 end
-local on = this.on
+local _ = this.on
 
 function this:toPlain()
     return rawget(self, "__on")
@@ -33,7 +33,6 @@ local conditions = {
     ["valid"] = util.isValid,
     ["valid stack"] = util.isValidStack,
     ["valid player"] = util.isValidPlayer,
-    ["ignored entity"] = util.isIgnoredEntity,
 
     -- Custom type conditions
     ["crafting machine"] = util.isCraftingMachine,
@@ -54,32 +53,32 @@ function this:is(...)
     local checkMode = "condition"
     local result = true
 
-    for _,condition in ipairs(args) do
+    for __,condition in ipairs(args) do
 
         if condition == "not" then
             notModeActive = not notModeActive                -- toggle notModeActive
 
         elseif type(condition) == "table" then               -- custom field check
             local value = obj
-            for _,key in ipairs(condition) do
+            for __,key in ipairs(condition) do
                 value = value[key]
             end
 
             local nestedIs = condition.is       -- nested Is check on custom field
             if nestedIs ~= nil then 
                 if type(nestedIs) == "table" then
-                    result = result and applyNot(notModeActive, on(nestedIs):is(unpack(nestedIs)))
+                    result = result and applyNot(notModeActive, _(nestedIs):is(unpack(nestedIs)))
                 else
-                    result = result and applyNot(notModeActive, on(nestedIs):is(nestedIs))
+                    result = result and applyNot(notModeActive, _(nestedIs):is(nestedIs))
                 end
             end
         
             local nestedIsnot = condition.isnot -- nested Isnot check on custom field
             if nestedIsnot ~= nil then 
                 if type(nestedIsnot) == "table" then
-                    result = result and applyNot(notModeActive, on(nestedIsnot):isnot(unpack(nestedIsnot)))
+                    result = result and applyNot(notModeActive, _(nestedIsnot):isnot(unpack(nestedIsnot)))
                 else
-                    result = result and applyNot(notModeActive, on(nestedIsnot):isnot(nestedIsnot))
+                    result = result and applyNot(notModeActive, _(nestedIsnot):isnot(nestedIsnot))
                 end
             end
 
@@ -106,11 +105,11 @@ function this:isnot(...)
 end
 
 function this:has(condition, ...)
-    return self:is(condition, {...})
+    return self:is({is=condition, ...})
 end
 
 function this:hasnot(condition, ...)
-    return self:isnot(condition, {...})
+    return self:isnot({is=condition, ...})
 end
 
 function this:each(func)
@@ -134,7 +133,7 @@ function this:where(...)
         args[#args] = nil
 
         for k,v in iter(obj) do
-            if on(v or k):is(unpack(args)) then
+            if _(v or k):is(unpack(args)) then
                 func(k, v)
             end 
         end
@@ -145,12 +144,12 @@ function this:where(...)
         local result = {}
             
         for k,v in iter(obj) do
-            if on(v or k):is(...) then
+            if _(v or k):is(...) then
                 result[k] = v
             end
         end
 
-        return on(result)
+        return _(result)
     end
 end
 
@@ -160,38 +159,30 @@ end
 
 function this:wherehas(condition, ...)
     local args = {...}
-    local func = args[#args]
+    local count = #args
+    local func = args[count]
+    args.is = condition
 
-    if #args > 1 and type(func) == "function" then
-        args[#args] = nil
-        return self:where(condition, args, func) 
+    if count > 1 and type(func) == "function" then
+        args[count] = nil
+        return self:where(args, func) 
     else
-        return self:where(condition, args) 
+        return self:where(args) 
     end
 end
 
 function this:unlesshas(condition, ...)
     local args = {...}
-    local func = args[#args]
+    local count = #args
+    local func = args[count]
+    args.is = condition
 
-    if #args > 1 and type(func) == "function" then
-        args[#args] = nil
-        return self:unless(condition, args, func) 
+    if count > 1 and type(func) == "function" then
+        args[count] = nil
+        return self:unless(args, func) 
     else
-        return self:unless(condition, args) 
+        return self:unless(args) 
     end
-end
-
-function this:get(...)
-    local args = {...}
-    local value = rawget(self, "__on")
-
-    for _,key in ipairs(args) do
-        if not value[key] then error(false, 2) end
-        value = value[key]
-    end
-
-    return on(value)
 end
 
 function this:set(values)
