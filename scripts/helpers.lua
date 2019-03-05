@@ -2,7 +2,7 @@ local this = {}
 local util = scripts.util
 local metatables = scripts.metatables
 
-local type, rawget, rawset, pairs = type, rawget, rawset, pairs
+local type, rawget, rawset, pairs, ipairs = type, rawget, rawset, pairs, ipairs
 
 metatables.helpers = {
     __index = function(t, k)
@@ -20,6 +20,7 @@ function this.on(obj)
         return metatables.use({ __on = obj }, "helpers")
     end
 end
+local on = this.on
 
 function this:toPlain()
     return rawget(self, "__on")
@@ -67,18 +68,18 @@ function this:is(...)
             local nestedIs = condition.is       -- nested Is check on custom field
             if nestedIs ~= nil then 
                 if type(nestedIs) == "table" then
-                    result = result and applyNot(notModeActive, this.on(nestedIs):is(unpack(nestedIs)))
+                    result = result and applyNot(notModeActive, on(nestedIs):is(unpack(nestedIs)))
                 else
-                    result = result and applyNot(notModeActive, this.on(nestedIs):is(nestedIs))
+                    result = result and applyNot(notModeActive, on(nestedIs):is(nestedIs))
                 end
             end
         
             local nestedIsnot = condition.isnot -- nested Isnot check on custom field
             if nestedIsnot ~= nil then 
                 if type(nestedIsnot) == "table" then
-                    result = result and applyNot(notModeActive, this.on(nestedIsnot):isnot(unpack(nestedIsnot)))
+                    result = result and applyNot(notModeActive, on(nestedIsnot):isnot(unpack(nestedIsnot)))
                 else
-                    result = result and applyNot(notModeActive, this.on(nestedIsnot):isnot(nestedIsnot))
+                    result = result and applyNot(notModeActive, on(nestedIsnot):isnot(nestedIsnot))
                 end
             end
 
@@ -104,12 +105,12 @@ function this:isnot(...)
     return self:is("not", ...)
 end
 
-function this:has(...)
-    return self:is({...})
+function this:has(condition, ...)
+    return self:is(condition, {...})
 end
 
-function this:hasnot(...)
-    return self:has("not", ...)
+function this:hasnot(condition, ...)
+    return self:isnot(condition, {...})
 end
 
 function this:each(func)
@@ -133,7 +134,7 @@ function this:where(...)
         args[#args] = nil
 
         for k,v in iter(obj) do
-            if this.on(v or k):is(unpack(args)) then
+            if on(v or k):is(unpack(args)) then
                 func(k, v)
             end 
         end
@@ -144,12 +145,12 @@ function this:where(...)
         local result = {}
             
         for k,v in iter(obj) do
-            if this.on(v or k):is(...) then
+            if on(v or k):is(...) then
                 result[k] = v
             end
         end
 
-        return this.on(result)
+        return on(result)
     end
 end
 
@@ -157,12 +158,28 @@ function this:unless(...)
     return self:where("not", ...) 
 end
 
-function this:wherehas(...)
-    return self:where({...}) 
+function this:wherehas(condition, ...)
+    local args = {...}
+    local func = args[#args]
+
+    if #args > 1 and type(func) == "function" then
+        args[#args] = nil
+        return self:where(condition, args, func) 
+    else
+        return self:where(condition, args) 
+    end
 end
 
-function this:unlesshas(...)
-    return self:where("not", {...}) 
+function this:unlesshas(condition, ...)
+    local args = {...}
+    local func = args[#args]
+
+    if #args > 1 and type(func) == "function" then
+        args[#args] = nil
+        return self:unless(condition, args, func) 
+    else
+        return self:unless(condition, args) 
+    end
 end
 
 function this:get(...)
@@ -174,7 +191,7 @@ function this:get(...)
         value = value[key]
     end
 
-    return this.on(value)
+    return on(value)
 end
 
 function this:set(values)
@@ -185,11 +202,6 @@ function this:set(values)
     end
 
     return self
-end
-
--- LuaPlayer only
-function this:setting(name)
-    return self.mod_settings[name].value
 end
 
 return this
