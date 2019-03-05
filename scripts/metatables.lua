@@ -1,17 +1,17 @@
 local this = {}
-local _getmetatable = getmetatable
-local _setmetatable = setmetatable
+
+local getmetatable, setmetatable = getmetatable, setmetatable
 
 function this.uses(obj, name)
-    return _getmetatable(obj) == this[name]
+    return getmetatable(obj) == this[name]
 end
 
 function this.use(obj, name)
-    if type(obj) == "table" then return _setmetatable(obj, this[name]) end
+    if type(obj) == "table" then return setmetatable(obj, this[name]) end
 end
 
 function this.new(name)
-    return _setmetatable({}, this[name])
+    return setmetatable({}, this[name])
 end
 
 this.entityAsIndex = { -- metatable for using an entity as a table index
