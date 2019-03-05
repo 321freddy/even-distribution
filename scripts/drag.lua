@@ -26,7 +26,7 @@ function this.distributeItems(player_index, cache)
 	if player:is("valid player") then
 		local takeFromCar = player:setting("take-from-car")
 		local item        = cache.item
-		local totalItems  = item_lib.getPlayerItemCount(player, item, takeFromCar)
+		local totalItems  = player:itemcount(item, takeFromCar)
 
 		if cache.half then totalItems = math.ceil(totalItems / 2) end
 
@@ -36,7 +36,7 @@ function this.distributeItems(player_index, cache)
 			local color
 			
 			if amount > 0 then
-				local takenFromPlayer = item_lib.removePlayerItems(player, item, amount, takeFromCar, false)
+				local takenFromPlayer = player:removeItems(item, amount, takeFromCar, false)
 				
 				if takenFromPlayer < amount then color = config.colors.insufficientItems end
 				
@@ -45,7 +45,7 @@ function this.distributeItems(player_index, cache)
 					local failedToInsert = takenFromPlayer - itemsInserted
 					
 					if failedToInsert > 0 then
-						item_lib.returnToPlayer(player, item, failedToInsert, takeFromCar, false)
+						player:returnItems(item, failedToInsert, takeFromCar, false)
 						color = config.colors.targetFull
 					end
 				end
