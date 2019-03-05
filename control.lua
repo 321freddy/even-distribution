@@ -4,6 +4,7 @@ require("framework"){
 
 		"metatables",
 		"util",
+		"helpers",
 		"setup",
 		"item-lib",
 		"drag",
