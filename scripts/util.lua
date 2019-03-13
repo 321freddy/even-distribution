@@ -39,12 +39,6 @@ function util.isCraftingMachine(entity)
 	return entity.type == "furnace" or entity.type == "assembling-machine" or entity.type == "rocket-silo"
 end
 
-function util.isIgnoredEntity(entity, player)
-	return config.ignoredEntities[entity.type] or 
-		   config.ignoredEntities[entity.name] or 
-		   global.settings[player.index].ignoredEntities[entity.name]
-end
-
 function util.shallowCopy(original) -- Creates a shallow copy of a table
     copy = {}
     for key,value in pairs(original) do copy[key] = value  end

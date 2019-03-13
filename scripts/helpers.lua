@@ -47,13 +47,13 @@ local function applyNot(notModeActive, value)
 end
 
 function this:is(...)
-    local args = {...}
+    local isargs = {...}
     local obj = rawget(self, "__on")
     local notModeActive = false
     local checkMode = "condition"
     local result = true
 
-    for __,condition in ipairs(args) do
+    for __,condition in ipairs(isargs) do
 
         if condition == "not" then
             notModeActive = not notModeActive                -- toggle notModeActive
@@ -64,27 +64,14 @@ function this:is(...)
                 value = value[key]
             end
 
-            local nestedIs = condition.is       -- nested Is check on custom field
-            if nestedIs ~= nil then 
-                if type(nestedIs) == "table" then
-                    result = result and applyNot(notModeActive, _(nestedIs):is(unpack(nestedIs)))
-                else
-                    result = result and applyNot(notModeActive, _(nestedIs):is(nestedIs))
-                end
-            end
-        
-            local nestedIsnot = condition.isnot -- nested Isnot check on custom field
-            if nestedIsnot ~= nil then 
-                if type(nestedIsnot) == "table" then
-                    result = result and applyNot(notModeActive, _(nestedIsnot):isnot(unpack(nestedIsnot)))
-                else
-                    result = result and applyNot(notModeActive, _(nestedIsnot):isnot(nestedIsnot))
-                end
+            local nestedIs = condition.is or condition.isnot -- nested Is check on custom field
+            if condition.is ~= nil then 
+                value = type(nestedIs) == "table" and _(value):is(unpack(nestedIs)) or _(value):is(nestedIs)
+            elseif condition.isnot ~= nil then
+                value = type(nestedIs) == "table" and _(value):isnot(unpack(nestedIs)) or _(value):isnot(nestedIs)
             end
 
-            if condition.is == nil and condition.isnot == nil then -- simple if value then... check on custom field
-                result = result and applyNot(notModeActive, value)
-            end
+            result = result and applyNot(notModeActive, value)
 
         elseif conditions[condition] then       -- normal condition check
             result = result and applyNot(notModeActive, conditions[condition](obj)) 

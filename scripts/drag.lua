@@ -1,6 +1,5 @@
 local this = {}
 local util = scripts.util
-local setup = scripts.setup
 local metatables = scripts.metatables
 local item_lib = scripts["item-lib"]
 local config = require("config")
@@ -71,14 +70,14 @@ function this.on_selected_entity_changed(event)
 	local cache = _(global.cache[index]):set{
 		tick             = event.tick,
 		item             = cursor_stack.name,
-		itemCount        = item_lib.getBuildingItemCount(selected, cursor_stack.name),
+		itemCount        = selected:itemcount(cursor_stack.name),
 		cursorStackCount = cursor_stack.count,
 	}
 	
 	if selected:is("crafting machine") then
 		cache:set{
 			isCrafting    = selected.is_crafting(),
-			inputContents = item_lib.getInputContents(selected),
+			inputContents = selected:contents("input"),
 		}
 	end
 	
@@ -97,7 +96,7 @@ function this.on_player_fast_transferred(event)
 
 		if event.from_player then
 			if cache.item then
-				cache.itemCount = item_lib.getBuildingItemCount(selected, cache.item) - cache.itemCount
+				cache.itemCount = selected:itemcount(cache.item) - cache.itemCount
 				
 				cache.half = false
 				if cache.itemCount == 0 then
@@ -118,7 +117,7 @@ function this.on_player_fast_transferred(event)
 end
 
 function this.stackTransferred(entity, player, cache) -- handle vanilla stack transfer
-	if not util.isIgnoredEntity(entity, player) then
+	if not _(entity):isIgnored(player) then
 	
 		local distrEvents = global.distrEvents -- register new distribution event
 		if cache.applyTick and distrEvents[cache.applyTick] then distrEvents[cache.applyTick][player.index] = nil end
@@ -160,7 +159,7 @@ function this.stackTransferred(entity, player, cache) -- handle vanilla stack tr
 	if cache.itemCount > 0 then
 		local giveToPlayer = entity.remove_item{ name = cache.item, count = cache.itemCount }
 		
-		if not _(player):setting("immediately-start-crafting") or util.isIgnoredEntity(entity, player) then
+		if not _(player):setting("immediately-start-crafting") or _(entity):isIgnored(player) then
 			giveToPlayer = giveToPlayer + this.undoConsumption(entity, player, cache)
 		end
 		
@@ -180,25 +179,31 @@ end
 function this.undoConsumption(entity, player, cache) -- some entities consume items directly after vanilla stack transfer
 	local item = cache.item
 	local burner = entity.burner
+	local returnCount = 0
 	
-	if _(entity):is("crafting machine") and not cache.isCrafting and entity.is_crafting() and item_lib.isIngredient(item, entity.get_recipe())then
-		local returnCount = item_lib.getRecipeIngredientCount(entity.get_recipe(), item)
-		local inputContents = item_lib.getInputContents(entity)
-		
-		for name,count in pairs(cache.inputContents) do
-			local missing = count - (inputContents[name] or 0)
-			if missing > 0 then entity.insert{ name = name, count = missing } end
-			if item == name then returnCount = returnCount - missing end
+	if _(entity):is("crafting machine") and not cache.isCrafting and entity.is_crafting() then
+		returnCount = _(entity.get_recipe()):ingredientcount(item)
+
+		if returnCount > 0 then
+			local inputContents = _(entity):contents("input")
+
+			for name,count in pairs(cache.inputContents) do -- missing is the part of consumed ingredients that was already in machine
+				local missing = count - (inputContents[name] or 0)
+				if missing > 0 then entity.insert{ name = name, count = missing } end
+				if item == name then returnCount = returnCount - missing end
+			end
+			
+			entity.crafting_progress = 0
 		end
-		
-		entity.crafting_progress = 0
-		return returnCount
-	elseif burner and burner.remaining_burning_fuel > cache.remainingFuel and burner.currently_burning.name == item then
-		burner.remaining_burning_fuel = 0
-		return 1
+
 	end
 	
-	return 0
+	if burner and burner.remaining_burning_fuel > cache.remainingFuel and burner.currently_burning.name == item then
+		burner.remaining_burning_fuel = 0
+		returnCount = returnCount + 1
+	end
+	
+	return returnCount
 end
 
 function this.markEntity(entity, name, x, y) -- create distribution marker
@@ -278,7 +283,7 @@ function this.script_raised_destroy(event)
 	event = event or {}
 	event.entity = event.entity or event.destroyed_entity or event.destroyedEntity or event.target or nil
 	
-	if (util.isValid(event.entity)) then this.on_pre_player_mined_item(event) end
+	if _(event.entity):is("valid") then this.on_pre_player_mined_item(event) end
 end
 
 function this.on_player_died(event) -- resets distribution cache and events for that player

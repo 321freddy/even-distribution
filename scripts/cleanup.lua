@@ -4,7 +4,6 @@ local cleanup = {}
 local drag = scripts.drag
 local item_lib = scripts["item-lib"]
 local util = scripts.util
-local setup = scripts.setup
 local metatables = scripts.metatables
 local config = require("config")
 
@@ -90,19 +89,20 @@ function cleanup.filterEntities(entities, item, dropToChests)
 	local prototype = game.item_prototypes[item]
 	
 	_(entities):each(function(__, entity)
+		entity = _(entity)
 
 		if entity.can_insert(item) then
-			if entity.burner and entity.burner.fuel_categories[prototype.fuel_category] and entity.get_fuel_inventory().can_insert(item) then
+			if entity.burner and entity.burner.fuel_categories[prototype.fuel_category] and entity:inventory("fuel").can_insert(item) then
 				result[entity] = entity
-			elseif util.isCraftingMachine(entity) and item_lib.isIngredient(item, entity.get_recipe() or (entity.type == "furnace" and entity.previous_recipe)) then
+			elseif entity:is("crafting machine") and _(entity.get_recipe() or (entity.type == "furnace" and entity.previous_recipe)):hasIngredient(item) then
 				result[entity] = entity
-			elseif entity.prototype.logistic_mode == "requester" and item_lib.getRemainingRequest(item, entity) > 0 then
+			elseif entity.prototype.logistic_mode == "requester" and entity:remainingRequest(item) > 0 then
 				result[entity] = entity
 			elseif dropToChests and (entity.type == "container" or entity.type == "logistic-container") and entity.get_item_count(item) > 0 then
 				result[entity] = entity
-			elseif entity.type == "lab" and entity.get_inventory(defines.inventory.lab_input).can_insert(item) then
+			elseif entity.type == "lab" and entity:inventory("lab_input").can_insert(item) then
 				result[entity] = entity
-			elseif entity.type == "ammo-turret" and item_lib.isTurretAmmo(prototype, entity) then
+			elseif entity.type == "ammo-turret" and entity:supportsAmmo(prototype) then
 				result[entity] = entity
 			elseif entity.type == "roboport" then
 				result[entity] = entity
@@ -118,7 +118,7 @@ end
 function cleanup.getEntities(area, player)
 	local entities = {}
 	for __,entity in ipairs(player.surface.find_entities_filtered{ area = area, force = player.force }) do
-		if util.isValid(entity) and entity.operable and not util.isIgnoredEntity(entity, player) then
+		if _(entity):is("valid") and entity.operable and not _(entity):isIgnored(player) then
 			entities[#entities + 1] = entity
 		end
 	end
