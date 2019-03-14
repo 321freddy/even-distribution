@@ -131,27 +131,27 @@ function this.stackTransferred(entity, player, cache) -- handle vanilla stack tr
 		distrEvents[cache.applyTick][player.index] = cache
 		
 		if not cache.entities[entity] then
-			--cache.markers[entity] = this.markEntity(entity) -- visuals
+			cache.markers[entity] = this.markEntity(entity) -- visuals
 			cache.entities[entity] = entity
 
-			-- mark entity
-			rendering.draw_sprite{
-				sprite = "item/"..cache.item,
-				render_layer = "selection-box",
-				target = entity,
-				players = {player},
-				surface = entity.surface,
-			}
+			-- -- mark entity
+			-- rendering.draw_sprite{
+			-- 	sprite = "item/"..cache.item,
+			-- 	render_layer = "selection-box",
+			-- 	target = entity,
+			-- 	players = {player},
+			-- 	surface = entity.surface,
+			-- }
 
-			local pos = entity.position
-			cache.markers[entity] = entity.surface.create_entity{
-				name = "highlight-box",
-				position = { pos.x + (x or 0), pos.y + (y or 0) },
-				source = entity,
-				render_player_index = player.index,
-				box_type = "electricity",
-				blink_interval = 0,
-			}
+			-- local pos = entity.position
+			-- cache.markers[entity] = entity.surface.create_entity{
+			-- 	name = "highlight-box",
+			-- 	position = { pos.x + (x or 0), pos.y + (y or 0) },
+			-- 	source = entity,
+			-- 	render_player_index = player.index,
+			-- 	box_type = "electricity",
+			-- 	blink_interval = 0,
+			-- }
 		end
 	end
 	
@@ -263,7 +263,7 @@ function this.resetCache(cache)
 	cache.half = false
 	cache.entities = metatables.new("entityAsIndex")
 	this.unmarkEntities(cache)
-	rendering.clear() -- TODO: fix
+	--rendering.clear() -- TODO: fix
 end
 
 function this.on_pre_player_mined_item(event) -- remove mined/dead entities from cache
