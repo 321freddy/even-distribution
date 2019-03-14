@@ -20,6 +20,9 @@ metatables.helpers = {
     __newindex = function(t, k, v)
         rawget(t, "__on")[k] = v
     end,
+    __len = function(t)
+        return #rawget(t, "__on")
+    end,
 }
 
 function this.on(obj) -- wraps object in table with helper methods
