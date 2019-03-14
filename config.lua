@@ -11,7 +11,14 @@ config.ignoredEntities = -- entity type or name
 { 
     ["player"] = true, 
     ["character-corpse"] = true, 
-    ["factory-overlay-controller"] = true 
+    ["factory-overlay-controller"] = true,
+
+    ["transport-belt"] = true, 
+    ["underground-belt"] = true, 
+    ["splitter"] = true, 
+    ["simple-entity"] = true, 
+    ["simple-entity-with-force"] = true, 
+    ["simple-entity-with-owner"] = true,
 }
 
 config.rangeMultiplier = 3 -- inventory cleanup drop range multiplier
