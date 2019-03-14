@@ -117,11 +117,18 @@ end
 
 function cleanup.getEntities(area, player)
 	local entities = {}
+
 	for __,entity in ipairs(player.surface.find_entities_filtered{ area = area, force = player.force }) do
-		if _(entity):is("valid") and entity.operable and not _(entity):isIgnored(player) then
+
+		if _(entity):is("valid") and 
+		   entity.operable and 
+		   not entity.to_be_deconstructed(player.force) and 
+		   not _(entity):isIgnored(player) then
+			
 			entities[#entities + 1] = entity
 		end
 	end
+	
 	return entities
 end
 
