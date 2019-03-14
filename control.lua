@@ -4,13 +4,7 @@ require("framework"){
 
 		"metatables",
 		"util",
-		"helpers",
-
-		"LuaControl",
-		"LuaPlayer",
-		"LuaEntity",
-		"LuaRecipe",
-		
+		"helpers",		
 		"setup",
 		"drag",
 		"cleanup",

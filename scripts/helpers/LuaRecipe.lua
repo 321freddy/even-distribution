@@ -1,5 +1,3 @@
-local this = {}
-local config = require("config")
 local recipe = scripts.helpers
 local _ = scripts.helpers.on
 
@@ -30,5 +28,3 @@ function recipe:ingredientmap() -- ingredient table: name --> amount
 	
 	return ingredients
 end
-
-return this

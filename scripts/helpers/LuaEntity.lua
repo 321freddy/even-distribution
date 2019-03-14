@@ -1,4 +1,3 @@
-local this = {}
 local util = scripts.util
 local config = require("config")
 local entity = scripts.helpers
@@ -101,5 +100,3 @@ function entity:supportsAmmo(item)
 	local ammoType = item.get_ammo_type("turret") or item.get_ammo_type()
 	return attackParameters and (attackParameters.ammo_category == ammoType.category)
 end
-
-return this

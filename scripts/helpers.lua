@@ -4,6 +4,15 @@ local metatables = scripts.metatables
 
 local type, rawget, rawset, pairs, ipairs = type, rawget, rawset, pairs, ipairs
 
+
+function this.on_scripts_initialized()
+    require("scripts.helpers.LuaControl")
+    require("scripts.helpers.LuaEntity")
+    require("scripts.helpers.LuaPlayer")
+    require("scripts.helpers.LuaRecipe")
+end
+
+
 metatables.helpers = {
     __index = function(t, k)
         return this[k] or rawget(t, "__on")[k]

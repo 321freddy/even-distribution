@@ -1,5 +1,3 @@
-local this = {}
-local config = require("config")
 local control = scripts.helpers
 local _ = scripts.helpers.on
 
@@ -63,5 +61,3 @@ function control:contents(name)
     if _(inv):isnot("valid") then return {} end
     return inv.get_contents()
 end
-
-return this

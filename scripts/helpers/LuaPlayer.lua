@@ -1,4 +1,3 @@
-local this = {}
 local config = require("config")
 local player = scripts.helpers
 local _ = scripts.helpers.on
@@ -114,5 +113,3 @@ function player:returnItems(item, amount, takenFromCar, takenFromTrash)
 		self.surface.spill_item_stack(self.position, { name = item, count = remaining }, false)
 	end
 end
-
-return this
