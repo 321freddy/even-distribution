@@ -67,6 +67,8 @@ function this.on_selected_entity_changed(event)
 	local cursor_stack = _(player.cursor_stack); if cursor_stack:isnot("valid stack") then return end
 	local selected     = _(player.selected)    ; if selected:isnot("valid") then return end
 
+	if not selected.can_insert{ name = cursor_stack.name, count = 1 } then return end
+
 	local cache = _(global.cache[index]):set{
 		tick             = event.tick,
 		item             = cursor_stack.name,
