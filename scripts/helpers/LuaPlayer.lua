@@ -17,12 +17,20 @@ function player:trashItems()
 	local defaultTrash = global.defaultTrash
 	local trash        = self:contents("player_trash")
 	
-	local autoTrash
-	if self:has("valid", "character") then autoTrash = self.auto_trash_filters else autoTrash = {} end
-	
-	local requests
-	if self:setting("cleanup-logistic-request-overflow") then requests = self:requests() else requests = {} end
-	
+	local requests, autoTrash
+	if self:has("valid", "character") then 
+		autoTrash = self.auto_trash_filters
+
+		if self:setting("cleanup-logistic-request-overflow") then 
+			requests = self:requests()
+		else 
+			requests = {} 
+		end
+	else 
+		requests = {} 
+		autoTrash = {}
+	end
+
 	for item,count in pairs(self:contents()) do
 		local targetAmount = autoTrash[item] or requests[item] or customTrash[item] or defaultTrash[item]
 		
