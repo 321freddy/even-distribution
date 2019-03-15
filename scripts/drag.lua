@@ -1,7 +1,6 @@
 local this = {}
 local util = scripts.util
 local metatables = scripts.metatables
-local item_lib = scripts["item-lib"]
 local config = require("config")
 
 local helpers = scripts.helpers

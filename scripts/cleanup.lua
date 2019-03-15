@@ -2,7 +2,6 @@
 
 local cleanup = {}
 local drag = scripts.drag
-local item_lib = scripts["item-lib"]
 local util = scripts.util
 local metatables = scripts.metatables
 local config = require("config")
@@ -66,10 +65,10 @@ function cleanup.insert(entity, item, amount)
 		local inventory = entity.get_fuel_inventory()
 		if inventory then return inventory.insert{ name = item, count = amount } else return 0 end
 	elseif entity.prototype.logistic_mode == "requester" then
-		local requested = item_lib.getRemainingRequest(item, entity)
+		local requested = entity:remainingRequest(item)
 		if requested > 0 then return entity.insert{ name = item, count = math.min(amount, requested) } else return 0 end
 	elseif prototype.type == "module" and entity.get_module_inventory() then
-		local inventory = item_lib.getInputInventory(entity)  
+		local inventory = entity:inventory("input")  
 		if inventory then return inventory.insert{ name = item, count = amount } else return 0 end -- Only insert modules in craftng machine input inventory
 	elseif entity.type == "car" then
 		if prototype.type == "ammo" then
