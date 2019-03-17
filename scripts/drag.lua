@@ -1,5 +1,6 @@
 local this = {}
 local util = scripts.util
+local visuals = scripts.visuals
 local metatables = scripts.metatables
 local config = require("config")
 
@@ -52,7 +53,7 @@ function this.distributeItems(player_index, cache)
 			end
 			
 			-- visuals
-			this.spawnDistributionText(entity, item, itemsInserted, 0, color)
+			entity:spawnDistributionText(item, itemsInserted, 0, color)
 
 		end)
 	end
@@ -130,7 +131,7 @@ function this.stackTransferred(entity, player, cache) -- handle vanilla stack tr
 		distrEvents[cache.applyTick][player.index] = cache
 		
 		if not cache.entities[entity] then
-			cache.markers[entity] = this.markEntity(entity) -- visuals
+			cache.markers[entity] = entity:mark() -- visuals
 			cache.entities[entity] = entity
 
 			-- -- mark entity
@@ -174,7 +175,7 @@ function this.stackTransferred(entity, player, cache) -- handle vanilla stack tr
 		end
 	end
 	
-	this.destroyTransferText(entity)
+	entity:destroyTransferText()
 end
 
 function this.undoConsumption(entity, player, cache) -- some entities consume items directly after vanilla stack transfer
@@ -207,61 +208,11 @@ function this.undoConsumption(entity, player, cache) -- some entities consume it
 	return returnCount
 end
 
-function this.markEntity(entity, name, x, y) -- create distribution marker
-	name = name or "distribution-marker"
-	local pos = entity.position
-	local params = {
-		name = name,
-		position = { pos.x + (x or 0), pos.y + (y or 0) },
-		force = entity.force,
-	}
-	
-	if name == "distribution-marker" then
-		marker = entity.surface.create_entity(params)
-		marker.destructible = false
-		return marker
-	else
-		entity.surface.create_trivial_smoke(params)
-	end
-end
-
-function this.destroyTransferText(entity) -- remove flying text from stack transfer
-	local surface = entity.surface
-	local pos = entity.position
-	
-	util.destroyIfValid(surface.find_entities_filtered{
-		name = "flying-text",
-		area = {{pos.x, pos.y - 1}, {pos.x, pos.y}},
-		limit = 1
-	}[1])
-end
-
-function this.unmarkEntities(cache) -- destroy all distribution markers of a player (using cache)
-	_(cache.markers):where("valid", function(marker)
-		this.markEntity(marker, "distribution-final-anim", 0, 0)
-		marker.destroy()
-	end)
-	
-	cache.markers = metatables.new("entityAsIndex")
-end
-
-function this.spawnDistributionText(entity, item, amount, offY, color) -- spawn distribution text
-	local surface = entity.surface
-	local pos = entity.position
-
-	surface.create_entity{ -- spawn text
-		name = "distribution-text",
-		position = { pos.x - 0.5, pos.y + (offY or 0) },
-		text = {"", "       ", -amount, " ", game.item_prototypes[item].localised_name},
-		color = color or config.colors.default
-	}
-end
-
 function this.resetCache(cache)
 	cache.item = nil
 	cache.half = false
 	cache.entities = metatables.new("entityAsIndex")
-	this.unmarkEntities(cache)
+	visuals.unmark(cache)
 	--rendering.clear() -- TODO: fix
 end
 

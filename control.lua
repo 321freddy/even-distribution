@@ -4,8 +4,9 @@ require("framework"){
 
 		"metatables",
 		"util",
-		"helpers",		
+		"helpers",	
 		"setup",
+		"visuals",
 		"drag",
 		"cleanup",
 

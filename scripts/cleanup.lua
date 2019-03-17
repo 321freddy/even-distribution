@@ -28,6 +28,7 @@ function cleanup.on_inventory_cleanup(event)
 			util.distribute(filtered, totalItems, function(entity, amount)
 				
 				local itemsInserted = 0
+				entity = _(entity)
 				
 				if amount > 0 then
 					local takenFromPlayer = player:removeItems(item, amount, false, true)
@@ -44,10 +45,10 @@ function cleanup.on_inventory_cleanup(event)
 				
 				-- visuals
 				if itemsInserted > 0 then
-					drag.spawnDistributionText(entity, item, itemsInserted, offY)
+					entity:spawnDistributionText(item, itemsInserted, offY)
 					
 					if not marked[entity] then
-						drag.markEntity(entity, "cleanup-distribution-anim")
+						entity:mark("cleanup-distribution-anim")
 						marked[entity] = true
 					end
 				end
