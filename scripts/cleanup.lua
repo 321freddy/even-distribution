@@ -48,7 +48,7 @@ function cleanup.on_inventory_cleanup(event)
 					entity:spawnDistributionText(item, itemsInserted, offY)
 					
 					if not marked[entity] then
-						entity:markAnimated("blink")
+						entity:mark(player)
 						marked[entity] = true
 					end
 				end
