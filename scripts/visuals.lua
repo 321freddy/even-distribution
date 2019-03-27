@@ -52,12 +52,6 @@ function helpers:markAnimated(type) -- create animated marker
             blink_interval = 6,
             time_to_live = 60 * 1,
         }
-    else
-        return self.surface.create_trivial_smoke{
-            name = type,
-            position = self.position,
-            force = self.force,
-        }
     end
 end
 
