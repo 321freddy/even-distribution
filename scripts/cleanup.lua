@@ -13,7 +13,7 @@ function cleanup.on_inventory_cleanup(event)
 	local player = _(game.players[event.player_index]); if player:isnot("valid player") then return end
 	local items  = _(player:trashItems())             ; if items:is("empty") then return end
 
-	local area = util.getPerimeter(player.position, player:droprange())
+	local area = _(player.position):perimeter(player:droprange())
 	local entities = _(cleanup.getEntities(area, player)); if entities:is("empty") then return end
 	
 	local offY, marked = 0, metatables.new("entityAsIndex")
@@ -48,7 +48,7 @@ function cleanup.on_inventory_cleanup(event)
 					entity:spawnDistributionText(item, itemsInserted, offY)
 					
 					if not marked[entity] then
-						entity:mark("cleanup-distribution-anim")
+						entity:markAnimated("cleanup-distribution-anim")
 						marked[entity] = true
 					end
 				end
@@ -57,6 +57,10 @@ function cleanup.on_inventory_cleanup(event)
 			offY = offY - 0.5
 		end
 	end)
+
+	-- if #marked > 0 then
+	-- 	player.play_sound{ path = "utility/tutorial_notice" }
+	-- end
 end
 
 function cleanup.insert(entity, item, amount)

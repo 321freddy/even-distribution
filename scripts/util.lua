@@ -5,20 +5,6 @@ function util.doEvery(tick, func, args)
 	if (game.tick % tick) == 0 then func(args) end
 end
 
-function util.offsetBox(box, off)
-	local x1, y1, x2, y2 = box.left_top.x, box.left_top.y, box.right_bottom.x, box.right_bottom.y
-	return {left_top = {x = x1 + off.x, y = y1 + off.y}, right_bottom = {x = x2 + off.x, y = y2 + off.y}}
-end
-
-function util.extendBox(box, tiles)
-	local x1, y1, x2, y2 = box.left_top.x, box.left_top.y, box.right_bottom.x, box.right_bottom.y
-	return {left_top = {x = x1 - tiles, y = y1 - tiles}, right_bottom = {x = x2 + tiles, y = y2 + tiles}}
-end
-
-function util.getPerimeter(pos, radius)
-	return {left_top = {x = pos.x - radius, y = pos.y - radius}, right_bottom = {x = pos.x + radius, y = pos.y + radius}}
-end
-
 function util.isValid(object)
 	return object and object.valid
 end

@@ -6,38 +6,82 @@ local config = require("config")
 local helpers = scripts.helpers
 local _ = helpers.on
 
-function helpers:mark(type, x, y) -- create distribution marker of given type on entity
-	type = type or "distribution-marker"
-	local pos = self.position
-	local params = {
-		name = type,
-		position = { pos.x + (x or 0), pos.y + (y or 0) },
-		force = self.force,
-	}
-	
-	if type == "distribution-marker" then
-		marker = self.surface.create_entity(params)
-		marker.destructible = false
-		return marker
-	else
-		self.surface.create_trivial_smoke(params)
-	end
+function helpers:mark(player, item, count) -- create highlight-box marker with item and count
+    local box = _(self.selection_box)
+    local x_scale = 0.63 * box:boxwidth()
+    local y_scale = 0.63 * box:boxheight()
+    
+    return {
+        rendering.draw_sprite{
+            sprite = "utility/entity_info_dark_background",
+            render_layer = "selection-box",
+            target = self,
+            players = {player},
+            surface = self.surface,
+            x_scale = x_scale,
+            y_scale = y_scale,
+        },
+        rendering.draw_sprite{
+            sprite = "item/"..item,
+            render_layer = "selection-box",
+            target = self,
+            players = {player},
+            surface = self.surface,
+            x_scale = x_scale,
+            y_scale = y_scale,
+        },
+        self.surface.create_entity{
+            name = "highlight-box",
+            position = self.position,
+            source = self,
+            render_player_index = player.index,
+            box_type = "electricity",
+            blink_interval = 0,
+        },
+    }
+end
+
+function helpers:markAnimated(type) -- create animated marker
+    if type == "blink" then
+        return self.surface.create_entity{
+            name = "highlight-box",
+            position = self.position,
+            source = self,
+            --render_player_index = self.render_player.index,
+            box_type = "electricity",
+            blink_interval = 6,
+            time_to_live = 60 * 1,
+        }
+    else
+        return self.surface.create_trivial_smoke{
+            name = type,
+            position = self.position,
+            force = self.force,
+        }
+    end
 end
 
 function helpers:unmark() -- destroy distribution marker of entity
-	self:mark("distribution-final-anim")
-    self.destroy()
+    local source
+
+    self:where("table", function(__, marker)
+            marker.destroy()
+        end)
+        :where("number", function(__, id)
+            source = source or _(rendering.get_target(id).entity)
+            rendering.destroy(id)
+        end)
+
+    if source:is("valid") then source:markAnimated("blink") end
 end
 
 function this.unmark(cache) -- destroy all distribution markers of a player (using cache)
-	_(cache.markers):where("valid", function(marker)
-		_(marker):unmark()
+	_(cache.markers):each(function(markers)
+        _(markers):unmark()
 	end)
 	
 	cache.markers = metatables.new("entityAsIndex")
 end
-
-
 
 function helpers:destroyTransferText() -- remove flying text from stack transfer
 	local surface = self.surface

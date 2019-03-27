@@ -52,8 +52,9 @@ function this.distributeItems(player_index, cache)
 				color = config.colors.insufficientItems
 			end
 			
-			-- visuals
+			-- feedback
 			entity:spawnDistributionText(item, itemsInserted, 0, color)
+			-- player.play_sound{ path = "utility/inventory_move" }
 
 		end)
 	end
@@ -131,27 +132,8 @@ function this.stackTransferred(entity, player, cache) -- handle vanilla stack tr
 		distrEvents[cache.applyTick][player.index] = cache
 		
 		if not cache.entities[entity] then
-			cache.markers[entity] = entity:mark() -- visuals
+			cache.markers[entity] = entity:mark(player, cache.item, cache.itemCount) -- visuals
 			cache.entities[entity] = entity
-
-			-- -- mark entity
-			-- rendering.draw_sprite{
-			-- 	sprite = "item/"..cache.item,
-			-- 	render_layer = "selection-box",
-			-- 	target = entity,
-			-- 	players = {player},
-			-- 	surface = entity.surface,
-			-- }
-
-			-- local pos = entity.position
-			-- cache.markers[entity] = entity.surface.create_entity{
-			-- 	name = "highlight-box",
-			-- 	position = { pos.x + (x or 0), pos.y + (y or 0) },
-			-- 	source = entity,
-			-- 	render_player_index = player.index,
-			-- 	box_type = "electricity",
-			-- 	blink_interval = 0,
-			-- }
 		end
 	end
 	
@@ -221,9 +203,9 @@ function this.on_pre_player_mined_item(event) -- remove mined/dead entities from
 	
 	for __,cache in pairs(global.cache) do
 		if cache.entities[entity] then
-			cache.entities[entity] = nil
-			util.destroyIfValid(cache.markers[entity]) -- remove marker
+			_(cache.markers[entity]):unmark() -- remove markers
 			cache.markers[entity] = nil
+			cache.entities[entity] = nil
 		end
 	end
 end

@@ -35,7 +35,7 @@ function entity:outputitemcount(item) -- get count of a specific item in any out
     local count = 0
     local filter = {
         type = "inserter",
-        area = util.offsetBox(util.extendBox(self.prototype.collision_box, 3), self.position)
+        area = _(self.bounding_box):expand(3)
 	}
     
 	for __,entity in pairs(self.surface.find_entities_filtered(filter)) do

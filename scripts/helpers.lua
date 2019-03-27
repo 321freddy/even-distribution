@@ -10,6 +10,8 @@ function this.on_scripts_initialized()
     require("scripts.helpers.LuaEntity")
     require("scripts.helpers.LuaPlayer")
     require("scripts.helpers.LuaRecipe")
+    require("scripts.helpers.Position")
+    require("scripts.helpers.BoundingBox")
 end
 
 
@@ -40,6 +42,8 @@ end
 
 local conditions = {
     ["nil"] = function(obj) return obj == nil end,
+    ["number"] = function(obj) return type(obj) == "number" end,
+    ["table"] = function(obj) return type(obj) == "table" end,
     ["empty"] = util.isEmpty,
     ["filled"] = util.isFilled,
     ["valid"] = util.isValid,
