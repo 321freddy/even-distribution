@@ -37,12 +37,12 @@ function util.countTable(tbl)
 	return count
 end
 
-function util.isEmpty(tbl)
-	return next(tbl) == nil
+function util.isEmpty(tbl) -- empty table
+	return type(tbl) == "table" and next(tbl) == nil
 end
 
-function util.isFilled(tbl)
-	return next(tbl) ~= nil
+function util.isFilled(tbl) -- filled table
+	return type(tbl) == "table" and next(tbl) ~= nil
 end
 
 function util.distribute(entities, totalItems, func)

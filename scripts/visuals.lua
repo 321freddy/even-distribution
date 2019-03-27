@@ -6,16 +6,37 @@ local config = require("config")
 local helpers = scripts.helpers
 local _ = helpers.on
 
+local function getSprite(item)
+    return "item/"..item
+end
+
+local function getShortCount(count)
+    if count >= 1000000000 then return (math.floor(count / 1000000) / 10).."G" end
+    if count >= 1000000    then return (math.floor(count / 10000) / 10).."M" end
+    if count >= 1000       then return (math.floor(count / 100) / 10).."K" end
+    return count
+end
+
 function helpers:mark(player, item, count) -- create highlight-box marker with item and count
     
     if item ~= nil then
 
         local box = _(self.selection_box)
-        local x_scale = 0.63 * box:boxwidth()
-        local y_scale = 0.63 * box:boxheight()
-
+        local width = box:boxwidth()
+        local height = box:boxheight()
+        local x_scale = 0.63 * width
+        local y_scale = 0.63 * height
+        
         return {
-            rendering.draw_sprite{
+            box = self.surface.create_entity{
+                name = "highlight-box",
+                position = self.position,
+                source = self,
+                render_player_index = player.index,
+                box_type = "electricity",
+                blink_interval = 0,
+            },
+            bg = rendering.draw_sprite{
                 sprite = "utility/entity_info_dark_background",
                 render_layer = "selection-box",
                 target = self,
@@ -24,8 +45,8 @@ function helpers:mark(player, item, count) -- create highlight-box marker with i
                 x_scale = x_scale,
                 y_scale = y_scale,
             },
-            rendering.draw_sprite{
-                sprite = "item/"..item,
+            icon = rendering.draw_sprite{
+                sprite = getSprite(item),
                 render_layer = "selection-box",
                 target = self,
                 players = {player},
@@ -33,14 +54,15 @@ function helpers:mark(player, item, count) -- create highlight-box marker with i
                 x_scale = x_scale,
                 y_scale = y_scale,
             },
-            self.surface.create_entity{
-                name = "highlight-box",
-                position = self.position,
-                source = self,
-                render_player_index = player.index,
-                box_type = "electricity",
-                blink_interval = 0,
-            },
+            text = rendering.draw_text({
+                text = count,
+                target = self,
+                --target_offset = { -0.9 * width * 0.5, -0.9 * height * 0.5 },
+                players = {player},
+                surface = self.surface,
+                alignment = "center",
+                color = config.colors.default
+            })
         }
     else
         -- blink animation
@@ -53,6 +75,13 @@ function helpers:mark(player, item, count) -- create highlight-box marker with i
             blink_interval = 6,
             time_to_live = 60 * 1,
         }
+    end
+end
+
+function this.update(marker, item, count)
+    if marker then
+        rendering.set_sprite(marker.icon, getSprite(item))
+        rendering.set_text(marker.text, getShortCount(count))
     end
 end
 

@@ -130,11 +130,21 @@ function this.stackTransferred(entity, player, cache) -- handle vanilla stack tr
 		
 		distrEvents[cache.applyTick] = distrEvents[cache.applyTick] or {}
 		distrEvents[cache.applyTick][player.index] = cache
-		
+
+		local item = cache.item
 		if not cache.entities[entity] then
-			cache.markers[entity] = entity:mark(player, cache.item, cache.itemCount) -- visuals
+			cache.markers[entity] = entity:mark(player, item)
 			cache.entities[entity] = entity
 		end
+
+		---- visuals ----
+		local takeFromCar = player:setting("take-from-car")
+		local totalItems  = player:itemcount(item, takeFromCar) + cache.itemCount
+		if cache.half then totalItems = math.ceil(totalItems / 2) end
+
+		util.distribute(cache.entities, totalItems, function(entity, amount)
+			visuals.update(cache.markers[entity], item, amount)
+		end)
 	end
 	
 	cache.tick = nil -- reset event handler tick to avoid invalid on_player_cursor_stack_changed execution
