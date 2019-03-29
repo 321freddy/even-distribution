@@ -1,6 +1,6 @@
 local this = {}
 
-local getmetatable, setmetatable = getmetatable, setmetatable
+local getmetatable, setmetatable, type = getmetatable, setmetatable, type
 
 function this.uses(obj, name)
     return getmetatable(obj) == this[name]
