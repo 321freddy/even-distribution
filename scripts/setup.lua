@@ -1,4 +1,4 @@
--- Sets up the global table
+-- Sets up the global table and parses settings
 
 local setup = {}
 local util = scripts.util
