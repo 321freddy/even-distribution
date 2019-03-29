@@ -94,13 +94,6 @@ setup.parsedSettings = {
 	),
 }
 
-function setup.on_load()
-	for __,cache in pairs(global.cache) do
-		metatables.use(cache.markers, "entityAsIndex")
-		metatables.use(cache.entities, "entityAsIndex")
-	end
-end
-
 function setup.generateTrashItemList()
 	local items = {}
 	
@@ -119,6 +112,10 @@ function setup.generateTrashItemList()
 	end
 	
 	return items
+end
+
+function setup.on_load()
+	metatables.refresh(global)
 end
 
 return setup

@@ -7,11 +7,25 @@ function this.uses(obj, name)
 end
 
 function this.use(obj, name)
-    if type(obj) == "table" then return setmetatable(obj, this[name]) end
+	if type(obj) == "table" then 
+		obj.__mt = name
+		return setmetatable(obj, this[name]) 
+	end
 end
 
 function this.new(name)
-    return setmetatable({}, this[name])
+	return setmetatable({}, this[name])
+end
+
+function this.refresh(obj)
+	if type(obj) == "table" and not obj.__self then 
+		for key,val in pairs(obj) do
+			this.refresh(val)
+		end
+
+		local mt = type(obj.__mt) == "string" and this[obj.__mt]
+		if mt then return setmetatable(obj, mt) end
+	end
 end
 
 this.entityAsIndex = { -- metatable for using an entity as a table index
