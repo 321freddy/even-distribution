@@ -1,6 +1,6 @@
 local this = {}
 
-local getmetatable, setmetatable, type = getmetatable, setmetatable, type
+local getmetatable, setmetatable, type, rawget, rawset = getmetatable, setmetatable, type, rawget, rawset
 
 function this.uses(obj, name)
     return getmetatable(obj) == this[name]
@@ -8,7 +8,7 @@ end
 
 function this.use(obj, name)
 	if type(obj) == "table" then 
-		obj.__mt = name
+		rawset(obj, "__mt", name)
 		return setmetatable(obj, this[name]) 
 	end
 end
@@ -23,8 +23,11 @@ function this.refresh(obj)
 			this.refresh(val)
 		end
 
-		local mt = type(obj.__mt) == "string" and this[obj.__mt]
-		if mt then return setmetatable(obj, mt) end
+		local name = rawget(obj, "__mt")
+		if type(name) == "string" then
+			local mt = this[name]
+			if mt then return setmetatable(obj, mt) end
+		end
 	end
 end
 
