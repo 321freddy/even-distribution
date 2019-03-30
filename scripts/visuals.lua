@@ -66,7 +66,7 @@ function helpers:mark(player, item, count) -- create highlight-box marker with i
         }
     else
         -- blink animation
-        return self.surface.create_entity{
+        self.surface.create_entity{
             name = "highlight-box",
             position = self.position,
             source = self,
@@ -86,8 +86,9 @@ function this.update(marker, item, count)
 end
 
 function helpers:unmark() -- destroy distribution marker of entity
+    if self:is("object") then return self:is("valid") and self.destroy() end
+    
     local source, player
-
     self:where("table", function(__, marker)
             marker.destroy()
         end)
@@ -97,7 +98,7 @@ function helpers:unmark() -- destroy distribution marker of entity
             rendering.destroy(id)
         end)
 
-    if source:is("valid") and player:is("valid player") then source:mark(player) end
+    if source and player and source:is("valid") and player:is("valid player") then source:mark(player) end
 end
 
 function this.unmark(cache) -- destroy all distribution markers of a player (using cache)
