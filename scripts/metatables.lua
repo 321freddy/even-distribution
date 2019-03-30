@@ -13,6 +13,12 @@ function this.use(obj, name)
 	end
 end
 
+function this.set(obj, name) -- not persistent
+	if type(obj) == "table" then 
+		return setmetatable(obj, this[name]) 
+	end
+end
+
 function this.new(name)
 	return setmetatable({ __mt = name }, this[name])
 end
