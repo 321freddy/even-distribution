@@ -14,7 +14,7 @@ function this.use(obj, name)
 end
 
 function this.new(name)
-	return setmetatable({}, this[name])
+	return setmetatable({ __mt = name }, this[name])
 end
 
 function this.refresh(obj)
