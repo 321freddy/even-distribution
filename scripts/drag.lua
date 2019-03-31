@@ -153,10 +153,6 @@ function this.stackTransferred(entity, player, cache) -- handle vanilla stack tr
 	if cache.itemCount > 0 then
 		local giveToPlayer = entity.remove_item{ name = cache.item, count = cache.itemCount }
 		
-		if not _(player):setting("immediately-start-crafting") or _(entity):isIgnored(player) then
-			giveToPlayer = giveToPlayer + this.undoConsumption(entity, player, cache)
-		end
-		
 		if giveToPlayer > 0 then
 			local cursor_stack = player.cursor_stack
 			if cursor_stack.valid_for_read then
@@ -171,6 +167,7 @@ function this.stackTransferred(entity, player, cache) -- handle vanilla stack tr
 end
 
 function this.undoConsumption(entity, player, cache) -- some entities consume items directly after vanilla stack transfer
+	dlog("undo")
 	local item = cache.item
 	local burner = entity.burner
 	local returnCount = 0
@@ -205,7 +202,6 @@ function this.resetCache(cache)
 	cache.half = false
 	cache.entities = metatables.new("entityAsIndex")
 	visuals.unmark(cache)
-	--rendering.clear() -- TODO: fix
 end
 
 function this.on_pre_player_mined_item(event) -- remove mined/dead entities from cache

@@ -22,13 +22,6 @@ data:extend{
 		default_value = true
 	},
 	{
-		type = "bool-setting",
-		name = "immediately-start-crafting",
-		order = "ac",
-		setting_type = "runtime-per-user",
-		default_value = true,
-	},
-	{
 		type = "int-setting",
 		name = "max-inventory-cleanup-drop-range",
 		order = "ba",
