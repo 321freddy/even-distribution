@@ -166,37 +166,6 @@ function this.stackTransferred(entity, player, cache) -- handle vanilla stack tr
 	entity:destroyTransferText()
 end
 
-function this.undoConsumption(entity, player, cache) -- some entities consume items directly after vanilla stack transfer
-	dlog("undo")
-	local item = cache.item
-	local burner = entity.burner
-	local returnCount = 0
-	
-	if _(entity):is("crafting machine") and not cache.isCrafting and entity.is_crafting() then
-		returnCount = _(entity.get_recipe()):ingredientcount(item)
-
-		if returnCount > 0 then
-			local inputContents = _(entity):contents("input")
-
-			for name,count in pairs(cache.inputContents) do -- missing is the part of consumed ingredients that was already in machine
-				local missing = count - (inputContents[name] or 0)
-				if missing > 0 then entity.insert{ name = name, count = missing } end
-				if item == name then returnCount = returnCount - missing end
-			end
-			
-			entity.crafting_progress = 0
-		end
-
-	end
-	
-	if burner and burner.remaining_burning_fuel > cache.remainingFuel and burner.currently_burning.name == item then
-		burner.remaining_burning_fuel = 0
-		returnCount = returnCount + 1
-	end
-	
-	return returnCount
-end
-
 function this.resetCache(cache)
 	cache.item = nil
 	cache.half = false
