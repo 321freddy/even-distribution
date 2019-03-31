@@ -11,10 +11,19 @@ local function getSprite(item)
 end
 
 local function getShortCount(count)
+    if count == nil then return 0 end
     if count >= 1000000000 then return (math.floor(count / 1000000) / 10).."G" end
     if count >= 1000000    then return (math.floor(count / 10000) / 10).."M" end
     if count >= 1000       then return (math.floor(count / 100) / 10).."K" end
     return count
+end
+
+local function getCountColor(count)
+    if count == 0 or count == nil then
+        return config.colors.insufficientItems
+    else
+        return config.colors.default
+    end
 end
 
 function helpers:mark(player, item, count) -- create highlight-box marker with item and count
@@ -54,13 +63,13 @@ function helpers:mark(player, item, count) -- create highlight-box marker with i
                 y_scale = scale,
             },
             text = rendering.draw_text({
-                text = count,
+                text = getShortCount(count),
                 target = self,
                 --target_offset = { -0.9 * width * 0.5, -0.9 * height * 0.5 },
                 players = {player},
                 surface = self.surface,
                 alignment = "center",
-                color = config.colors.default
+                color = getCountColor(count),
             })
         }
     else
@@ -81,6 +90,7 @@ function this.update(marker, item, count)
     if marker then
         rendering.set_sprite(marker.icon, getSprite(item))
         rendering.set_text(marker.text, getShortCount(count))
+        rendering.set_color(marker.text, getCountColor(count))
     end
 end
 
