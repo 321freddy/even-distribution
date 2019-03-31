@@ -5,58 +5,6 @@ local _ = scripts.helpers.on
 
 -- Helper functions for LuaEntity --
 
--- counts the items and also includes items that are being consumed (fuel in burners, ingredients in assemblers, etc.)
-function entity:entityitemcount(item)
-    local count = self.get_item_count(item)
-	
-    if self:is("crafting machine") then
-		local ingredients = _(self.get_recipe()):ingredientcount(item)
-		
-		if ingredients > 0 then
-			if self.is_crafting() then count = count + ingredients end
-			count = count + self.products_finished * ingredients
-			if self.type == "rocket-silo" then
-				count = count + self.rocket_parts * ingredients
-			end
-		end
-	else
-		count = count + self:outputitemcount(item)
-    end
-    
-	if self:has("valid", "burner") then
-		local burning = self.burner.currently_burning
-		if burning and burning.name == item then count = count + 1 end
-	end
-	
-	return count
-end
-
-function entity:outputitemcount(item) -- get count of a specific item in any output inserters/loaders
-    local count = 0
-    local filter = {
-        type = "inserter",
-        area = _(self.bounding_box):expand(3)
-	}
-    
-	for __,entity in pairs(self.surface.find_entities_filtered(filter)) do
-        if entity.pickup_target == self:toPlain() then
-            local held = entity.held_stack
-            if held.valid_for_read and held.name == item then 
-                count = count + held.count 
-            end
-        end
-    end
-
-    filter.type = "loader"
-    for __,entity in pairs(self.surface.find_entities_filtered(filter)) do
-        if entity.loader_type == "output" then 
-            count = count + entity.get_item_count(item) 
-        end
-    end
-    
-	return count
-end
-
 function entity:entityrequests() -- fetch all requests as table
 	local requests = {}
 	

@@ -7,7 +7,7 @@ function control:itemcount(...)
     if self.is_player() then 
         return self:playeritemcount(...) 
     else
-        return self:entityitemcount(...) 
+        return self.get_item_count(...)
     end
 end
 
