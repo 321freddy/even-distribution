@@ -16,6 +16,7 @@ config.ignoredEntities = -- entity type or name
     ["transport-belt"] = true, 
     ["underground-belt"] = true, 
     ["splitter"] = true, 
+    ["loader"] = true, 
     ["simple-entity"] = true, 
     ["simple-entity-with-force"] = true, 
     ["simple-entity-with-owner"] = true,
