@@ -24,8 +24,7 @@ function helpers:mark(player, item, count) -- create highlight-box marker with i
         local box = _(self.selection_box)
         local width = box:boxwidth()
         local height = box:boxheight()
-        local x_scale = 0.63 * width
-        local y_scale = 0.63 * height
+        local scale = 0.63 * math.min(width, height)
         
         return {
             box = self.surface.create_entity{
@@ -42,8 +41,8 @@ function helpers:mark(player, item, count) -- create highlight-box marker with i
                 target = self,
                 players = {player},
                 surface = self.surface,
-                x_scale = x_scale,
-                y_scale = y_scale,
+                x_scale = scale,
+                y_scale = scale,
             },
             icon = rendering.draw_sprite{
                 sprite = getSprite(item),
@@ -51,8 +50,8 @@ function helpers:mark(player, item, count) -- create highlight-box marker with i
                 target = self,
                 players = {player},
                 surface = self.surface,
-                x_scale = x_scale,
-                y_scale = y_scale,
+                x_scale = scale,
+                y_scale = scale,
             },
             text = rendering.draw_text({
                 text = count,
