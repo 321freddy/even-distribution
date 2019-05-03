@@ -15,7 +15,7 @@ end
 function player:trashItems()
 	local customTrash  = global.settings[self.index].customTrash
 	local defaultTrash = global.defaultTrash
-	local trash        = self:contents("player_trash")
+	local trash        = self:contents("character_trash")
 	
 	local requests, autoTrash
 	if self:has("valid", "character") then 
@@ -75,7 +75,7 @@ end
 function player:removeItems(item, amount, takeFromCar, takeFromTrash)
 	local removed = 0
 	if takeFromTrash then
-		local trash = self:inventory("player_trash")
+		local trash = self:inventory("character_trash")
 		if _(trash):is("valid") then
 			removed = trash.remove{ name = item, count = amount }
 			if amount <= removed then return removed end
@@ -113,7 +113,7 @@ function player:returnItems(item, amount, takenFromCar, takenFromTrash)
 	end
 	
 	if remaining > 0 and takenFromTrash then
-        local trash = self:inventory("player_trash")
+        local trash = self:inventory("character_trash")
         if _(trash):is("valid") then remaining = remaining - trash.insert{ name = item, count = remaining } end
 	end
 	
