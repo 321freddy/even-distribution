@@ -17,9 +17,11 @@ refreshHelpers(global)
 
 
 -- Update player cache metatables
-for __,cache in pairs(global.cache) do
-	rawset(cache.markers, "__mt", "entityAsIndex")
-	rawset(cache.entities, "__mt", "entityAsIndex")
+if global.cache then
+	for __,cache in pairs(global.cache) do
+		if global.markers then  rawset(cache.markers, "__mt", "entityAsIndex") end
+		if global.entities then rawset(cache.entities, "__mt", "entityAsIndex") end
+	end
 end
 
 
