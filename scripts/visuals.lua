@@ -102,9 +102,11 @@ function helpers:unmark() -- destroy distribution marker of entity
             marker.destroy()
         end)
         :where("number", function(__, id)
-            source = source or _(rendering.get_target(id).entity)
-            player = player or _(rendering.get_players(id)[1])
-            rendering.destroy(id)
+            if rendering.is_valid(id) then
+                source = source or _(rendering.get_target(id).entity)
+                player = player or _(rendering.get_players(id)[1])
+                rendering.destroy(id)
+            end
         end)
 
     if source and player and source:is("valid") and player:is("valid player") then source:mark(player) end
