@@ -40,7 +40,7 @@ function helpers:mark(player, item, count) -- create highlight-box marker with i
                 name = "highlight-box",
                 position = self.position,
                 source = self,
-                render_player_index = player.index,
+                render_player_index = player and player.index,
                 box_type = "electricity",
                 blink_interval = 0,
             },
@@ -48,7 +48,7 @@ function helpers:mark(player, item, count) -- create highlight-box marker with i
                 sprite = "utility/entity_info_dark_background",
                 render_layer = "selection-box",
                 target = self,
-                players = {player},
+                players = player and {player},
                 surface = self.surface,
                 x_scale = scale,
                 y_scale = scale,
@@ -57,7 +57,7 @@ function helpers:mark(player, item, count) -- create highlight-box marker with i
                 sprite = getSprite(item),
                 render_layer = "selection-box",
                 target = self,
-                players = {player},
+                players = player and {player},
                 surface = self.surface,
                 x_scale = scale,
                 y_scale = scale,
@@ -66,7 +66,7 @@ function helpers:mark(player, item, count) -- create highlight-box marker with i
                 text = getShortCount(count),
                 target = self,
                 --target_offset = { -0.9 * width * 0.5, -0.9 * height * 0.5 },
-                players = {player},
+                players = player and {player},
                 surface = self.surface,
                 alignment = "center",
                 color = getCountColor(count),
@@ -78,7 +78,7 @@ function helpers:mark(player, item, count) -- create highlight-box marker with i
             name = "highlight-box",
             position = self.position,
             source = self,
-            render_player_index = player.index,
+            render_player_index = player and player.index,
             box_type = "electricity",
             blink_interval = 6,
             time_to_live = 60 * 1,
@@ -103,8 +103,8 @@ function helpers:unmark() -- destroy distribution marker of entity
         end)
         :where("number", function(__, id)
             if rendering.is_valid(id) then
-                source = source or _(rendering.get_target(id).entity)
-                player = player or _(rendering.get_players(id)[1])
+                if not source and rendering.get_target(id)  then source = _(rendering.get_target(id).entity) end
+                if not player and rendering.get_players(id) then player = _(rendering.get_players(id)[1]) end
                 rendering.destroy(id)
             end
         end)
