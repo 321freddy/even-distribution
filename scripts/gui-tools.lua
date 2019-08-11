@@ -36,18 +36,22 @@ local onChangedEvents = {
 }
 
 local specialParameters = {
-	children = true,
-	onCreated = true,
-	onChanged = true,
-	onCheckedStateChanged = true,
-	onClicked = true,
-	onElementChanged = true,
+	children                = true,
+	onCreated               = true,
+	onChanged               = true,
+	onCheckedStateChanged   = true,
+	onClicked               = true,
+	onElementChanged        = true,
 	onSelectionStateChanged = true,
-	onTextChanged = true,
-	onValueChanged = true,
-	ID = true,
-	root = true,
-	unique = true,
+	onTextChanged           = true,
+	onValueChanged          = true,
+	onConfirmed             = true,
+	onSelectedTabChanged    = true,
+	onSwitchStateChanged    = true,
+	onLocationChanged       = true,
+	ID                      = true,
+	root                    = true,
+	unique                  = true,
 }
 
 local function registerHandlers(template, ID)
@@ -189,10 +193,12 @@ function gui.destroy(player, template, parent) -- destroy all gui elements match
 end
 
 local function handleGuiEvent(event, name)
-	local handlers = global.guiEvents[name][event.player_index]
-	if handlers then
-		local handler = handlers[event.element.index]
-		if handler and eventHandlers[handler] then eventHandlers[handler](event) end
+	if event.element.get_mod() == script.mod_name then
+		local handlers = global.guiEvents[name][event.player_index]
+		if handlers then
+			local handler = handlers[event.element.index]
+			if handler and eventHandlers[handler] then eventHandlers[handler](event) end
+		end
 	end
 end
 
