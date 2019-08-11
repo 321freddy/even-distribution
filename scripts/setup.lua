@@ -10,6 +10,21 @@ function setup.on_init()
 	global.distrEvents = global.distrEvents or {}
 	global.settings = {}
 	global.defaultTrash = setup.generateTrashItemList()
+
+	-- GUI events are saved in global.guiEvents["EVENT NAME"][PLAYER INDEX][GUI ELEMENT INDEX]
+	global.guiEvents = global.guiEvents or 
+	{ 
+		onCheckedStateChanged   = {},
+		onClicked               = {},
+		onElementChanged        = {},
+		onSelectionStateChanged = {},
+		onTextChanged           = {},
+		onValueChanged          = {},
+		onConfirmed             = {},
+		onSelectedTabChanged    = {},
+		onSwitchStateChanged    = {},
+		onLocationChanged       = {}, 
+	}
 	
 	for player_index,_ in pairs(game.players) do
 		setup.createPlayerCache(player_index)

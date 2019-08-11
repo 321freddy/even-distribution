@@ -3,8 +3,12 @@ local util = scripts.util
 local templates = scripts["gui-templates"]
 local mod_gui = require("mod-gui")
 
+local helpers = scripts.helpers
+local _ = helpers.on
+
 local MAX_DUPLICATES = 1000
 
+-- GUI events are saved in global.guiEvents["EVENT NAME"][PLAYER INDEX][GUI ELEMENT INDEX]
 local eventHandlers = {}
 
 local events = {

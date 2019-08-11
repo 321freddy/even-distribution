@@ -10,7 +10,7 @@ require("framework"){
 		"gui-tools",
 		"drag",
 		"cleanup",
-		--GUI("entity-notes"),
+		GUI("settings-gui"),
 
 	},
 
