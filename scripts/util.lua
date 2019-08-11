@@ -5,6 +5,22 @@ function util.doEvery(tick, func, args)
 	if (game.tick % tick) == 0 then func(args) end
 end
 
+-- remove leading and trailing whitespaces
+function util.trim(str)
+  return str and (str:gsub("^%s*(.-)%s*$", "%1")) or ""
+end
+
+-- trim and also remove multiple whitespaces
+function util.fullTrim(str)
+  return (util.trim(str):gsub("[ \t\r\n]*[\r\n][ \t\r\n]*", "\r\n"):gsub("[ \t]+", " "))
+end
+
+-- escape string for use with regex
+local quotepattern = '(['..("%^$().[]*+-?"):gsub("(.)", "%%%1")..'])'
+function util.escape(str)
+    return str:gsub(quotepattern, "%%%1")
+end
+
 function util.isValid(object)
 	return object and object.valid
 end

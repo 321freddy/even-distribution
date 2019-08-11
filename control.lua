@@ -7,8 +7,10 @@ require("framework"){
 		"helpers",	
 		"setup",
 		"visuals",
+		"gui-tools",
 		"drag",
 		"cleanup",
+		--GUI("entity-notes"),
 
 	},
 
