@@ -56,6 +56,7 @@ local specialParameters = {
 	ID                      = true,
 	root                    = true,
 	unique                  = true,
+	content                 = true,
 }
 
 local function registerHandlers(template, ID)
@@ -88,11 +89,15 @@ local function registerHandlers(template, ID)
 			registerHandlers(child, ID)
 		end
 	end
+
+	if template.type == "tab" and template.content then -- build tab contents
+		registerHandlers(template.content, ID)
+	end
 end
 
-function gui.registerTemplates(obj)
+function gui.registerTemplates(obj) -- called when lua script is loaded initially, assigns unqiue ID to every template
 	for name,template in pairs(obj.templates) do
-		template.ID = obj.class..";"..name
+		template.ID = obj.class..";"..name -- unique ID, obj.class is assigned by framework.lua
 		registerHandlers(template)
 	end
 end
@@ -160,6 +165,10 @@ function gui.create(player, template, data, parent, ID) -- recursively builds a 
 		for _,child in ipairs(template.children) do
 			gui.create(player, child, data, created, ID)
 		end
+	end
+
+	if template.type == "tab" and parent.type == "tabbed-pane" and template.content then -- build tab contents
+		parent.add_tab(created, gui.create(player, template.content, data, parent, ID))
 	end
 	
 	if template.onCreated then template.onCreated(created, data) end -- fire onCreated event

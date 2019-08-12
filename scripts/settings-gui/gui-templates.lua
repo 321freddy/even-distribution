@@ -60,6 +60,7 @@ this.templates.settingsWindow = {
 		local cache  = _(global.cache[player.index])
 
 		-- ...
+		dlog("clicked")
 	end,
 	children = {
 		{
@@ -67,15 +68,36 @@ this.templates.settingsWindow = {
 			children = {
 				{
 					type = "tab",
+					name = "tab1",
 					caption = "CTRL+Click Drag: Distribute items",
+					content = 
+					{
+						type = "label",
+						name = "label1",
+						caption = "label 1",
+					}
 				},
 				{
 					type = "tab",
+					name = "tab2",
 					caption = "CTRL+Click Drag: Take items",
+					content = 
+					{
+						type = "label",
+						name = "label2",
+						caption = "label 2",
+					}
 				},
 				{
 					type = "tab",
+					name = "tab3",
 					caption = "Inventory Cleanup Hotkey",
+					content = 
+					{
+						type = "label",
+						name = "label3",
+						caption = "label 3",
+					}
 				},
 			}
 		},
