@@ -60,43 +60,189 @@ this.templates.settingsWindow = {
 		local cache  = _(global.cache[player.index])
 
 		-- ...
-		dlog("clicked")
+		--dlog("clicked")
 	end,
 	children = {
 		{
-			type = "tabbed-pane",
+			type = "scroll-pane",
+			style = "control_settings_scroll_pane", --"scroll_pane_with_dark_background_under_subheader",
+			vertical_scroll_policy = "auto-and-reserve-space",
+			onCreated = function(self, data)
+				_(self.style):set{
+					minimal_width = 350,
+					minimal_height = 344,
+					maximal_height = 600,
+				}
+			end,
 			children = {
 				{
-					type = "tab",
-					name = "tab1",
-					caption = "CTRL+Click Drag: Distribute items",
-					content = 
+					type = "frame",
+					direction = "vertical",
+					style = "ed_settings_inner_frame",
+					children = 
 					{
-						type = "label",
-						name = "label1",
-						caption = "label 1",
+						{
+							type = "flow",
+							name = "frame_header",
+							direction = "horizontal",
+							children = 
+							{
+								{
+									type = "label",
+									name = "frame_caption",
+									style = "heading_3_label_yellow",
+									caption = "CTRL+Click Drag: Distribute items",
+								},
+								{
+									type = "empty-widget",
+									style = "ed_stretch",
+								},
+								{
+									type = "checkbox",
+									name = "enable_drag_distribute",
+									caption = "Enable",
+									state = true,
+									onCreated = function(self)
+										local player = _(self.gui.player)
+										self.state = player:setting("enable-ed")
+										self.parent.frame_caption.enabled = self.state
+									end,
+									onChanged = function(event)
+										local self = event.element
+										self.parent.parent.frame_content.visible = self.state
+										self.parent.frame_caption.enabled = self.state
+
+										local player = event.element.gui.player
+										player.mod_settings["enable-ed"] = {value=self.state}
+									end,
+								},
+							}
+						},
+						{
+							type = "flow",
+							name = "frame_content",
+							direction = "vertical",
+							onCreated = function(self)
+								self.visible = _(self.gui.player):setting("enable-ed")
+							end,
+							children = 
+							{
+								{
+									type = "label",
+									caption = "123123123123",
+								},
+								{
+									type = "label",
+									caption = "asdasdasdasd",
+								},
+							}
+						},
 					}
 				},
 				{
-					type = "tab",
-					name = "tab2",
-					caption = "CTRL+Click Drag: Take items",
-					content = 
+					type = "frame",
+					direction = "vertical",
+					style = "ed_settings_inner_frame",
+					children = 
 					{
-						type = "label",
-						name = "label2",
-						caption = "label 2",
+						{
+							type = "flow",
+							name = "frame_header",
+							direction = "horizontal",
+							children = 
+							{
+								{
+									type = "label",
+									name = "frame_caption",
+									style = "heading_3_label_yellow",
+									caption = "CTRL+Click Drag: Take items",
+								},
+								{
+									type = "empty-widget",
+									style = "ed_stretch",
+								},
+								{
+									type = "checkbox",
+									name = "enable_drag_take",
+									caption = "Enable",
+									state = true,
+									onChanged = function(event)
+										local self = event.element
+										self.parent.parent.frame_content.visible = self.state
+										self.parent.frame_caption.enabled = self.state
+									end,
+								},
+							}
+						},
+						{
+							type = "flow",
+							name = "frame_content",
+							direction = "vertical",
+							children = 
+							{
+								{
+									type = "label",
+									caption = "123123123123",
+								},
+								{
+									type = "label",
+									caption = "asdasdasdasd",
+								},
+							}
+						},
 					}
 				},
 				{
-					type = "tab",
-					name = "tab3",
-					caption = "Inventory Cleanup Hotkey",
-					content = 
+					type = "frame",
+					direction = "vertical",
+					style = "ed_settings_inner_frame",
+					children = 
 					{
-						type = "label",
-						name = "label3",
-						caption = "label 3",
+						{
+							type = "flow",
+							name = "frame_header",
+							direction = "horizontal",
+							children = 
+							{
+								{
+									type = "label",
+									name = "frame_caption",
+									style = "heading_3_label_yellow",
+									caption = "Inventory Cleanup Hotkey",
+								},
+								{
+									type = "empty-widget",
+									style = "ed_stretch",
+								},
+								{
+									type = "checkbox",
+									name = "enable_ic",
+									caption = "Enable",
+									state = true,
+									onChanged = function(event)
+										local self = event.element
+										self.parent.parent.frame_content.visible = self.state
+										self.parent.frame_caption.enabled = self.state
+									end,
+								},
+							}
+						},
+						{
+							type = "flow",
+							name = "frame_content",
+							direction = "vertical",
+							children = 
+							{
+								{
+									type = "label",
+									caption = "123123123123",
+								},
+								{
+									type = "label",
+									caption = "asdasdasdasd",
+								},
+							}
+						},
 					}
 				},
 			}

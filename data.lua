@@ -21,3 +21,19 @@ data:extend{
 		speed = 0.05
 	}
 }
+
+
+-- Styles --
+
+local style = data.raw["gui-style"].default
+
+style.ed_stretch = {
+	type = "empty_widget_style",
+	horizontally_stretchable = "on",
+}
+
+style.ed_settings_inner_frame = {
+	type = "frame_style",
+	parent = "frame",
+	horizontally_stretchable = "on",
+}
