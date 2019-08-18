@@ -67,7 +67,6 @@ function this:is(...)
     local isargs = {...}
     local obj = rawget(self, "__on")
     local notModeActive = false
-    local checkMode = "condition"
     local result = true
 
     for __,condition in ipairs(isargs) do
@@ -75,37 +74,79 @@ function this:is(...)
         if condition == "not" then
             notModeActive = not notModeActive                -- toggle notModeActive
 
-        elseif type(condition) == "table" then               -- custom field check
-            local value = obj
-            for __,key in ipairs(condition) do
-                value = value[key]
+        else
+            if type(condition) == "table" then               -- custom field check
+                local value = obj
+                for __,key in ipairs(condition) do
+                    value = value[key]
+                end
+
+                local nestedIs = condition.is or condition.isnot -- nested Is check on custom field
+                if condition.is ~= nil then 
+                    value = type(nestedIs) == "table" and _(value):is(unpack(nestedIs)) or _(value):is(nestedIs)
+                elseif condition.isnot ~= nil then
+                    value = type(nestedIs) == "table" and _(value):isnot(unpack(nestedIs)) or _(value):isnot(nestedIs)
+                end
+
+                result = result and applyNot(notModeActive, value)
+
+            elseif conditions[condition] then       -- normal condition check
+                result = result and applyNot(notModeActive, conditions[condition](obj))
+
+            else                                    -- direct value check
+                result = result and applyNot(notModeActive, obj == condition)
             end
+            notModeActive = false
 
-            local nestedIs = condition.is or condition.isnot -- nested Is check on custom field
-            if condition.is ~= nil then 
-                value = type(nestedIs) == "table" and _(value):is(unpack(nestedIs)) or _(value):is(nestedIs)
-            elseif condition.isnot ~= nil then
-                value = type(nestedIs) == "table" and _(value):isnot(unpack(nestedIs)) or _(value):isnot(nestedIs)
-            end
-
-            result = result and applyNot(notModeActive, value)
-
-        elseif conditions[condition] then       -- normal condition check
-            result = result and applyNot(notModeActive, conditions[condition](obj)) 
-
-        else                                    -- direct value check
-            result = result and applyNot(notModeActive, obj == condition) 
+            -- early return if condition unmet
+           if not result then return result end
         end
-
-         -- early return if condition not met
-        if not result then return result end
     end
 
     return result
 end
 
 function this:isnot(...)
-    return self:is("not", ...)
+    local isargs = {...}
+    local obj = rawget(self, "__on")
+    local notModeActive = false
+    local result = true
+
+    for __,condition in ipairs(isargs) do
+
+        if condition == "not" then
+            notModeActive = not notModeActive                -- toggle notModeActive
+
+        else
+            if type(condition) == "table" then               -- custom field check
+                local value = obj
+                for __,key in ipairs(condition) do
+                    value = value[key]
+                end
+
+                local nestedIs = condition.is or condition.isnot -- nested Is check on custom field
+                if condition.is ~= nil then 
+                    value = type(nestedIs) == "table" and _(value):is(unpack(nestedIs)) or _(value):is(nestedIs)
+                elseif condition.isnot ~= nil then
+                    value = type(nestedIs) == "table" and _(value):isnot(unpack(nestedIs)) or _(value):isnot(nestedIs)
+                end
+
+                result = result and applyNot(notModeActive, value)
+
+            elseif conditions[condition] then       -- normal condition check
+                result = result and applyNot(notModeActive, conditions[condition](obj))
+
+            else                                    -- direct value check
+                result = result and applyNot(notModeActive, obj == condition)
+            end
+            notModeActive = false
+
+            -- early return if condition unmet
+           if not result then return not result end
+        end
+    end
+
+    return not result
 end
 
 function this:has(condition, ...)
@@ -157,8 +198,34 @@ function this:where(...)
     end
 end
 
-function this:unless(...)
-    return self:where("not", ...) 
+function this:unless(...) -- wherenot
+    local args = {...}
+    local func = args[#args]
+    local obj = rawget(self, "__on")
+    local iter = metatables.uses(obj, "entityAsIndex") and util.epairs or pairs
+
+    if #args > 1 and type(func) == "function" then -- if user passed anonymouse function to where() directly (as last argument)
+        args[#args] = nil
+
+        for k,v in iter(obj) do
+            if _(v or k):isnot(unpack(args)) then
+                func(k, v)
+            end 
+        end
+
+        return self
+
+    else  -- else only filter out results
+        local result = {}
+            
+        for k,v in iter(obj) do
+            if _(v or k):isnot(...) then
+                result[k] = v
+            end
+        end
+
+        return _(result)
+    end
 end
 
 function this:wherehas(condition, ...)
