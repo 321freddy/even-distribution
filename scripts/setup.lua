@@ -69,8 +69,6 @@ function setup.on_init()
 		global.settings[player_index] = settings
 
 		setup.parsePlayerSettings(player_index)
-
-		dlog(global.settings)
 	end
 end
 
