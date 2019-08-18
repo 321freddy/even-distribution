@@ -8,7 +8,7 @@ local defaultTrash = require("default-trash")
 function setup.on_init()
 	global.cache = global.cache or {}
 	global.distrEvents = global.distrEvents or {}
-	global.settings = {}
+	global.settings = global.settings or {}
 	global.defaultTrash = setup.generateTrashItemList()
 
 	-- GUI events are saved in global.guiEvents["EVENT NAME"][PLAYER INDEX][GUI ELEMENT INDEX]
@@ -26,9 +26,51 @@ function setup.on_init()
 		onLocationChanged       = {}, 
 	}
 	
-	for player_index,_ in pairs(game.players) do
+	for player_index,player in pairs(game.players) do
 		setup.createPlayerCache(player_index)
+
+		-- init default settings
+		local settings = global.settings[player_index] or {}
+
+		if settings.customTrash == nil then
+			settings.customTrash = {
+				["iron-plate"]      = 800,
+				["copper-plate"]    = 600,
+				["steel-plate"]     = 600,
+				["stone-brick"]     = 400,
+				["artillery-shell"] = 0,
+			}
+		end
+		if settings.enableDragDistribute == nil         then settings.enableDragDistribute = true end
+		if settings.enableDragTake == nil               then settings.enableDragTake = true end
+		if settings.enableInventoryCleanupHotkey == nil then settings.enableInventoryCleanupHotkey = true end
+		if settings.takeFromInventory == nil            then settings.takeFromInventory = true end
+		if settings.takeFromCar == nil                  then settings.takeFromCar = true end
+		if settings.cleanupRequestOverflow == nil       then settings.cleanupRequestOverflow = true end
+
+
+		-- migrate settings from old mod version
+		if settings.version == nil then
+			if player.mod_settings["inventory-cleanup-custom-trash"].value == "iron-plate:800 copper-plate:600 steel-plate:600 stone-brick:400" then
+				-- change saved default value from old mod version
+				settings.customTrash["artillery-shell"] = 0
+			end
+
+			settings.enableDragDistribute   = player.mod_settings["enable-ed"].value
+			settings.takeFromCar            = player.mod_settings["take-from-car"].value
+			settings.cleanupRequestOverflow = player.mod_settings["cleanup-logistic-request-overflow"].value
+
+		--elseif settings.version == "0.3.x" then
+			-- ...
+		end
+
+		-- update settings
+		settings.version = game.active_mods["even-distribution"]
+		global.settings[player_index] = settings
+
 		setup.parsePlayerSettings(player_index)
+
+		dlog(global.settings)
 	end
 end
 
@@ -57,7 +99,6 @@ function setup.createPlayerCache(index)
 end
 
 function setup.parsePlayerSettings(index)
-	global.settings[index] = {}
 	for __,setting in pairs(setup.parsedSettings) do setting.parse(index) end
 end
 
@@ -97,11 +138,6 @@ local function parsedListSetting(settingName, settingInternal, regex, toString, 
 end
 
 setup.parsedSettings = {
-	["inventory-cleanup-custom-trash"] = parsedListSetting(
-		"inventory-cleanup-custom-trash", "customTrash", "%s*([^ :]+):(%d+)%s*",
-		function (name, value) return tostring(name)..":"..tostring(value) end, -- toString
-		function (name, value) return game.item_prototypes[name] and type(value) == "number" and value >= 0 end -- isValid
-	),
 	["ignored-entities"] = parsedListSetting(
 		"ignored-entities", "ignoredEntities", "%s*([^ ]+)%s*",
 		function (name) return tostring(name) end, -- toString

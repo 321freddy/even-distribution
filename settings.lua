@@ -1,9 +1,9 @@
 data:extend{
 	{
-		type = "bool-setting",
+		type = "bool-setting", -- DEPRECATED
 		name = "enable-ed",
 		setting_type = "runtime-per-user",
-		order = "a",
+		order = "zzz",
 		default_value = true
 	},
 	{
@@ -15,10 +15,10 @@ data:extend{
 		minimum_value = 0.01
 	},
 	{
-		type = "bool-setting",
+		type = "bool-setting", -- DEPRECATED
 		name = "take-from-car",
 		setting_type = "runtime-per-user",
-		order = "ab",
+		order = "zzz",
 		default_value = true
 	},
 	{
@@ -31,17 +31,17 @@ data:extend{
 		maximum_value = 100
 	},
 	{
-		type = "string-setting",
+		type = "string-setting", -- DEPRECATED
 		name = "inventory-cleanup-custom-trash",
-		order = "bb",
+		order = "zzz",
 		setting_type = "runtime-per-user",
 		default_value = "iron-plate:800 copper-plate:600 steel-plate:600 stone-brick:400 artillery-shell:0",
 		allow_blank = true
 	},
 	{
-		type = "bool-setting",
+		type = "bool-setting", -- DEPRECATED
 		name = "cleanup-logistic-request-overflow",
-		order = "bc",
+		order = "zzz",
 		setting_type = "runtime-per-user",
 		default_value = true
 	},
@@ -61,9 +61,9 @@ data:extend{
 		allow_blank = true
 	},
 	{
-		type = "bool-setting",
+		type = "bool-setting", -- DEPRECATED
 		name = "early-autotrash-research",
-		order = "a",
+		order = "zzz",
 		setting_type = "startup",
 		default_value = true,
 	}
