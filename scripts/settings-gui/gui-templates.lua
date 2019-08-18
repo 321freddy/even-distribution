@@ -70,7 +70,7 @@ this.templates.settingsWindow = {
 			onCreated = function(self, data)
 				_(self.style):set{
 					minimal_width = 350,
-					minimal_height = 344,
+					minimal_height = 344, -- Inventory GUI height
 					maximal_height = 600,
 				}
 			end,
@@ -104,7 +104,7 @@ this.templates.settingsWindow = {
 									state = true,
 									onCreated = function(self)
 										local player = _(self.gui.player)
-										self.state = player:setting("enable-ed")
+										self.state = player:setting("enableDragDistribute")
 										self.parent.frame_caption.enabled = self.state
 									end,
 									onChanged = function(event)
@@ -112,8 +112,8 @@ this.templates.settingsWindow = {
 										self.parent.parent.frame_content.visible = self.state
 										self.parent.frame_caption.enabled = self.state
 
-										local player = event.element.gui.player
-										player.mod_settings["enable-ed"] = {value=self.state}
+										local player = _(self.gui.player)
+										player:changeSetting("enableDragDistribute", self.state)
 									end,
 								},
 							}
@@ -123,17 +123,106 @@ this.templates.settingsWindow = {
 							name = "frame_content",
 							direction = "vertical",
 							onCreated = function(self)
-								self.visible = _(self.gui.player):setting("enable-ed")
+								self.visible = _(self.gui.player):setting("enableDragDistribute")
 							end,
 							children = 
 							{
 								{
-									type = "label",
-									caption = "123123123123",
-								},
-								{
-									type = "label",
-									caption = "asdasdasdasd",
+									type = "flow",
+									direction = "horizontal",
+									onCreated = function(self)
+										self.style.vertical_align = "center"
+									end,
+									children = 
+									{
+										{
+											type = "label",
+											-- style = "heading_3_label_yellow",
+											caption = "Distribute items from",
+										},
+										{
+											type = "empty-widget",
+											style = "ed_stretch",
+										},
+										{
+											type = "sprite-button",
+											name = "button_take_from_hand",
+											tooltip = "Hand",
+											style = "ed_switch_button_selected",
+											sprite = "utility/hand",
+											onCreated = function(self)
+												_(self.style):set{
+													minimal_width  = 40,
+													minimal_height = 40,
+													left_margin    = -2,
+													right_margin   = -2,
+												}
+											end,
+											onChanged = function(event)
+												local flow = event.element.parent
+												flow.button_take_from_inventory.style = "ed_switch_button"
+												flow.button_take_from_car.style       = "ed_switch_button"
+												
+												local player = _(flow.gui.player)
+												player:changeSetting("takeFromInventory", false)
+												player:changeSetting("takeFromCar", false)
+											end,
+										},
+										{
+											type = "sprite-button",
+											name = "button_take_from_inventory",
+											tooltip = "Inventory",
+											style = "ed_switch_button",
+											sprite = "entity/character",
+											onCreated = function(self)
+												_(self.style):set{
+													minimal_width  = 40,
+													minimal_height = 40,
+													left_margin    = -2,
+													right_margin   = -2,
+												}
+
+												local player = _(self.gui.player)
+												self.style = player:setting("takeFromInventory") and "ed_switch_button_selected" or "ed_switch_button"
+											end,
+											onChanged = function(event)
+												local flow = event.element.parent
+												flow.button_take_from_inventory.style = "ed_switch_button_selected"
+												flow.button_take_from_car.style       = "ed_switch_button"
+												
+												local player = _(flow.gui.player)
+												player:changeSetting("takeFromInventory", true)
+												player:changeSetting("takeFromCar", false)
+											end,
+										},
+{
+											type = "sprite-button",
+											name = "button_take_from_car",
+											tooltip = "Vehicle you are currently driving",
+											style = "ed_switch_button",
+											sprite = "entity/car",
+											onCreated = function(self)
+												_(self.style):set{
+													minimal_width  = 40,
+													minimal_height = 40,
+													left_margin    = -2,
+													right_margin   = -2,
+												}
+
+												local player = _(self.gui.player)
+												self.style = player:setting("takeFromCar") and "ed_switch_button_selected" or "ed_switch_button"
+											end,
+											onChanged = function(event)
+												local flow = event.element.parent
+												flow.button_take_from_inventory.style = "ed_switch_button_selected"
+												flow.button_take_from_car.style       = "ed_switch_button_selected"
+												
+												local player = _(flow.gui.player)
+												player:changeSetting("takeFromInventory", true)
+												player:changeSetting("takeFromCar", true)
+											end,
+										},
+									}
 								},
 							}
 						},
@@ -166,10 +255,18 @@ this.templates.settingsWindow = {
 									name = "enable_drag_take",
 									caption = "Enable",
 									state = true,
+									onCreated = function(self)
+										local player = _(self.gui.player)
+										self.state = player:setting("enableDragTake")
+										self.parent.frame_caption.enabled = self.state
+									end,
 									onChanged = function(event)
 										local self = event.element
 										self.parent.parent.frame_content.visible = self.state
 										self.parent.frame_caption.enabled = self.state
+
+										local player = _(self.gui.player)
+										player:changeSetting("enableDragTake", self.state)
 									end,
 								},
 							}
@@ -178,6 +275,9 @@ this.templates.settingsWindow = {
 							type = "flow",
 							name = "frame_content",
 							direction = "vertical",
+							onCreated = function(self)
+								self.visible = _(self.gui.player):setting("enableDragTake")
+							end,
 							children = 
 							{
 								{
@@ -216,13 +316,21 @@ this.templates.settingsWindow = {
 								},
 								{
 									type = "checkbox",
-									name = "enable_ic",
+									name = "enable_inventory_cleanup_hotkey",
 									caption = "Enable",
 									state = true,
+									onCreated = function(self)
+										local player = _(self.gui.player)
+										self.state = player:setting("enableInventoryCleanupHotkey")
+										self.parent.frame_caption.enabled = self.state
+									end,
 									onChanged = function(event)
 										local self = event.element
 										self.parent.parent.frame_content.visible = self.state
 										self.parent.frame_caption.enabled = self.state
+
+										local player = _(self.gui.player)
+										player:changeSetting("enableInventoryCleanupHotkey", self.state)
 									end,
 								},
 							}
@@ -231,6 +339,9 @@ this.templates.settingsWindow = {
 							type = "flow",
 							name = "frame_content",
 							direction = "vertical",
+							onCreated = function(self)
+								self.visible = _(self.gui.player):setting("enableInventoryCleanupHotkey")
+							end,
 							children = 
 							{
 								{
