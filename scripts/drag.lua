@@ -65,7 +65,7 @@ end
 
 function this.on_selected_entity_changed(event)
 	local index        = event.player_index
-	local player       = _(game.players[index]); if player:isnot("valid player", {"mod_settings", "enable-ed", "value"}) then return end
+	local player       = _(game.players[index]); if player:isnot("valid player") or not player:setting("enableDragDistribute") then return end
 	local cursor_stack = _(player.cursor_stack); if cursor_stack:isnot("valid stack") then return end
 	local selected     = _(player.selected)    ; if selected:isnot("valid") or selected:isIgnored(player) then return end
 
@@ -92,7 +92,7 @@ end
 
 function this.on_player_fast_transferred(event)
 	local index    = event.player_index
-	local player   = _(game.players[index]); if player:isnot("valid player", {"mod_settings", "enable-ed", "value"}) then return end
+	local player   = _(game.players[index]); if player:isnot("valid player") or not player:setting("enableDragDistribute") then return end
 	local cache    = _(global.cache[index])
 	local selected = _(player.selected)    ; if selected:isnot("valid") or selected:isIgnored(player) then return end
 
