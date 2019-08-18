@@ -5,7 +5,18 @@ local _ = scripts.helpers.on
 -- Helper functions for LuaPlayer --
 
 function player:setting(name)
-    return self.mod_settings[name].value
+	local setting = global.settings[self.index][name]
+	if setting == nil then return self.mod_settings[name].value end
+	return setting
+end
+
+function player:changeSetting(name, newValue)
+	local setting = global.settings[self.index]
+	if setting[name] == nil then 
+		self.mod_settings[name] = { value = newValue } 
+	else
+		setting[name] = newValue
+	end
 end
 
 function player:droprange()
@@ -21,7 +32,7 @@ function player:trashItems()
 	if self:has("valid", "character") then 
 		autoTrash = self.auto_trash_filters
 
-		if self:setting("cleanup-logistic-request-overflow") then 
+		if self:setting("cleanupRequestOverflow") then 
 			requests = self:requests()
 		else 
 			requests = {} 

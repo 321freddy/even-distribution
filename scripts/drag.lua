@@ -23,7 +23,8 @@ function this.distributeItems(player_index, cache)
 	local player = _(game.players[player_index])
 	
 	if player:is("valid player") then
-		local takeFromCar = player:setting("take-from-car")
+		local takeFromInv = player:setting("takeFromInventory")
+		local takeFromCar = player:setting("takeFromCar")
 		local item        = cache.item
 		local totalItems  = player:itemcount(item, takeFromCar)
 
@@ -138,7 +139,7 @@ function this.stackTransferred(entity, player, cache) -- handle vanilla stack tr
 		end
 
 		---- visuals ----
-		local takeFromCar = player:setting("take-from-car")
+		local takeFromCar = player:setting("takeFromCar")
 		local totalItems  = player:itemcount(item, takeFromCar) + cache.itemCount
 		if cache.half then totalItems = math.ceil(totalItems / 2) end
 
