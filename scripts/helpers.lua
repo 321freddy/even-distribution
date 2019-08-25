@@ -42,6 +42,8 @@ end
 
 local conditions = {
     ["nil"] = function(obj) return obj == nil end,
+    ["any"] = function(obj) return obj ~= nil end,
+    ["string"] = function(obj) return type(obj) == "string" end,
     ["number"] = function(obj) return type(obj) == "number" end,
     ["table"] = function(obj) return type(obj) == "table" end,
     ["object"] = function(obj) return type(obj) == "table" and obj.__self end,
@@ -90,6 +92,9 @@ function this:is(...)
 
                 result = result and applyNot(notModeActive, value)
 
+            elseif type(condition) == "function" then -- custom function
+                result = result and applyNot(notModeActive, condition(obj))
+
             elseif conditions[condition] then       -- normal condition check
                 result = result and applyNot(notModeActive, conditions[condition](obj))
 
@@ -133,6 +138,9 @@ function this:isnot(...)
 
                 result = result and applyNot(notModeActive, value)
 
+            elseif type(condition) == "function" then -- custom function
+                result = result and applyNot(notModeActive, condition(obj))
+
             elseif conditions[condition] then       -- normal condition check
                 result = result and applyNot(notModeActive, conditions[condition](obj))
 
@@ -174,7 +182,8 @@ function this:where(...)
     local obj = rawget(self, "__on")
     local iter = metatables.uses(obj, "entityAsIndex") and util.epairs or pairs
 
-    if #args > 1 and type(func) == "function" then -- if user passed anonymouse function to where() directly (as last argument)
+    -- user passed anonymouse iterator function to where() directly (as last argument)
+    if #args > 1 and type(func) == "function" then
         args[#args] = nil
 
         for k,v in iter(obj) do
@@ -185,7 +194,7 @@ function this:where(...)
 
         return self
 
-    else  -- else only filter out results
+    else  -- or only filter out results and return table
         local result = {}
             
         for k,v in iter(obj) do
@@ -228,6 +237,69 @@ function this:unless(...) -- wherenot
     end
 end
 
+function this:wherekey(...)
+    local args = {...}
+    local func = args[#args]
+    local obj = rawget(self, "__on")
+    local iter = metatables.uses(obj, "entityAsIndex") and util.epairs or pairs
+
+    -- user passed anonymouse iterator function to where() directly (as last argument)
+    if #args > 1 and type(func) == "function" then
+        args[#args] = nil
+
+        for k,v in iter(obj) do
+            if _(k):is(unpack(args)) then
+                func(k, v)
+            end 
+        end
+
+        return self
+
+    else  -- or only filter out results and return table
+        local result = {}
+            
+        for k,v in iter(obj) do
+            if _(k):is(...) then
+                result[k] = v
+            end
+        end
+
+        return _(result)
+    end
+end
+
+function this:unlesskey(...) -- wherenot
+    local args = {...}
+    local func = args[#args]
+    local obj = rawget(self, "__on")
+    local iter = metatables.uses(obj, "entityAsIndex") and util.epairs or pairs
+
+    if #args > 1 and type(func) == "function" then -- if user passed anonymouse function to where() directly (as last argument)
+        args[#args] = nil
+
+        for k,v in iter(obj) do
+            if _(k):isnot(unpack(args)) then
+                func(k, v)
+            end 
+        end
+
+        return self
+
+    else  -- else only filter out results
+        local result = {}
+            
+        for k,v in iter(obj) do
+            if _(k):isnot(...) then
+                result[k] = v
+            end
+        end
+
+        return _(result)
+    end
+end
+
+
+
 function this:wherehas(condition, ...)
     local args = {...}
     local count = #args
@@ -258,6 +330,7 @@ end
 
 function this:set(values)
     local obj = rawget(self, "__on")
+    values = rawget(values, "__on") or values
 
     for k,v in pairs(values) do
         obj[k] = v    

@@ -104,8 +104,14 @@ end
 
 local function getParameters(template, name)
 	local parameters = { name = name }
-	for name,value in pairs(template) do
-		if name ~= "name" and not specialParameters[name] then parameters[name] = value end
+	for param,value in pairs(template) do
+		if param ~= "name" and not specialParameters[param] then
+			if param == "style" and _(value):is("table") then
+				parameters.style = value.parent 
+			else
+				parameters[param] = value 
+			end
+		end
 	end
 	return parameters
 end
@@ -146,6 +152,12 @@ function gui.create(player, template, data, parent, ID) -- recursively builds a 
 	end
 		
 	local created = parent.add(getParameters(template, elemName)) -- create gui element
+
+	-- Apply custom styles
+	local style = _(template.style)
+	if style:is("table") then
+		_(created.style):set(style:unlesskey("parent"))
+	end
 	
 	local index = created.player_index
 	for event,list in pairs(global.guiEvents) do -- register events

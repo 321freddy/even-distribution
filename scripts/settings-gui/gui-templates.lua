@@ -50,7 +50,7 @@ local _ = helpers.on
 
 this.templates.settingsWindow = {
 	type = "frame",
-	name = "settings-window",
+	name = "ed_settings_window",
 	direction = "vertical",
 	caption = "Even Distribution",
 	root = function(player) return player.gui.screen end,
@@ -65,15 +65,13 @@ this.templates.settingsWindow = {
 	children = {
 		{
 			type = "scroll-pane",
-			style = "control_settings_scroll_pane", --"scroll_pane_with_dark_background_under_subheader",
 			vertical_scroll_policy = "auto-and-reserve-space",
-			onCreated = function(self, data)
-				_(self.style):set{
-					minimal_width = 350,
-					minimal_height = 344, -- Inventory GUI height
-					maximal_height = 600,
-				}
-			end,
+			style = {
+				parent = "control_settings_scroll_pane", --"scroll_pane_with_dark_background_under_subheader",
+				minimal_width = 350,
+				minimal_height = 344, -- Inventory GUI height
+				maximal_height = 600,
+			},
 			children = {
 				{
 					type = "frame",
@@ -130,9 +128,29 @@ this.templates.settingsWindow = {
 								{
 									type = "flow",
 									direction = "horizontal",
-									onCreated = function(self)
-										self.style.vertical_align = "center"
-									end,
+									style = {
+										vertical_align = "center",
+									},
+									children = 
+									{
+										{
+											type = "label",
+											-- style = "heading_3_label_yellow",
+											caption = "Distribute items from",
+										},
+										{
+											type = "empty-widget",
+											style = "ed_stretch",
+										},
+										
+									}
+								},
+								{
+									type = "flow",
+									direction = "horizontal",
+									style = {
+										vertical_align = "center",
+									},
 									children = 
 									{
 										{
@@ -148,16 +166,14 @@ this.templates.settingsWindow = {
 											type = "sprite-button",
 											name = "button_take_from_hand",
 											tooltip = "Hand",
-											style = "ed_switch_button_selected",
 											sprite = "utility/hand",
-											onCreated = function(self)
-												_(self.style):set{
-													minimal_width  = 40,
-													minimal_height = 40,
-													left_margin    = -2,
-													right_margin   = -2,
-												}
-											end,
+											style = {
+												parent = "ed_switch_button_selected",
+												minimal_width  = 40,
+												minimal_height = 40,
+												left_margin    = -2,
+												right_margin   = -2,
+											},
 											onChanged = function(event)
 												local flow = event.element.parent
 												flow.button_take_from_inventory.style = "ed_switch_button"
@@ -172,16 +188,15 @@ this.templates.settingsWindow = {
 											type = "sprite-button",
 											name = "button_take_from_inventory",
 											tooltip = "Inventory",
-											style = "ed_switch_button",
 											sprite = "entity/character",
+											style = {
+												parent = "ed_switch_button",
+												minimal_width  = 40,
+												minimal_height = 40,
+												left_margin    = -2,
+												right_margin   = -2,
+											},
 											onCreated = function(self)
-												_(self.style):set{
-													minimal_width  = 40,
-													minimal_height = 40,
-													left_margin    = -2,
-													right_margin   = -2,
-												}
-
 												local player = _(self.gui.player)
 												self.style = player:setting("takeFromInventory") and "ed_switch_button_selected" or "ed_switch_button"
 											end,
@@ -199,16 +214,15 @@ this.templates.settingsWindow = {
 											type = "sprite-button",
 											name = "button_take_from_car",
 											tooltip = "Vehicle you are currently driving",
-											style = "ed_switch_button",
 											sprite = "entity/car",
+											style = {
+												parent = "ed_switch_button",
+												minimal_width  = 40,
+												minimal_height = 40,
+												left_margin    = -2,
+												right_margin   = -2,
+											},
 											onCreated = function(self)
-												_(self.style):set{
-													minimal_width  = 40,
-													minimal_height = 40,
-													left_margin    = -2,
-													right_margin   = -2,
-												}
-
 												local player = _(self.gui.player)
 												self.style = player:setting("takeFromCar") and "ed_switch_button_selected" or "ed_switch_button"
 											end,
