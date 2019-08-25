@@ -54,29 +54,30 @@ local function updateLimiter(flow, profiles, action, newValue) -- switch to next
 	local oldType = player:setting(profiles.typeSetting)
 	local type    = action == "type" and profiles[oldType].next or oldType
 	local profile = profiles[type]
-	local decimal = (profile.step < 1)
+	local name    = profiles.name
 	local enabled = player:setting(profiles.enableSetting)
-	if action == "enable" then enabled = flow.fuel_drag_limit_checkbox.state end
-
+	if action == "enable" then enabled = flow[name.."_checkbox"].state end
+	
 	-- clamp value to bounds
+	local decimal = (profile.step < 1)
 	if not decimal then value = math.floor(value) end
 	if value > profile.max then value = profile.max end
 	if value < profile.min then value = profile.min end
 	
 	-- update GUI
-	flow.fuel_drag_limit_textfield.allow_decimal = decimal
-	flow.fuel_drag_limit_slider.set_slider_minimum_maximum(profile.min, profile.max)
-	flow.fuel_drag_limit_slider.set_slider_value_step(profile.step)
+	flow[name.."_textfield"].allow_decimal = decimal
+	flow[name.."_slider"].set_slider_minimum_maximum(profile.min, profile.max)
+	flow[name.."_slider"].set_slider_value_step(profile.step)
 
-	flow.fuel_drag_limit_checkbox.state      = enabled
-	flow.fuel_drag_limit_slider.slider_value = value
-	flow.fuel_drag_limit_textfield.text      = value
-	flow.fuel_drag_limit_checkbox.tooltip    = {profiles.tooltipLocale.."."..(enabled and type or "disabled"), value, math.floor(value*100)}
-	flow.fuel_drag_limit_type.caption        = {profiles.typeLocale.."."..type}
+	flow[name.."_checkbox"].state      = enabled
+	flow[name.."_slider"].slider_value = value
+	flow[name.."_textfield"].text      = value
+	flow[name.."_checkbox"].tooltip    = {profiles.tooltipLocale.."."..(enabled and type or "disabled"), value, math.floor(value*100)}
+	flow[name.."_type"].caption        = {profiles.typeLocale.."."..type}
 
-	flow.fuel_drag_limit_slider.enabled    = enabled
-	flow.fuel_drag_limit_textfield.enabled = enabled
-	flow.fuel_drag_limit_type.enabled      = enabled
+	flow[name.."_slider"].enabled    = enabled
+	flow[name.."_textfield"].enabled = enabled
+	flow[name.."_type"].enabled      = enabled
 
 	-- save settings
 	player:changeSetting(profiles.enableSetting, enabled)
@@ -104,7 +105,7 @@ this.templates.settingsWindow = {
 			vertical_scroll_policy = "auto-and-reserve-space",
 			style = {
 				parent = "control_settings_scroll_pane", --"scroll_pane_with_dark_background_under_subheader",
-				minimal_width = 350,
+				minimal_width = 530, -- 350,
 				minimal_height = 344, -- Inventory GUI height
 				maximal_height = 600,
 			},
@@ -225,6 +226,74 @@ this.templates.settingsWindow = {
 											caption = "Stacks",
 											onChanged = function(event)
 												updateLimiter(event.element.parent, config.fuelLimitProfiles, "type")
+											end,
+										},
+									}
+								},
+								{
+									type = "flow",
+									direction = "horizontal",
+									style = {
+										vertical_align = "center",
+									},
+									onCreated = function(self)
+										updateLimiter(self, config.ammoLimitProfiles)
+									end,
+									children = 
+									{
+										{
+											type = "checkbox",
+											name = "ammo_drag_limit_checkbox",
+											caption = "Ammo distribution limit [img=info]",
+											state = true,
+											onChanged = function(event)
+												updateLimiter(event.element.parent, config.ammoLimitProfiles, "enable")
+											end,
+										},
+										{
+											type = "empty-widget",
+											style = "ed_stretch",
+										},
+										{
+											type = "slider",
+											name = "ammo_drag_limit_slider",
+											--style = "red_slider",
+											discrete_slider = false,
+											discrete_values = true,
+											onChanged = function(event)
+												local value = event.element.slider_value
+												if type(value) == "number" then
+													updateLimiter(event.element.parent, config.ammoLimitProfiles, "value", value)
+												end
+											end,
+										},
+										{
+											type = "textfield",
+											name = "ammo_drag_limit_textfield",
+											style = {
+												parent = "slider_value_textfield",
+												width = 60,
+											},
+											numeric = true,
+											allow_negative = false,
+											lose_focus_on_confirm = true,
+											onChanged = function(event)
+												local value = tonumber(event.element.text)
+												if type(value) == "number" then
+													updateLimiter(event.element.parent, config.ammoLimitProfiles, "value", value)
+												end
+											end,
+										},
+										{
+											type = "button",
+											name = "ammo_drag_limit_type",
+											style = {
+												padding = 0,
+												width = 56, -- 38,
+											},
+											caption = "Stacks",
+											onChanged = function(event)
+												updateLimiter(event.element.parent, config.ammoLimitProfiles, "type")
 											end,
 										},
 									}
