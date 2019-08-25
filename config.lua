@@ -24,4 +24,29 @@ config.ignoredEntities = -- entity type or name
 
 config.rangeMultiplier = 3 -- inventory cleanup drop range multiplier
 
+config.fuelLimitProfiles = 
+{
+    typeSetting  = "dragFuelLimitType",
+    valueSetting = "dragFuelLimit",
+
+    stacks = {
+        min  = 0,
+        max  = 1,
+        step = 0.1,
+        next = "items",
+    },
+    items = {
+        min  = 0,
+        max  = 200,
+        step = 1,
+        next = "mj",
+    },
+    mj = {
+        min  = 0,
+        max  = 100,
+        step = 1,
+        next = "stacks",
+    },
+}
+
 return config

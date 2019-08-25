@@ -48,6 +48,34 @@ local _ = helpers.on
 -- }
 
 
+local function updateLimiter(flow, profiles, nextType, newValue) -- switch to next type
+	local player  = _(flow.gui.player)
+	local value   = newValue ~= nil and newValue or player:setting(profiles.valueSetting)
+	local oldType = player:setting(profiles.typeSetting)
+	local type    = nextType and profiles[oldType].next or oldType
+	local profile = profiles[type]
+	local decimal = (profile.step < 1)
+
+	-- clamp value to bounds
+	if not decimal then value = math.floor(value) end
+	if value > profile.max then value = profile.max end
+	if value < profile.min then value = profile.min end
+	
+	-- update GUI
+	flow.fuel_drag_limit_textfield.allow_decimal = decimal
+	flow.fuel_drag_limit_slider.set_slider_minimum_maximum(profile.min, profile.max)
+	flow.fuel_drag_limit_slider.set_slider_value_step(profile.step)
+
+	flow.fuel_drag_limit_slider.slider_value = value
+	flow.fuel_drag_limit_textfield.text = value
+	flow.fuel_drag_limit_label.tooltip = value.." "..type
+	flow.fuel_drag_limit_type.caption = type
+
+	-- save settings
+	player:changeSetting(profiles.typeSetting, type)
+	player:changeSetting(profiles.valueSetting, value)
+end
+
 this.templates.settingsWindow = {
 	type = "frame",
 	name = "ed_settings_window",
@@ -131,18 +159,63 @@ this.templates.settingsWindow = {
 									style = {
 										vertical_align = "center",
 									},
+									onCreated = function(self)
+										updateLimiter(self, config.fuelLimitProfiles, false)
+									end,
 									children = 
 									{
 										{
 											type = "label",
-											-- style = "heading_3_label_yellow",
-											caption = "Distribute items from",
+											name = "fuel_drag_limit_label",
+											caption = "Fuel distribution limit [img=info]",
+											tooltip = "Current rule: Each burner won't get more than 1 stack of fuel."
 										},
 										{
 											type = "empty-widget",
 											style = "ed_stretch",
 										},
-										
+										{
+											type = "slider",
+											name = "fuel_drag_limit_slider",
+											--style = "red_slider",
+											discrete_slider = false,
+											discrete_values = true,
+											onChanged = function(event)
+												local value = event.element.slider_value
+												if type(value) == "number" then
+													updateLimiter(event.element.parent, config.fuelLimitProfiles, false, value)
+												end
+											end,
+										},
+										{
+											type = "textfield",
+											name = "fuel_drag_limit_textfield",
+											style = {
+												parent = "slider_value_textfield",
+												width = 60,
+											},
+											numeric = true,
+											allow_negative = false,
+											lose_focus_on_confirm = true,
+											onChanged = function(event)
+												local value = tonumber(event.element.text)
+												if type(value) == "number" then
+													updateLimiter(event.element.parent, config.fuelLimitProfiles, false, value)
+												end
+											end,
+										},
+										{
+											type = "button",
+											name = "fuel_drag_limit_type",
+											style = {
+												padding = 0,
+												width = 56, -- 38,
+											},
+											caption = "Stacks",
+											onChanged = function(event)
+												updateLimiter(event.element.parent, config.fuelLimitProfiles, true)
+											end,
+										},
 									}
 								},
 								{

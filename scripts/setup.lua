@@ -88,6 +88,8 @@ function setup.setupPlayerGlobalTable(player_index, player)
 	global.settings[player_index] = settings
 
 	setup.parsePlayerSettings(player_index)
+
+	-- dlog("Setup player global table ("..player.name.."):", settings)
 end
 
 function setup.on_runtime_mod_setting_changed(event)
