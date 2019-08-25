@@ -26,8 +26,11 @@ config.rangeMultiplier = 3 -- inventory cleanup drop range multiplier
 
 config.fuelLimitProfiles = 
 {
-    typeSetting  = "dragFuelLimitType",
-    valueSetting = "dragFuelLimit",
+    enableSetting = "enableDragFuelLimit",
+    typeSetting   = "dragFuelLimitType",
+    valueSetting  = "dragFuelLimit",
+    typeLocale    = "fuel-limit-type",
+    tooltipLocale = "fuel-limit-tooltip",
 
     stacks = {
         min  = 0,

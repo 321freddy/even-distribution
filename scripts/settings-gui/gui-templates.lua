@@ -48,13 +48,15 @@ local _ = helpers.on
 -- }
 
 
-local function updateLimiter(flow, profiles, nextType, newValue) -- switch to next type
+local function updateLimiter(flow, profiles, action, newValue) -- switch to next type
 	local player  = _(flow.gui.player)
-	local value   = newValue ~= nil and newValue or player:setting(profiles.valueSetting)
+	local value   = action == "value" and newValue or player:setting(profiles.valueSetting)
 	local oldType = player:setting(profiles.typeSetting)
-	local type    = nextType and profiles[oldType].next or oldType
+	local type    = action == "type" and profiles[oldType].next or oldType
 	local profile = profiles[type]
 	local decimal = (profile.step < 1)
+	local enabled = player:setting(profiles.enableSetting)
+	if action == "enable" then enabled = flow.fuel_drag_limit_checkbox.state end
 
 	-- clamp value to bounds
 	if not decimal then value = math.floor(value) end
@@ -66,12 +68,18 @@ local function updateLimiter(flow, profiles, nextType, newValue) -- switch to ne
 	flow.fuel_drag_limit_slider.set_slider_minimum_maximum(profile.min, profile.max)
 	flow.fuel_drag_limit_slider.set_slider_value_step(profile.step)
 
+	flow.fuel_drag_limit_checkbox.state      = enabled
 	flow.fuel_drag_limit_slider.slider_value = value
-	flow.fuel_drag_limit_textfield.text = value
-	flow.fuel_drag_limit_label.tooltip = value.." "..type
-	flow.fuel_drag_limit_type.caption = type
+	flow.fuel_drag_limit_textfield.text      = value
+	flow.fuel_drag_limit_checkbox.tooltip    = {profiles.tooltipLocale.."."..(enabled and type or "disabled"), value, math.floor(value*100)}
+	flow.fuel_drag_limit_type.caption        = {profiles.typeLocale.."."..type}
+
+	flow.fuel_drag_limit_slider.enabled    = enabled
+	flow.fuel_drag_limit_textfield.enabled = enabled
+	flow.fuel_drag_limit_type.enabled      = enabled
 
 	-- save settings
+	player:changeSetting(profiles.enableSetting, enabled)
 	player:changeSetting(profiles.typeSetting, type)
 	player:changeSetting(profiles.valueSetting, value)
 end
@@ -160,15 +168,18 @@ this.templates.settingsWindow = {
 										vertical_align = "center",
 									},
 									onCreated = function(self)
-										updateLimiter(self, config.fuelLimitProfiles, false)
+										updateLimiter(self, config.fuelLimitProfiles)
 									end,
 									children = 
 									{
 										{
-											type = "label",
-											name = "fuel_drag_limit_label",
+											type = "checkbox",
+											name = "fuel_drag_limit_checkbox",
 											caption = "Fuel distribution limit [img=info]",
-											tooltip = "Current rule: Each burner won't get more than 1 stack of fuel."
+											state = true,
+											onChanged = function(event)
+												updateLimiter(event.element.parent, config.fuelLimitProfiles, "enable")
+											end,
 										},
 										{
 											type = "empty-widget",
@@ -183,7 +194,7 @@ this.templates.settingsWindow = {
 											onChanged = function(event)
 												local value = event.element.slider_value
 												if type(value) == "number" then
-													updateLimiter(event.element.parent, config.fuelLimitProfiles, false, value)
+													updateLimiter(event.element.parent, config.fuelLimitProfiles, "value", value)
 												end
 											end,
 										},
@@ -200,7 +211,7 @@ this.templates.settingsWindow = {
 											onChanged = function(event)
 												local value = tonumber(event.element.text)
 												if type(value) == "number" then
-													updateLimiter(event.element.parent, config.fuelLimitProfiles, false, value)
+													updateLimiter(event.element.parent, config.fuelLimitProfiles, "value", value)
 												end
 											end,
 										},
@@ -213,7 +224,7 @@ this.templates.settingsWindow = {
 											},
 											caption = "Stacks",
 											onChanged = function(event)
-												updateLimiter(event.element.parent, config.fuelLimitProfiles, true)
+												updateLimiter(event.element.parent, config.fuelLimitProfiles, "type")
 											end,
 										},
 									}

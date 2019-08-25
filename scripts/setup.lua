@@ -62,8 +62,12 @@ function setup.setupPlayerGlobalTable(player_index, player)
 	if settings.takeFromInventory == nil            then settings.takeFromInventory = true end
 	if settings.takeFromCar == nil                  then settings.takeFromCar = true end
 	if settings.cleanupRequestOverflow == nil       then settings.cleanupRequestOverflow = true end
+
+	if settings.enableDragFuelLimit == nil          then settings.enableDragFuelLimit = false end
 	if settings.dragFuelLimit == nil                then settings.dragFuelLimit = 1 end
 	if settings.dragFuelLimitType == nil            then settings.dragFuelLimitType = "stacks" end
+
+	if settings.enableDragAmmoLimit == nil          then settings.enableDragAmmoLimit = false end
 	if settings.dragAmmoLimit == nil                then settings.dragAmmoLimit = 1 end
 	if settings.dragAmmoLimitType == nil            then settings.dragAmmoLimitType = "stacks" end
 
