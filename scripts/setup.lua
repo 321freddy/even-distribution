@@ -27,59 +27,67 @@ function setup.on_init()
 	}
 	
 	for player_index,player in pairs(game.players) do
-		setup.createPlayerCache(player_index)
-
-		-- init default settings
-		local settings = global.settings[player_index] or {}
-
-		if settings.customTrash == nil then
-			settings.customTrash = {
-				["iron-plate"]      = 800,
-				["copper-plate"]    = 600,
-				["steel-plate"]     = 600,
-				["stone-brick"]     = 400,
-				["artillery-shell"] = 0,
-			}
-		end
-		if settings.enableDragDistribute == nil         then settings.enableDragDistribute = true end
-		if settings.enableDragTake == nil               then settings.enableDragTake = true end
-		if settings.enableInventoryCleanupHotkey == nil then settings.enableInventoryCleanupHotkey = true end
-		if settings.takeFromInventory == nil            then settings.takeFromInventory = true end
-		if settings.takeFromCar == nil                  then settings.takeFromCar = true end
-		if settings.cleanupRequestOverflow == nil       then settings.cleanupRequestOverflow = true end
-
-
-		-- migrate settings from old mod version
-		if settings.version == nil then
-			if player.mod_settings["inventory-cleanup-custom-trash"].value == "iron-plate:800 copper-plate:600 steel-plate:600 stone-brick:400" then
-				-- change saved default value from old mod version
-				settings.customTrash["artillery-shell"] = 0
-			end
-
-			settings.enableDragDistribute   = player.mod_settings["enable-ed"].value
-			settings.takeFromCar            = player.mod_settings["take-from-car"].value
-			settings.cleanupRequestOverflow = player.mod_settings["cleanup-logistic-request-overflow"].value
-
-		--elseif settings.version == "0.3.x" then
-			-- ...
-		end
-
-		-- update settings
-		settings.version = game.active_mods["even-distribution"]
-		global.settings[player_index] = settings
-
-		setup.parsePlayerSettings(player_index)
+		setup.setupPlayerGlobalTable(player_index, player)
 	end
 end
 
 setup.on_configuration_changed = setup.on_init
 
 function setup.on_player_created(event)
-	setup.createPlayerCache(event.player_index)
-	setup.parsePlayerSettings(event.player_index)
+	setup.setupPlayerGlobalTable(event.player_index)
 	
 	-- local player = game.players[event.player_index]
 	-- player.print({"message.usage"}, {r=1, g=0.85, b=0})
+end
+
+function setup.setupPlayerGlobalTable(player_index, player)
+	player = player or game.players[player_index]
+	setup.createPlayerCache(player_index)
+
+	-- init default settings
+	local settings = global.settings[player_index] or {}
+
+	if settings.customTrash == nil then
+		settings.customTrash = {
+			["iron-plate"]      = 800,
+			["copper-plate"]    = 600,
+			["steel-plate"]     = 600,
+			["stone-brick"]     = 400,
+			["artillery-shell"] = 0,
+		}
+	end
+	if settings.enableDragDistribute == nil         then settings.enableDragDistribute = true end
+	if settings.enableDragTake == nil               then settings.enableDragTake = true end
+	if settings.enableInventoryCleanupHotkey == nil then settings.enableInventoryCleanupHotkey = true end
+	if settings.takeFromInventory == nil            then settings.takeFromInventory = true end
+	if settings.takeFromCar == nil                  then settings.takeFromCar = true end
+	if settings.cleanupRequestOverflow == nil       then settings.cleanupRequestOverflow = true end
+	if settings.dragFuelLimit == nil                then settings.dragFuelLimit = 1 end
+	if settings.dragFuelLimitType == nil            then settings.dragFuelLimitType = "stacks" end
+	if settings.dragAmmoLimit == nil                then settings.dragAmmoLimit = 1 end
+	if settings.dragAmmoLimitType == nil            then settings.dragAmmoLimitType = "stacks" end
+
+
+	-- migrate settings from old mod version
+	if settings.version == nil then
+		if player.mod_settings["inventory-cleanup-custom-trash"].value == "iron-plate:800 copper-plate:600 steel-plate:600 stone-brick:400" then
+			-- change saved default value from old mod version
+			settings.customTrash["artillery-shell"] = 0
+		end
+
+		settings.enableDragDistribute   = player.mod_settings["enable-ed"].value
+		settings.takeFromCar            = player.mod_settings["take-from-car"].value
+		settings.cleanupRequestOverflow = player.mod_settings["cleanup-logistic-request-overflow"].value
+
+	--elseif settings.version == "0.3.x" then
+		-- ...
+	end
+
+	-- update settings
+	settings.version = game.active_mods["even-distribution"]
+	global.settings[player_index] = settings
+
+	setup.parsePlayerSettings(player_index)
 end
 
 function setup.on_runtime_mod_setting_changed(event)
