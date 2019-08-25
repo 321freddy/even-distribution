@@ -9,7 +9,7 @@ local _ = helpers.on
 local MAX_DUPLICATES = 1000
 
 -- GUI events are saved in global.guiEvents["EVENT NAME"][PLAYER INDEX][GUI ELEMENT INDEX]
-local eventHandlers = {}
+local eventHandlers = {} -- FIXME: support multiple events (curently all events saved under same ID in eventHandlers)
 
 local events = {
 	on_gui_checked_state_changed   = "onCheckedStateChanged",
