@@ -286,11 +286,14 @@ this.templates.settingsWindow = {
 											end,
 											onChanged = function(event)
 												local flow = event.element.parent
-												flow.button_take_from_inventory.style = "ed_switch_button_selected"
+												local nowActive = event.element.style.name == "ed_switch_button"
+												if flow.button_take_from_car.style.name == "ed_switch_button_selected" then nowActive = true end
+
+												flow.button_take_from_inventory.style = nowActive and "ed_switch_button_selected" or "ed_switch_button"
 												flow.button_take_from_car.style       = "ed_switch_button"
 												
 												local player = _(flow.gui.player)
-												player:changeSetting("takeFromInventory", true)
+												player:changeSetting("takeFromInventory", nowActive)
 												player:changeSetting("takeFromCar", false)
 											end,
 										},
@@ -312,12 +315,14 @@ this.templates.settingsWindow = {
 											end,
 											onChanged = function(event)
 												local flow = event.element.parent
+												local nowActive = event.element.style.name == "ed_switch_button"
+												
 												flow.button_take_from_inventory.style = "ed_switch_button_selected"
-												flow.button_take_from_car.style       = "ed_switch_button_selected"
+												flow.button_take_from_car.style       = nowActive and "ed_switch_button_selected" or "ed_switch_button"
 												
 												local player = _(flow.gui.player)
 												player:changeSetting("takeFromInventory", true)
-												player:changeSetting("takeFromCar", true)
+												player:changeSetting("takeFromCar", nowActive)
 											end,
 										},
 									}
