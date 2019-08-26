@@ -126,7 +126,7 @@ this.templates.settingsWindow = {
 									type = "label",
 									name = "frame_caption",
 									style = "heading_3_label_yellow",
-									caption = "CTRL+Click Drag: Distribute items",
+									caption = {"settings-gui.drag-title"},
 								},
 								{
 									type = "empty-widget",
@@ -135,7 +135,7 @@ this.templates.settingsWindow = {
 								{
 									type = "checkbox",
 									name = "enable_drag_distribute",
-									caption = "Enable",
+									caption = {"settings-gui.enable"},
 									state = true,
 									onCreated = function(self)
 										local player = _(self.gui.player)
@@ -176,7 +176,7 @@ this.templates.settingsWindow = {
 										{
 											type = "checkbox",
 											name = "fuel_drag_limit_checkbox",
-											caption = "Fuel distribution limit [img=info]",
+											caption = {"", {"settings-gui.fuel-limit"}, " [img=info]"},
 											state = true,
 											onChanged = function(event)
 												updateLimiter(event.element.parent, config.fuelLimitProfiles, "enable")
@@ -223,7 +223,7 @@ this.templates.settingsWindow = {
 												padding = 0,
 												width = 56, -- 38,
 											},
-											caption = "Stacks",
+											-- caption = "Stacks",
 											onChanged = function(event)
 												updateLimiter(event.element.parent, config.fuelLimitProfiles, "type")
 											end,
@@ -244,7 +244,7 @@ this.templates.settingsWindow = {
 										{
 											type = "checkbox",
 											name = "ammo_drag_limit_checkbox",
-											caption = "Ammo distribution limit [img=info]",
+											caption = {"", {"settings-gui.ammo-limit"}, " [img=info]"},
 											state = true,
 											onChanged = function(event)
 												updateLimiter(event.element.parent, config.ammoLimitProfiles, "enable")
@@ -291,7 +291,6 @@ this.templates.settingsWindow = {
 												padding = 0,
 												width = 56, -- 38,
 											},
-											caption = "Stacks",
 											onChanged = function(event)
 												updateLimiter(event.element.parent, config.ammoLimitProfiles, "type")
 											end,
@@ -309,7 +308,7 @@ this.templates.settingsWindow = {
 										{
 											type = "label",
 											-- style = "heading_3_label_yellow",
-											caption = "Distribute items from",
+											caption = {"settings-gui.distribute-from"},
 										},
 										{
 											type = "empty-widget",
@@ -318,7 +317,7 @@ this.templates.settingsWindow = {
 										{
 											type = "sprite-button",
 											name = "button_take_from_hand",
-											tooltip = "Hand",
+											tooltip = {"settings-gui.hand-tooltip"},
 											sprite = "utility/hand",
 											style = {
 												parent = "ed_switch_button_selected",
@@ -340,7 +339,7 @@ this.templates.settingsWindow = {
 										{
 											type = "sprite-button",
 											name = "button_take_from_inventory",
-											tooltip = "Inventory",
+											tooltip = {"settings-gui.inventory-tooltip"},
 											sprite = "entity/character",
 											style = {
 												parent = "ed_switch_button",
@@ -369,7 +368,7 @@ this.templates.settingsWindow = {
 {
 											type = "sprite-button",
 											name = "button_take_from_car",
-											tooltip = "Vehicle you are currently driving",
+											tooltip = {"settings-gui.car-tooltip"},
 											sprite = "entity/car",
 											style = {
 												parent = "ed_switch_button",
@@ -416,7 +415,7 @@ this.templates.settingsWindow = {
 									type = "label",
 									name = "frame_caption",
 									style = "heading_3_label_yellow",
-									caption = "CTRL+Click Drag: Take items",
+									caption = {"settings-gui.drag-title"},
 								},
 								{
 									type = "empty-widget",
@@ -425,7 +424,7 @@ this.templates.settingsWindow = {
 								{
 									type = "checkbox",
 									name = "enable_drag_take",
-									caption = "Enable",
+									caption = {"settings-gui.enable"},
 									state = true,
 									onCreated = function(self)
 										local player = _(self.gui.player)
@@ -480,7 +479,7 @@ this.templates.settingsWindow = {
 									type = "label",
 									name = "frame_caption",
 									style = "heading_3_label_yellow",
-									caption = "Inventory Cleanup Hotkey",
+									caption = {"settings-gui.inventory-cleanup-title"},
 								},
 								{
 									type = "empty-widget",
@@ -489,7 +488,7 @@ this.templates.settingsWindow = {
 								{
 									type = "checkbox",
 									name = "enable_inventory_cleanup_hotkey",
-									caption = "Enable",
+									caption = {"settings-gui.enable"},
 									state = true,
 									onCreated = function(self)
 										local player = _(self.gui.player)
