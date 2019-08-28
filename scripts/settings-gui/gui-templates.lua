@@ -68,7 +68,7 @@ local function updateLimiter(flow, profiles, action, newValue) -- switch to next
 	flow[name.."_textfield"].allow_decimal = decimal
 	flow[name.."_slider"].set_slider_minimum_maximum(profile.min, profile.max)
 	flow[name.."_slider"].set_slider_value_step(profile.step)
-
+	
 	flow[name.."_checkbox"].state      = enabled
 	flow[name.."_slider"].slider_value = value
 	flow[name.."_textfield"].text      = value
@@ -162,6 +162,42 @@ this.templates.settingsWindow = {
 							end,
 							children = 
 							{
+								{
+									type = "flow",
+									direction = "vertical",
+									style = {
+										horizontal_align = "center",
+										top_margin = 4,
+										bottom_margin = 4,
+									},
+									children = 
+									{
+										{
+											type = "switch",
+											name = "mode_switch",
+											left_label_caption = {"settings-gui.drag-evenly-distribute"},
+											right_label_caption = {"settings-gui.drag-balance-inventories"},
+											style = {
+												horizontally_stretchable = true,
+											},
+											onCreated = function(self)
+												if _(self.gui.player):setting("dragMode") == "distribute" then
+													self.switch_state = "left"
+												else
+													self.switch_state = "right"
+												end
+											end,
+											onChanged = function(event)
+												local self = event.element
+												if self.switch_state == "left" then
+													_(self.gui.player):changeSetting("dragMode", "distribute")
+												else
+													_(self.gui.player):changeSetting("dragMode", "balance")
+												end
+											end,
+										},
+									}
+								},
 								{
 									type = "flow",
 									direction = "horizontal",
