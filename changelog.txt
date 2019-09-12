@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.3.11
+  Changes:
+    - Industrial Revolution compatibility
+    - Wood is ignored by SHIFT+C by default (use autotrash to set a custom limit)
+---------------------------------------------------------------------------------------------------
 Version: 0.3.10
   Bugfixes:
     - Fixed crash when using ED in map editor
