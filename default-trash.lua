@@ -11,7 +11,7 @@ return {
 	["advanced-circuit"] = "ignore",
 	["processing-unit"] = "ignore",
 	["uranium-235"] = "ignore",
-	["wood"] = 0,
+	["wood"] = "ignore",
 	["rocket-fuel"] = 40,
 	["nuclear-fuel"] = "ignore",
 	
