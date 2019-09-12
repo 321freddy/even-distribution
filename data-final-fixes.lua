@@ -19,6 +19,10 @@ if settings.startup["early-autotrash-research"].value then
     }
 	
 	tech = data.raw.technology["character-logistic-trash-slots-2"]
-	tech.prerequisites = { "logistic-robotics" }
-	
+	if mods.IndustrialRevolution then
+		tech.prerequisites = { "robotics", "character-logistic-trash-slots-1" }
+	else
+		tech.prerequisites = { "logistic-robotics", "character-logistic-trash-slots-1" }
+	end
+
 end
