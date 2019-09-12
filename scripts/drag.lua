@@ -111,7 +111,7 @@ function this.on_player_fast_transferred(event)
 					cache.half = (cache.itemCount == math.floor(cache.cursorStackCount / 2))
 				end
 
-				this.stackTransferred(selected, player, cache) -- handle stack transfer
+				this.onStackTransferred(selected, player, cache) -- handle stack transfer
 			end
 		else
 			-- ...
@@ -120,7 +120,7 @@ function this.on_player_fast_transferred(event)
 	end
 end
 
-function this.stackTransferred(entity, player, cache) -- handle vanilla stack transfer
+function this.onStackTransferred(entity, player, cache) -- handle vanilla drag stack transfer
 	if not _(entity):isIgnored(player) then
 	
 		local distrEvents = global.distrEvents -- register new distribution event
