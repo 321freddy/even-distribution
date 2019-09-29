@@ -2,6 +2,8 @@
 
 cd %cd%
 
+git checkout master
+
 REM get name of current directory
 for %%* in (.) do set CurrDirName=%%~nx*
 
