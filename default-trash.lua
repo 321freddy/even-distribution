@@ -82,4 +82,11 @@ return {
 	
 	-- PYANODONS MODS ITEMS
 	["coke"]                      = 500,
+	
+	-- UNDISTRIAL REVOLUTION GROUPS
+	["deadlock-processing"]       = 0,
+	["ingots"]       			  = 400,
+	["deadlock-basics"]           = 200,
+	
+	-- UNDISTRIAL REVOLUTION ITEMS
 }
