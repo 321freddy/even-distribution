@@ -83,8 +83,8 @@ function util.epairs(tbl) -- iterator for tables with entity based indices
 	local surface, x, y
 	local tbls, tblsx, value
 	
-	tblId = rawget(tbl, "id")
-	tblPos = rawget(tbl, "pos")
+	local tblId = rawget(tbl, "id")
+	local tblPos = rawget(tbl, "pos")
 	if tblId then
 		start = true
 	elseif not tblPos then
