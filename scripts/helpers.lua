@@ -189,6 +189,19 @@ function this:unlesshas(condition, ...)
     end
 end
 
+function this:contains(value) -- table contains value
+    local obj = rawget(self, "__on")
+    local iter = metatables.uses(obj, "entityAsIndex") and util.epairs or pairs
+
+    for k,v in iter(obj) do
+        if v == value then
+            return true
+        end
+    end
+
+    return false
+end
+
 function this:set(values)
     local obj = rawget(self, "__on")
 
