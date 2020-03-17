@@ -7,5 +7,5 @@
   "contact": "https://forums.factorio.com/viewtopic.php?f=92&t=46278",
   "homepage": "",
   "description": "Modifies CTRL + Click Drag to evenly distribute the items over multiple buildings. \r\n\r\nAlso adds Inventory Cleanup hotkey (SHIFT+C) which evenly distributes excess trash items from inventory into nearby machines.",
-  "dependencies": ["base >= 0.18.0"]
+  "dependencies": ["base >= 0.18.13"]
 }
