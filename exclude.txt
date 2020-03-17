@@ -9,3 +9,4 @@ _zipIt.vbs
 .gitignore
 isdebug.lua
 .pdn
+\.vscode\
