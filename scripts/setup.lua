@@ -15,6 +15,10 @@ function setup.on_init()
 		setup.createPlayerCache(player_index)
 		setup.parsePlayerSettings(player_index)
 	end
+
+	for _,force in pairs(game.forces) do
+		setup.applyEarlyAutotrash(force) 
+	end
 end
 
 setup.on_configuration_changed = setup.on_init
@@ -29,7 +33,31 @@ end
 
 function setup.on_runtime_mod_setting_changed(event)
 	local setting = setup.parsedSettings[event.setting]
-	if setting then setting.parse(event.player_index) end
+	if setting then 
+		setting.parse(event.player_index)
+	elseif event.setting == "early-autotrash-research" then 
+		for _,force in pairs(game.forces) do
+			setup.applyEarlyAutotrash(force) 
+		end
+	end
+end
+
+function setup.on_force_created(event)
+	setup.applyEarlyAutotrash(event.force or event.destination)
+end
+setup.on_forces_merged = setup.on_force_created
+
+function setup.applyEarlyAutotrash(force)
+	local setting = settings.global["early-autotrash-research"].value
+
+	force.reset_technology_effects()
+	if setting then
+		force.character_logistic_requests = true
+		force.auto_character_trash_slots = true
+		if force.character_trash_slot_count == 0 then
+			force.character_trash_slot_count = 10
+		end
+	end
 end
 
 function setup.createPlayerCache(index)

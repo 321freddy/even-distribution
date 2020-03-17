@@ -64,7 +64,7 @@ data:extend{
 		type = "bool-setting",
 		name = "early-autotrash-research",
 		order = "a",
-		setting_type = "startup",
+		setting_type = "runtime-global",
 		default_value = true,
 	}
 }
