@@ -21,6 +21,12 @@ function player:trashItems()
 	if self:has("valid", "character") then 
 		autoTrash = self.auto_trash_filters
 
+		for item,amount in pairs(autoTrash) do
+			if amount >= 4294967295 then -- max value set to infinity, so no autotrash
+				autoTrash[item] = nil
+			end
+		end
+
 		if self:setting("cleanup-logistic-request-overflow") then 
 			requests = self:requests()
 		else 
