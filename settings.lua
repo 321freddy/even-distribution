@@ -64,7 +64,7 @@ data:extend{
 		type = "bool-setting", -- DEPRECATED
 		name = "early-autotrash-research",
 		order = "zzz",
-		setting_type = "startup",
+		setting_type = "runtime-global",
 		default_value = true,
 	}
 }

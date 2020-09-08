@@ -13,7 +13,9 @@ function entity:entityrequests() -- fetch all requests as table
 			local request = self.get_request_slot(i)
 			if request then
 				local item, amount = request.name, request.count
-				requests[item] = math.max(requests[item] or 0, amount)
+				if amount > 0 then
+					requests[item] = math.max(requests[item] or 0, amount)
+				end
 			end
 		end
 	end
@@ -28,7 +30,7 @@ function entity:entityrequest(item) -- fetch specific item request
 		for i = 1, self.request_slot_count do
 			local request = self.get_request_slot(i)
 			if request and request.name == item and request.count > count then 
-				count = request.count 
+				count = math.max(count, request.count)
 			end
 		end
 	end
@@ -46,5 +48,5 @@ end
 function entity:supportsAmmo(item)
 	local attackParameters = self.prototype.attack_parameters
 	local ammoType = item.get_ammo_type("turret") or item.get_ammo_type()
-	return attackParameters and (attackParameters.ammo_category == ammoType.category)
+	return attackParameters and (_(attackParameters.ammo_categories):contains(ammoType.category))
 end

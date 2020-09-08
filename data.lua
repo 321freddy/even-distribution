@@ -5,7 +5,7 @@ data:extend{
 		type = "custom-input",
 		name = "inventory-cleanup",
 		key_sequence = "SHIFT + C",
-		consuming = "all"
+		consuming = "game-only"
 	}
 }
 

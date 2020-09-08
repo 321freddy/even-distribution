@@ -29,6 +29,10 @@ function setup.on_init()
 	for player_index,player in pairs(game.players) do
 		setup.setupPlayerGlobalTable(player_index, player)
 	end
+
+	for _,force in pairs(game.forces) do
+		setup.applyEarlyAutotrash(force) 
+	end
 end
 
 setup.on_configuration_changed = setup.on_init
@@ -99,7 +103,56 @@ end
 
 function setup.on_runtime_mod_setting_changed(event)
 	local setting = setup.parsedSettings[event.setting]
-	if setting then setting.parse(event.player_index) end
+	if setting then 
+		setting.parse(event.player_index)
+	elseif event.setting == "early-autotrash-research" then 
+		for _,force in pairs(game.forces) do
+			setup.applyEarlyAutotrash(force) 
+		end
+	end
+end
+
+function setup.on_force_created(event)
+	setup.applyEarlyAutotrash(event.force or event.destination)
+end
+setup.on_forces_merged = setup.on_force_created
+setup.on_technology_effects_reset = setup.on_force_created
+
+function setup.applyEarlyAutotrash(force)
+	if settings.global["early-autotrash-research"].value then -- enable logistic tab
+		force.character_logistic_requests = true
+		force.auto_character_trash_slots = true
+		if force.character_trash_slot_count == 0 then
+			force.character_trash_slot_count = 10
+		end
+
+	else -- revert changes
+		setup.resetLogisticTechEffects(force)
+	end
+end
+
+function setup.resetLogisticTechEffects(force)
+	local trashslots = 0
+	local autotrash = false
+	local requests = false
+
+	for _,tech in pairs(force.technologies) do
+		if tech.researched then
+			for _,effect in pairs(tech.effects) do
+				if effect.type == "character-logistic-trash-slots" then
+					trashslots = trashslots + effect.modifier
+				elseif effect.type == "auto-character-logistic-trash-slots" then
+					autotrash = autotrash or effect.modifier
+				elseif effect.type == "character-logistic-requests" then
+					requests = requests or effect.modifier
+				end
+			end
+		end
+	end
+
+	force.character_trash_slot_count  = trashslots
+	force.auto_character_trash_slots  = autotrash
+	force.character_logistic_requests = requests
 end
 
 function setup.createPlayerCache(index)
