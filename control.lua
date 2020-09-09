@@ -17,6 +17,7 @@ require("framework"){
 	inputs = {  -- custom inputs
 
 		"inventory-cleanup", -- SHIFT + C
+		"open-even-distribution-settings", -- ALT + E
 
 	}
 	

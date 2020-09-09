@@ -72,12 +72,16 @@ local function updateLimiter(flow, profiles, action, newValue) -- switch to next
 	flow[name.."_checkbox"].state      = enabled
 	flow[name.."_slider"].slider_value = value
 	flow[name.."_textfield"].text      = value
-	flow[name.."_checkbox"].tooltip    = {profiles.tooltipLocale.."."..(enabled and type or "disabled"), value, math.floor(value*100)}
 	flow[name.."_type"].caption        = {profiles.typeLocale.."."..type}
-
+	
 	flow[name.."_slider"].enabled    = enabled
 	flow[name.."_textfield"].enabled = enabled
 	flow[name.."_type"].enabled      = enabled
+
+	flow.tooltip    = {profiles.tooltipLocale.."."..(enabled and type or "disabled"), value, math.floor(value*100)}
+	for _,child in pairs(flow.children) do
+		child.tooltip = flow.tooltip
+	end
 
 	-- save settings
 	player:changeSetting(profiles.enableSetting, enabled)
@@ -89,8 +93,19 @@ this.templates.settingsWindow = {
 	type = "frame",
 	name = "ed_settings_window",
 	direction = "vertical",
-	caption = "Even Distribution",
+	--caption = "Even Distribution",
 	root = function(player) return player.gui.screen end,
+	onCreated = function(self)
+		local player = _(self.gui.player)
+		local resolution = player.display_resolution
+		local scale = player.display_scale
+
+		self.location = { 0, resolution.height / (4.85 * scale * scale)  }
+
+		self.frame_header.drag_target = self
+		self.frame_header.frame_caption.drag_target = self
+		self.frame_header.filler.drag_target = self
+	end,
 	onClicked = function(event)
 		local index  = event.player_index
 		local player = _(event.element.gui.player)
@@ -101,11 +116,48 @@ this.templates.settingsWindow = {
 	end,
 	children = {
 		{
+			type = "flow",
+			name = "frame_header",
+			direction = "horizontal",
+			children = 
+			{
+				{
+					type = "label",
+					name = "frame_caption",
+					style = "frame_title",
+					caption = "Even Distribution",
+				},
+				{
+					type = "empty-widget",
+					name = "filler",
+					style = {
+						parent = "draggable_space_header",
+						height = 24,
+						natural_height = 24,
+						right_margin = 8,
+						horizontally_stretchable = true,
+						vertically_stretchable = true,
+					}
+				},
+				{
+					type = "sprite-button",
+					name = "close",
+					tooltip = {"settings-gui.close"},
+					sprite = "utility/close_white",
+					style = "frame_action_button",
+					onChanged = function(event)
+						local player = _(event.element.gui.player)
+						controller.destroyGUI(player)
+					end,
+				},
+			}
+		},
+		{
 			type = "scroll-pane",
 			vertical_scroll_policy = "auto-and-reserve-space",
 			style = {
 				parent = "control_settings_scroll_pane", --"scroll_pane_with_dark_background_under_subheader",
-				minimal_width = 530, -- 350,
+				minimal_width = 450, --530, -- 350,
 				minimal_height = 344, -- Inventory GUI height
 				maximal_height = 600,
 			},
@@ -167,8 +219,8 @@ this.templates.settingsWindow = {
 									direction = "vertical",
 									style = {
 										horizontal_align = "center",
-										top_margin = 4,
-										bottom_margin = 4,
+										top_margin = 8, --4,
+										bottom_margin = 8, --4
 									},
 									children = 
 									{
@@ -401,7 +453,7 @@ this.templates.settingsWindow = {
 												player:changeSetting("takeFromCar", false)
 											end,
 										},
-{
+										{
 											type = "sprite-button",
 											name = "button_take_from_car",
 											tooltip = {"settings-gui.car-tooltip"},
@@ -430,70 +482,6 @@ this.templates.settingsWindow = {
 											end,
 										},
 									}
-								},
-							}
-						},
-					}
-				},
-				{
-					type = "frame",
-					direction = "vertical",
-					style = "ed_settings_inner_frame",
-					children = 
-					{
-						{
-							type = "flow",
-							name = "frame_header",
-							direction = "horizontal",
-							children = 
-							{
-								{
-									type = "label",
-									name = "frame_caption",
-									style = "heading_3_label_yellow",
-									caption = {"settings-gui.drag-title"},
-								},
-								{
-									type = "empty-widget",
-									style = "ed_stretch",
-								},
-								{
-									type = "checkbox",
-									name = "enable_drag_take",
-									caption = {"settings-gui.enable"},
-									state = true,
-									onCreated = function(self)
-										local player = _(self.gui.player)
-										self.state = player:setting("enableDragTake")
-										self.parent.frame_caption.enabled = self.state
-									end,
-									onChanged = function(event)
-										local self = event.element
-										self.parent.parent.frame_content.visible = self.state
-										self.parent.frame_caption.enabled = self.state
-
-										local player = _(self.gui.player)
-										player:changeSetting("enableDragTake", self.state)
-									end,
-								},
-							}
-						},
-						{
-							type = "flow",
-							name = "frame_content",
-							direction = "vertical",
-							onCreated = function(self)
-								self.visible = _(self.gui.player):setting("enableDragTake")
-							end,
-							children = 
-							{
-								{
-									type = "label",
-									caption = "123123123123",
-								},
-								{
-									type = "label",
-									caption = "asdasdasdasd",
 								},
 							}
 						},
@@ -548,6 +536,97 @@ this.templates.settingsWindow = {
 							direction = "vertical",
 							onCreated = function(self)
 								self.visible = _(self.gui.player):setting("enableInventoryCleanupHotkey")
+							end,
+							children = 
+							{
+								
+								{
+									type = "flow",
+									direction = "horizontal",
+									style = {
+										vertical_align = "center",
+										top_margin = 8,
+									},
+									children = 
+									{
+										{
+											type = "label",
+											-- style = "heading_3_label_yellow",
+											caption = "Items", --{"settings-gui.distribute-from"},
+										},
+										{
+											type = "empty-widget",
+											style = "ed_stretch",
+										},
+										{
+											type = "button",
+											name = "button_show_logistics",
+											style = {
+												parent = "confirm_button",
+												font = "default-semibold",
+											},
+											caption = "Configured using perosnal logistics",
+											onChanged = function(event)
+												local self = event.element
+												local player = _(self.gui.player)
+												player.opened = defines.gui_type.controller
+											end,
+										},
+									}
+								},
+							}
+						},
+					}
+				},
+				{
+					type = "frame",
+					direction = "vertical",
+					style = "ed_settings_inner_frame",
+					children = 
+					{
+						{
+							type = "flow",
+							name = "frame_header",
+							direction = "horizontal",
+							children = 
+							{
+								{
+									type = "label",
+									name = "frame_caption",
+									style = "heading_3_label_yellow",
+									caption = "Autofill", --{"settings-gui.drag-title"},
+								},
+								{
+									type = "empty-widget",
+									style = "ed_stretch",
+								},
+								{
+									type = "checkbox",
+									name = "enable_autofill",
+									caption = {"settings-gui.enable"},
+									state = true,
+									onCreated = function(self)
+										local player = _(self.gui.player)
+										self.state = player:setting("enableAutofill")
+										self.parent.frame_caption.enabled = self.state
+									end,
+									onChanged = function(event)
+										local self = event.element
+										self.parent.parent.frame_content.visible = self.state
+										self.parent.frame_caption.enabled = self.state
+
+										local player = _(self.gui.player)
+										player:changeSetting("enableAutofill", self.state)
+									end,
+								},
+							}
+						},
+						{
+							type = "flow",
+							name = "frame_content",
+							direction = "vertical",
+							onCreated = function(self)
+								self.visible = _(self.gui.player):setting("enableAutofill")
 							end,
 							children = 
 							{

@@ -31,7 +31,7 @@ function cleanup.on_inventory_cleanup(event)
 				entity = _(entity)
 				
 				if amount > 0 then
-					local takenFromPlayer = player:removeItems(item, amount, false, true)
+					local takenFromPlayer = player:removeItems(item, amount, true, false, true)
 					
 					if takenFromPlayer > 0 then
 						itemsInserted = cleanup.insert(entity, item, takenFromPlayer)

@@ -11,36 +11,38 @@ local templates = scripts["settings-gui.gui-templates"].templates
 local helpers = scripts.helpers
 local _ = helpers.on
 
+function this.on_lua_shortcut(event)
+	local player = _(game.players[event.player_index]); if player:isnot("valid player") then return end
 
-function this.on_gui_opened(event)
-	local index  = event.player_index
-	local player = _(game.players[index])
-	local cache  = _(global.cache[index])
-
-	if event.gui_type == defines.gui_type.controller and player:is("valid player") then
-		this.buildGUI(player, cache)
+	if event.prototype_name == "open-even-distribution-settings" then
 		
-	else -- if openend then
-		this.destroyGUI(player, cache)
+		if player.is_shortcut_toggled("open-even-distribution-settings") then
+			this.destroyGUI(player)
+		else
+			this.buildGUI(player)
+		end
 	end
 end
 
-function this.on_gui_closed(event)
-	local index = event.player_index
-	local player = game.players[index]
-	local cache = global.cache[index]
+function this.on_open_even_distribution_settings(event)
+	local player = _(game.players[event.player_index]); if player:isnot("valid player") then return end
 
-	this.destroyGUI(player, cache)
+	if player.is_shortcut_toggled("open-even-distribution-settings") then
+		this.destroyGUI(player)
+	else
+		this.buildGUI(player)
+	end
 end
 
-function this.buildGUI(player, cache)
-	this.destroyGUI(player, cache)
-	gui.create(player, templates.settingsWindow, { })
-end
-
-function this.destroyGUI(player, cache)
+function this.buildGUI(player)
 	gui.destroy(player, templates.settingsWindow)
-	--cache.openedEntityGui = nil
+	gui.create(player, templates.settingsWindow, { })
+	player.set_shortcut_toggled("open-even-distribution-settings", true)
+end
+
+function this.destroyGUI(player)
+	gui.destroy(player, templates.settingsWindow)
+	player.set_shortcut_toggled("open-even-distribution-settings", false)
 end
 
 return this

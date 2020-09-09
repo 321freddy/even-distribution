@@ -26,7 +26,7 @@ function this.distributeItems(player_index, cache)
 		local takeFromInv = player:setting("takeFromInventory")
 		local takeFromCar = player:setting("takeFromCar")
 		local item        = cache.item
-		local totalItems  = player:itemcount(item, takeFromCar)
+		local totalItems  = player:itemcount(item, takeFromInv, takeFromCar)
 
 		if cache.half then totalItems = math.ceil(totalItems / 2) end
 
@@ -36,7 +36,7 @@ function this.distributeItems(player_index, cache)
 			local color
 			
 			if amount > 0 then
-				local takenFromPlayer = player:removeItems(item, amount, takeFromCar, false)
+				local takenFromPlayer = player:removeItems(item, amount, takeFromInv, takeFromCar, false)
 				
 				if takenFromPlayer < amount then color = config.colors.insufficientItems end
 				
@@ -121,6 +121,7 @@ function this.on_player_fast_transferred(event)
 end
 
 function this.onStackTransferred(entity, player, cache) -- handle vanilla drag stack transfer
+	local item = cache.item
 	if not _(entity):isIgnored(player) then
 	
 		local distrEvents = global.distrEvents -- register new distribution event
@@ -132,37 +133,58 @@ function this.onStackTransferred(entity, player, cache) -- handle vanilla drag s
 		distrEvents[cache.applyTick] = distrEvents[cache.applyTick] or {}
 		distrEvents[cache.applyTick][player.index] = cache
 
-		local item = cache.item
 		if not cache.entities[entity] then
 			cache.markers[entity] = entity:mark(player, item)
 			cache.entities[entity] = entity
 		end
-
-		---- visuals ----
-		local takeFromCar = player:setting("takeFromCar")
-		local totalItems  = player:itemcount(item, takeFromCar) + cache.itemCount
-		if cache.half then totalItems = math.ceil(totalItems / 2) end
-
-		util.distribute(cache.entities, totalItems, function(entity, amount)
-			visuals.update(cache.markers[entity], item, amount)
-		end)
 	end
 	
 	cache.tick = nil -- reset event handler tick to avoid invalid on_player_cursor_stack_changed execution
 	
-	-- give items back to player
+	local takeFromInv = player:setting("takeFromInventory")
+	local takeFromCar = player:setting("takeFromCar")
+
+	-- give back transferred items
+	local collected = 0
+	local cursor_stack = player.cursor_stack
+
 	if cache.itemCount > 0 then
-		local giveToPlayer = entity.remove_item{ name = cache.item, count = cache.itemCount }
-		
-		if giveToPlayer > 0 then
-			local cursor_stack = player.cursor_stack
-			if cursor_stack.valid_for_read then
-				player.insert{ name = cache.item, count = giveToPlayer }
-			else
-				cursor_stack.set_stack{ name = cache.item, count = giveToPlayer }
+		collected = entity.remove_item{ name = item, count = cache.itemCount }
+	end
+
+	if cursor_stack.valid_for_read and cursor_stack.name ~= item then
+		-- other items in cursor
+		player:inventory().insert{ name = item, count = collected }
+
+	else -- same items
+		-- collect cursor and transferred items temporarily
+		if cursor_stack.valid_for_read then
+			collected = collected + cursor_stack.count
+		end
+
+		-- fill cursor to previous amount
+		if collected < cache.cursorStackCount then
+			collected = collected + player:inventory().remove{ name = item, count = cache.cursorStackCount - collected }
+		end
+
+		if collected < cache.cursorStackCount then
+			cursor_stack.set_stack{ name = item, count = cache.collected }
+		else
+			cursor_stack.set_stack{ name = item, count = cache.cursorStackCount }
+			collected = collected - cache.cursorStackCount
+			if collected > 0 then
+				player:inventory().insert{ name = item, count = collected }
 			end
 		end
 	end
+
+	---- visuals ----
+	local totalItems  = player:itemcount(item, takeFromInv, takeFromCar)
+	if cache.half then totalItems = math.ceil(totalItems / 2) end
+
+	util.distribute(cache.entities, totalItems, function(entity, amount)
+		visuals.update(cache.markers[entity], item, amount)
+	end)
 	
 	entity:destroyTransferText()
 end

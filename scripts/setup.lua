@@ -61,8 +61,8 @@ function setup.setupPlayerGlobalTable(player_index, player)
 		}
 	end
 	if settings.enableDragDistribute == nil         then settings.enableDragDistribute = true end
-	if settings.enableDragTake == nil               then settings.enableDragTake = true end
 	if settings.enableInventoryCleanupHotkey == nil then settings.enableInventoryCleanupHotkey = true end
+	if settings.enableAutofill == nil               then settings.enableAutofill = true end
 	if settings.dragMode == nil                     then settings.dragMode = "distribute" end
 	if settings.takeFromInventory == nil            then settings.takeFromInventory = true end
 	if settings.takeFromCar == nil                  then settings.takeFromCar = true end
