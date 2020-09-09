@@ -76,6 +76,12 @@ function setup.setupPlayerGlobalTable(player_index, player)
 	if settings.dragAmmoLimit == nil                then settings.dragAmmoLimit = 1 end
 	if settings.dragAmmoLimitType == nil            then settings.dragAmmoLimitType = "stacks" end
 
+	if settings.autofillFuelLimit == nil                then settings.autofillFuelLimit = 1 end
+	if settings.autofillFuelLimitType == nil            then settings.autofillFuelLimitType = "stacks" end
+
+	if settings.autofillAmmoLimit == nil                then settings.autofillAmmoLimit = 1 end
+	if settings.autofillAmmoLimitType == nil            then settings.autofillAmmoLimitType = "stacks" end
+
 
 	-- migrate settings from old mod version
 	if settings.version == nil then

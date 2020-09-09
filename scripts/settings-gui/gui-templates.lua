@@ -55,9 +55,13 @@ local function updateLimiter(flow, profiles, action, newValue) -- switch to next
 	local type    = action == "type" and profiles[oldType].next or oldType
 	local profile = profiles[type]
 	local name    = profiles.name
-	local enabled = player:setting(profiles.enableSetting)
-	if action == "enable" then enabled = flow[name.."_checkbox"].state end
-	
+	local enabled = true
+
+	if profiles.enableSetting then
+		enabled = player:setting(profiles.enableSetting)
+		if action == "enable" then enabled = flow[name.."_checkbox"].state end
+	end
+
 	-- clamp value to bounds
 	local decimal = (profile.step < 1)
 	if not decimal then value = math.floor(value) end
@@ -69,14 +73,16 @@ local function updateLimiter(flow, profiles, action, newValue) -- switch to next
 	flow[name.."_slider"].set_slider_minimum_maximum(profile.min, profile.max)
 	flow[name.."_slider"].set_slider_value_step(profile.step)
 	
-	flow[name.."_checkbox"].state      = enabled
 	flow[name.."_slider"].slider_value = value
 	flow[name.."_textfield"].text      = value
 	flow[name.."_type"].caption        = {profiles.typeLocale.."."..type}
 	
-	flow[name.."_slider"].enabled    = enabled
-	flow[name.."_textfield"].enabled = enabled
-	flow[name.."_type"].enabled      = enabled
+	if profiles.enableSetting then
+		flow[name.."_checkbox"].state    = enabled
+		flow[name.."_slider"].enabled    = enabled
+		flow[name.."_textfield"].enabled = enabled
+		flow[name.."_type"].enabled      = enabled
+	end
 
 	flow.tooltip    = {profiles.tooltipLocale.."."..(enabled and type or "disabled"), value, math.floor(value*100)}
 	for _,child in pairs(flow.children) do
@@ -84,7 +90,9 @@ local function updateLimiter(flow, profiles, action, newValue) -- switch to next
 	end
 
 	-- save settings
-	player:changeSetting(profiles.enableSetting, enabled)
+	if profiles.enableSetting then
+		player:changeSetting(profiles.enableSetting, enabled)
+	end
 	player:changeSetting(profiles.typeSetting, type)
 	player:changeSetting(profiles.valueSetting, value)
 end
@@ -539,40 +547,56 @@ this.templates.settingsWindow = {
 							end,
 							children = 
 							{
-								
 								{
-									type = "flow",
-									direction = "horizontal",
-									style = {
-										vertical_align = "center",
-										top_margin = 8,
-									},
-									children = 
-									{
-										{
-											type = "label",
-											-- style = "heading_3_label_yellow",
-											caption = "Items", --{"settings-gui.distribute-from"},
-										},
-										{
-											type = "empty-widget",
-											style = "ed_stretch",
-										},
-										{
-											type = "button",
-											name = "button_show_logistics",
-											style = {
-												parent = "confirm_button",
-												font = "default-semibold",
-											},
-											caption = "Configured using perosnal logistics",
-											onChanged = function(event)
-												local self = event.element
-												local player = _(self.gui.player)
-												player.opened = defines.gui_type.controller
-											end,
-										},
-									}
+									type = "label",
+									caption = {"", "[color=gray]", {"settings-gui.inventory-cleanup-description"}, "[/color]"},
+								},
+								{
+									type = "checkbox",
+									name = "include_trashslots",
+									caption = "Include trash slots", --{"settings-gui.enable"},
+									state = true,
+									enabled = false,
+									onCreated = function(self)
+										local player = _(self.gui.player)
+										-- self.state = player:setting("enableDragDistribute")
+									end,
+									onChanged = function(event)
+										local self = event.element
+										local player = _(self.gui.player)
+										-- player:changeSetting("enableDragDistribute", self.state)
+									end,
+								},
+								{
+									type = "checkbox",
+									name = "include_autotrash",
+									caption = "Include auto-trash", --{"settings-gui.enable"},
+									state = true,
+									enabled = false,
+									onCreated = function(self)
+										local player = _(self.gui.player)
+										-- self.state = player:setting("enableDragDistribute")
+									end,
+									onChanged = function(event)
+										local self = event.element
+										local player = _(self.gui.player)
+										-- player:changeSetting("enableDragDistribute", self.state)
+									end,
+								},
+								{
+									type = "checkbox",
+									name = "cleanup_request_overflow",
+									caption = "Include logistic request overflow", --{"settings-gui.enable"},
+									state = true,
+									onCreated = function(self)
+										local player = _(self.gui.player)
+										-- self.state = player:setting("enableDragDistribute")
+									end,
+									onChanged = function(event)
+										local self = event.element
+										local player = _(self.gui.player)
+										-- player:changeSetting("enableDragDistribute", self.state)
+									end,
 								},
 							}
 						},
@@ -594,11 +618,18 @@ this.templates.settingsWindow = {
 									type = "label",
 									name = "frame_caption",
 									style = "heading_3_label_yellow",
-									caption = "Autofill", --{"settings-gui.drag-title"},
+									caption = "Autofill [img=info]", --{"settings-gui.drag-title"},
+									tooltip = "Automatically fill buildings/vehicles with fuel and ammo when placed."
 								},
 								{
 									type = "empty-widget",
 									style = "ed_stretch",
+								},
+								{
+									type = "label",
+									style = "heading_3_label_yellow",
+									caption = "[color=red][img=warning-white] Other autofill mod detected![/color]   ", --{"settings-gui.drag-title"},
+									tooltip = "Automatically fill buildings/vehicles with fuel and ammo when placed."
 								},
 								{
 									type = "checkbox",
@@ -631,12 +662,131 @@ this.templates.settingsWindow = {
 							children = 
 							{
 								{
-									type = "label",
-									caption = "123123123123",
+									type = "flow",
+									direction = "horizontal",
+									style = {
+										vertical_align = "center",
+									},
+									onCreated = function(self)
+										updateLimiter(self, config.fuelAmountProfiles)
+									end,
+									children = 
+									{
+										{
+											type = "label",
+											caption = {"", {"settings-gui.fuel-amount"}, " [img=info]"},
+											state = true,
+										},
+										{
+											type = "empty-widget",
+											style = "ed_stretch",
+										},
+										{
+											type = "slider",
+											name = "fuel_autofill_limit_slider",
+											--style = "red_slider",
+											discrete_slider = false,
+											discrete_values = true,
+											onChanged = function(event)
+												local value = event.element.slider_value
+												if type(value) == "number" then
+													updateLimiter(event.element.parent, config.fuelAmountProfiles, "value", value)
+												end
+											end,
+										},
+										{
+											type = "textfield",
+											name = "fuel_autofill_limit_textfield",
+											style = {
+												parent = "slider_value_textfield",
+												width = 60,
+											},
+											numeric = true,
+											allow_negative = false,
+											lose_focus_on_confirm = true,
+											onChanged = function(event)
+												local value = tonumber(event.element.text)
+												if type(value) == "number" then
+													updateLimiter(event.element.parent, config.fuelAmountProfiles, "value", value)
+												end
+											end,
+										},
+										{
+											type = "button",
+											name = "fuel_autofill_limit_type",
+											style = {
+												padding = 0,
+												width = 56, -- 38,
+											},
+											-- caption = "Stacks",
+											onChanged = function(event)
+												updateLimiter(event.element.parent, config.fuelAmountProfiles, "type")
+											end,
+										},
+									}
 								},
 								{
-									type = "label",
-									caption = "asdasdasdasd",
+									type = "flow",
+									direction = "horizontal",
+									style = {
+										vertical_align = "center",
+									},
+									onCreated = function(self)
+										updateLimiter(self, config.ammoAmountProfiles)
+									end,
+									children = 
+									{
+										{
+											type = "label",
+											caption = {"", {"settings-gui.ammo-amount"}, " [img=info]"},
+											state = true,
+										},
+										{
+											type = "empty-widget",
+											style = "ed_stretch",
+										},
+										{
+											type = "slider",
+											name = "ammo_autofill_limit_slider",
+											--style = "red_slider",
+											discrete_slider = false,
+											discrete_values = true,
+											onChanged = function(event)
+												local value = event.element.slider_value
+												if type(value) == "number" then
+													updateLimiter(event.element.parent, config.ammoAmountProfiles, "value", value)
+												end
+											end,
+										},
+										{
+											type = "textfield",
+											name = "ammo_autofill_limit_textfield",
+											style = {
+												parent = "slider_value_textfield",
+												width = 60,
+											},
+											numeric = true,
+											allow_negative = false,
+											lose_focus_on_confirm = true,
+											onChanged = function(event)
+												local value = tonumber(event.element.text)
+												if type(value) == "number" then
+													updateLimiter(event.element.parent, config.ammoAmountProfiles, "value", value)
+												end
+											end,
+										},
+										{
+											type = "button",
+											name = "ammo_autofill_limit_type",
+											style = {
+												padding = 0,
+												width = 56, -- 38,
+											},
+											onChanged = function(event)
+												updateLimiter(event.element.parent, config.ammoAmountProfiles, "type")
+											end,
+										},
+									}
 								},
 							}
 						},

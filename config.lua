@@ -76,4 +76,54 @@ config.ammoLimitProfiles =
     },
 }
 
+config.fuelAmountProfiles = 
+{
+    name          = "fuel_autofill_limit",
+    typeSetting   = "autofillFuelLimitType",
+    valueSetting  = "autofillFuelLimit",
+    typeLocale    = "fuel-limit-type",
+    tooltipLocale = "fuel-limit-tooltip",
+
+    stacks = {
+        min  = 0,
+        max  = 1,
+        step = 0.1,
+        next = "items",
+    },
+    items = {
+        min  = 0,
+        max  = 200,
+        step = 1,
+        next = "mj",
+    },
+    mj = {
+        min  = 0,
+        max  = 1000,
+        step = 1,
+        next = "stacks",
+    },
+}
+
+config.ammoAmountProfiles = 
+{
+    name          = "ammo_autofill_limit",
+    typeSetting   = "autofillAmmoLimitType",
+    valueSetting  = "autofillAmmoLimit",
+    typeLocale    = "ammo-limit-type",
+    tooltipLocale = "ammo-limit-tooltip",
+
+    stacks = {
+        min  = 0,
+        max  = 1,
+        step = 0.1,
+        next = "items",
+    },
+    items = {
+        min  = 0,
+        max  = 200,
+        step = 1,
+        next = "stacks",
+    },
+}
+
 return config

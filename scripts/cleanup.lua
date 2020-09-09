@@ -10,9 +10,10 @@ local helpers = scripts.helpers
 local _ = helpers.on
 
 function cleanup.on_inventory_cleanup(event)
-	local player = _(game.players[event.player_index]); if player:isnot("valid player") then return end
+	local player = _(game.players[event.player_index])
+	if player:isnot("valid player") or not player:setting("enableInventoryCleanupHotkey") then return end
+	
 	local items  = _(player:trashItems())             ; if items:is("empty") then return end
-
 	local area = _(player.position):perimeter(player:droprange())
 	local entities = _(cleanup.getEntities(area, player)); if entities:is("empty") then return end
 	
