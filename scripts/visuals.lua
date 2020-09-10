@@ -86,11 +86,11 @@ function helpers:mark(player, item, count) -- create highlight-box marker with i
     end
 end
 
-function this.update(marker, item, count)
+function this.update(marker, item, count, color)
     if marker then
         rendering.set_sprite(marker.icon, getSprite(item))
         rendering.set_text(marker.text, getShortCount(count))
-        rendering.set_color(marker.text, getCountColor(count))
+        rendering.set_color(marker.text, color or getCountColor(count))
     end
 end
 

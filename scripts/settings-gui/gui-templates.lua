@@ -629,7 +629,6 @@ this.templates.settingsWindow = {
 									type = "label",
 									style = "heading_3_label_yellow",
 									caption = "[color=red][img=warning-white] Other autofill mod detected![/color]   ", --{"settings-gui.drag-title"},
-									tooltip = "Automatically fill buildings/vehicles with fuel and ammo when placed."
 								},
 								{
 									type = "checkbox",

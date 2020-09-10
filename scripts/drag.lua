@@ -12,52 +12,132 @@ function this.on_tick(event) -- handles distribution events
 
 	if distrEvents[event.tick] then
 		for player_index, cache in pairs(distrEvents[event.tick]) do
-			this.distributeItems(player_index, cache) -- distribute items
+			local player = _(game.players[player_index])
+	
+			if player:is("valid player") then
+				if player:setting("dragMode") == "distribute" then
+					this.distributeItems(player, cache)
+				else
+					this.balanceItems(player, cache)
+				end
+			end
 		end
 
 		distrEvents[event.tick] = nil
 	end
 end
 
-function this.distributeItems(player_index, cache)
-	local player = _(game.players[player_index])
-	
-	if player:is("valid player") then
-		local takeFromInv = player:setting("takeFromInventory")
-		local takeFromCar = player:setting("takeFromCar")
-		local item        = cache.item
-		local totalItems  = player:itemcount(item, takeFromInv, takeFromCar)
+function this.distributeItems(player, cache)
+	local takeFromInv = player:setting("takeFromInventory")
+	local takeFromCar = player:setting("takeFromCar")
+	local item        = cache.item
+	local totalItems  = player:itemcount(item, takeFromInv, takeFromCar)
 
-		if cache.half then totalItems = math.ceil(totalItems / 2) end
+	if cache.half then totalItems = math.ceil(totalItems / 2) end
 
-		util.distribute(cache.entities, totalItems, function(entity, amount)
+	util.distribute(cache.entities, totalItems, function(entity, amount)
 
-			local itemsInserted = 0
-			local color
+		local itemsInserted = 0
+		local color
+		
+		if amount > 0 then
+			local takenFromPlayer = player:removeItems(item, amount, takeFromInv, takeFromCar, false)
 			
-			if amount > 0 then
-				local takenFromPlayer = player:removeItems(item, amount, takeFromInv, takeFromCar, false)
+			if takenFromPlayer < amount then color = config.colors.insufficientItems end
+			
+			if takenFromPlayer > 0 then
+				itemsInserted = entity.insert{ name = item, count = takenFromPlayer }
+				local failedToInsert = takenFromPlayer - itemsInserted
 				
-				if takenFromPlayer < amount then color = config.colors.insufficientItems end
-				
-				if takenFromPlayer > 0 then
-					itemsInserted = entity.insert{ name = item, count = takenFromPlayer }
-					local failedToInsert = takenFromPlayer - itemsInserted
-					
-					if failedToInsert > 0 then
-						player:returnItems(item, failedToInsert, takeFromCar, false)
-						color = config.colors.targetFull
-					end
+				if failedToInsert > 0 then
+					player:returnItems(item, failedToInsert, takeFromCar, false)
+					color = config.colors.targetFull
 				end
-			else
-				color = config.colors.insufficientItems
 			end
-			
-			-- feedback
-			entity:spawnDistributionText(item, itemsInserted, 0, color)
-			-- player.play_sound{ path = "utility/inventory_move" }
+		else
+			color = config.colors.insufficientItems
+		end
+		
+		-- feedback
+		entity:spawnDistributionText(item, itemsInserted, 0, color)
+		-- player.play_sound{ path = "utility/inventory_move" }
 
+	end)
+		
+	this.resetCache(cache)
+end
+
+function this.balanceItems(player, cache)
+	local takeFromInv = player:setting("takeFromInventory")
+	local takeFromCar = player:setting("takeFromCar")
+	local item        = cache.item
+	local entitiesToProcess = metatables.new("entityAsIndex")
+	local itemCounts        = metatables.new("entityAsIndex")
+
+	local totalItems  = player:itemcount(item, takeFromInv, takeFromCar)
+	if cache.half then totalItems = math.ceil(totalItems / 2) end
+	if totalItems > 0 then
+		totalItems = player:removeItems(item, totalItems, takeFromInv, takeFromCar, false)
+	end
+
+	-- collect all items from all entities
+	_(cache.entities):where("valid", function(entity)
+		local count = _(entity):itemcount(item)
+		local removed = 0
+		if count > 0 then
+			removed = entity.remove_item{ name = item, count = count }
+			totalItems = totalItems + removed
+		end
+
+		-- save entities in new list
+		entitiesToProcess[entity] = entity
+		itemCounts[entity] = {
+			original = count,
+			remaining = count - removed,  -- items remaining inside them (unable to take out)
+			current = count - removed,
+		}
+	end)
+
+	-- distribute collected items evenly
+	local i = 0
+	while totalItems > 0 and #entitiesToProcess > 0 do -- retry if some containers full
+		if i == 1000 then dlog("WARNING: Balance item loop did not finish!"); break end -- safeguard
+		i = i + 1
+
+		util.distribute(entitiesToProcess, totalItems, function(entity, amount)
+
+			local itemCount = itemCounts[entity]
+			
+			amount = amount - itemCount.remaining
+			if amount > 0 then
+				local itemsInserted = entity.insert{ name = item, count = amount }
+				itemCount.current = itemCount.current + itemsInserted
+				totalItems = totalItems - itemsInserted
+
+				local failedToInsert = amount - itemsInserted
+				if failedToInsert > 0 then
+					entity:spawnDistributionText(item, itemCount.current - itemCount.original, 0, config.colors.targetFull)
+					entitiesToProcess[entity] = nil -- set nil while iterating bad?
+					return
+				end
+
+				amount = 0
+			end
+
+			itemCount.remaining = -amount -- update remaining item count (amount above balanced level)
+			-- add entity to new list?
 		end)
+	end
+
+	_(entitiesToProcess):each(function(entity)
+		local itemCount = itemCounts[entity]
+		local amount = itemCount.current - itemCount.original
+		_(entity):spawnDistributionText(item, amount, 0, (itemCount.current == 0) and config.colors.insufficientItems 
+																				   or config.colors.default)
+	end)
+
+	if totalItems > 0 then
+		player:returnItems(item, totalItems, takeFromCar, false)
 	end
 		
 	this.resetCache(cache)
@@ -121,7 +201,12 @@ function this.on_player_fast_transferred(event)
 end
 
 function this.onStackTransferred(entity, player, cache) -- handle vanilla drag stack transfer
+	
+	local takeFromInv = player:setting("takeFromInventory")
+	local takeFromCar = player:setting("takeFromCar")
+	local dragMode    = player:setting("dragMode")
 	local item = cache.item
+
 	if not _(entity):isIgnored(player) then
 	
 		local distrEvents = global.distrEvents -- register new distribution event
@@ -140,9 +225,6 @@ function this.onStackTransferred(entity, player, cache) -- handle vanilla drag s
 	end
 	
 	cache.tick = nil -- reset event handler tick to avoid invalid on_player_cursor_stack_changed execution
-	
-	local takeFromInv = player:setting("takeFromInventory")
-	local takeFromCar = player:setting("takeFromCar")
 
 	-- give back transferred items
 	local collected = 0
@@ -182,7 +264,21 @@ function this.onStackTransferred(entity, player, cache) -- handle vanilla drag s
 	local totalItems  = player:itemcount(item, takeFromInv, takeFromCar)
 	if cache.half then totalItems = math.ceil(totalItems / 2) end
 
+	if dragMode == "balance" then
+		_(cache.entities):where("valid", function(entity)
+			totalItems = totalItems + _(entity):itemcount(item)
+		end)
+	end
+
 	util.distribute(cache.entities, totalItems, function(entity, amount)
+		-- if dragMode == "balance" then
+		-- 	local count = _(entity):itemcount(item)
+		-- 	if count > amount then
+		-- 		visuals.update(cache.markers[entity], item, count, config.colors.targetFull)
+		-- 		return
+		-- 	end
+		-- end
+
 		visuals.update(cache.markers[entity], item, amount)
 	end)
 	
