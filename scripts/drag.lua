@@ -46,7 +46,8 @@ function this.distributeItems(player, cache)
 			if takenFromPlayer < amount then color = config.colors.insufficientItems end
 			
 			if takenFromPlayer > 0 then
-				itemsInserted = entity.insert{ name = item, count = takenFromPlayer }
+				-- itemsInserted = entity.insert{ name = item, count = takenFromPlayer }
+				itemsInserted = entity:customInsert(player, item, takenFromPlayer, config.fuelLimitProfiles, config.ammoLimitProfiles)
 				local failedToInsert = takenFromPlayer - itemsInserted
 				
 				if failedToInsert > 0 then
@@ -110,7 +111,8 @@ function this.balanceItems(player, cache)
 			
 			amount = amount - itemCount.remaining
 			if amount > 0 then
-				local itemsInserted = entity.insert{ name = item, count = amount }
+				-- local itemsInserted = entity.insert{ name = item, count = amount }
+				local itemsInserted = entity:customInsert(player, item, amount, config.fuelLimitProfiles, config.ammoLimitProfiles)
 				itemCount.current = itemCount.current + itemsInserted
 				totalItems = totalItems - itemsInserted
 

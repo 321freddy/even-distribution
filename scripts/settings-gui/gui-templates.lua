@@ -511,7 +511,8 @@ this.templates.settingsWindow = {
 									type = "label",
 									name = "frame_caption",
 									style = "heading_3_label_yellow",
-									caption = {"settings-gui.inventory-cleanup-title"},
+									caption = {"", {"settings-gui.inventory-cleanup-title"}, " [img=info]"},
+									tooltip = {"settings-gui.inventory-cleanup-description"},
 								},
 								{
 									type = "empty-widget",
@@ -549,12 +550,28 @@ this.templates.settingsWindow = {
 							{
 								{
 									type = "label",
-									caption = {"", "[color=gray]", {"settings-gui.inventory-cleanup-description"}, "[/color]"},
+									caption = {"", "[color=gray]", {"settings-gui.inventory-cleanup-configure"}, "[/color]"},
+								},
+								{
+									type = "checkbox",
+									name = "include_defaults",
+									caption = {"settings-gui.include-defaults"},
+									state = true,
+									enabled = false,
+									onCreated = function(self)
+										local player = _(self.gui.player)
+										-- self.state = player:setting("enableDragDistribute")
+									end,
+									onChanged = function(event)
+										local self = event.element
+										local player = _(self.gui.player)
+										-- player:changeSetting("enableDragDistribute", self.state)
+									end,
 								},
 								{
 									type = "checkbox",
 									name = "include_trashslots",
-									caption = "Include trash slots", --{"settings-gui.enable"},
+									caption = {"settings-gui.include-trashslots"},
 									state = true,
 									enabled = false,
 									onCreated = function(self)
@@ -570,7 +587,8 @@ this.templates.settingsWindow = {
 								{
 									type = "checkbox",
 									name = "include_autotrash",
-									caption = "Include auto-trash", --{"settings-gui.enable"},
+									caption = {"", {"settings-gui.include-autotrash"}, " [img=info]"},
+									tooltip = {"settings-gui.include-autotrash-description"},
 									state = true,
 									enabled = false,
 									onCreated = function(self)
@@ -586,7 +604,8 @@ this.templates.settingsWindow = {
 								{
 									type = "checkbox",
 									name = "cleanup_request_overflow",
-									caption = "Include logistic request overflow", --{"settings-gui.enable"},
+									caption = {"", {"settings-gui.cleanup-request-overflow"}, " [img=info]"},
+									tooltip = {"settings-gui.cleanup-request-overflow-description"},
 									state = true,
 									onCreated = function(self)
 										local player = _(self.gui.player)
@@ -619,7 +638,7 @@ this.templates.settingsWindow = {
 									name = "frame_caption",
 									style = "heading_3_label_yellow",
 									caption = "Autofill [img=info]", --{"settings-gui.drag-title"},
-									tooltip = "Automatically fill buildings/vehicles with fuel and ammo when placed."
+									tooltip = {"settings-gui.autofill-description"},
 								},
 								{
 									type = "empty-widget",
@@ -628,7 +647,7 @@ this.templates.settingsWindow = {
 								{
 									type = "label",
 									style = "heading_3_label_yellow",
-									caption = "[color=red][img=warning-white] Other autofill mod detected![/color]   ", --{"settings-gui.drag-title"},
+									caption = {"", "[color=red][img=warning-white] ", {"settings-gui.autofill-other-mod-detected"}, "[/color]   "}, --{"settings-gui.drag-title"},
 								},
 								{
 									type = "checkbox",

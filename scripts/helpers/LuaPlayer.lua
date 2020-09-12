@@ -144,3 +144,20 @@ function player:returnItems(item, amount, takenFromCar, takenFromTrash)
 		self.surface.spill_item_stack(self.position, { name = item, count = remaining }, false)
 	end
 end
+
+function player:itemLimit(prototype, profile)
+	if profile and self:setting(profile.enableSetting) then
+		local limit = self:setting(profile.valueSetting)
+		local type = self:setting(profile.typeSetting)
+
+		if type == "items" then
+			return math.ceil(limit)
+		elseif type == "stacks" then
+			return math.ceil(limit * prototype.stack_size)
+		elseif type == "mj" then
+			return math.ceil((limit * 1000000) / prototype.fuel_value)
+		end
+	end
+
+	return math.huge
+end

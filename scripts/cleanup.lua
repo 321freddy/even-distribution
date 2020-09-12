@@ -111,7 +111,7 @@ function cleanup.filterEntities(entities, item, dropToChests)
 				result[entity] = entity
 			elseif entity.type == "roboport" then
 				result[entity] = entity
-			elseif entity.type == "car" and prototype.type == "ammo" then
+			elseif (entity.type == "car" or entity.type == "spider-vehicle") and prototype.type == "ammo" then
 				result[entity] = entity
 			end
 		end
