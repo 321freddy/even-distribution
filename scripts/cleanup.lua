@@ -76,7 +76,7 @@ function cleanup.insert(entity, item, amount)
 	elseif prototype.type == "module" and entity.get_module_inventory() then
 		local inventory = entity:inventory("input")  
 		if inventory then return inventory.insert{ name = item, count = amount } else return 0 end -- Only insert modules in craftng machine input inventory
-	elseif entity.type == "car" then
+	elseif entity.type == "car" or entity.type == "spider-vehicle" then
 		if prototype.type == "ammo" then
 			local inventory = entity.get_inventory(defines.inventory.car_ammo)
 			if inventory then return inventory.insert{ name = item, count = amount } else return 0 end
