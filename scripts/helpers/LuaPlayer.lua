@@ -153,9 +153,9 @@ function player:itemLimit(prototype, profile)
 		if type == "items" then
 			return math.ceil(limit)
 		elseif type == "stacks" then
-			return math.ceil(limit * prototype.stack_size)
+			return math.ceil(limit * (prototype.stack_size or 1))
 		elseif type == "mj" then
-			return math.ceil((limit * 1000000) / prototype.fuel_value)
+			return math.ceil((limit * 1000000) / (prototype.fuel_value or 1))
 		end
 	end
 

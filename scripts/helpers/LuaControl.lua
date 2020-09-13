@@ -1,3 +1,4 @@
+local config = require("config")
 local control = scripts.helpers
 local _ = scripts.helpers.on
 
@@ -85,29 +86,93 @@ end
 local function insert(self, name, item, amount)
     if amount <= 0 then return 0 end
     local inv = self:inventory(name)
-    return inv and inv.insert{ name = item, count = amount } or 0
+    if inv then
+        -- inv.sort_and_merge()
+        return inv.insert{ name = item, count = amount }
+    end
+    return 0
 end
 
 -- priority insert with fuel and ammo limits
-function control:customInsert(player, item, amount, fuelProfile, ammoProfile)
+function control:customInsert(player, item, amount, takenFromCar, takenFromTrash)
+	local replaceItems = player:setting("replaceItems")
     local inserted = 0
-    local prototype = game.item_prototypes[item]
+    local prototype = _(game.item_prototypes[item])
     
     if amount <= 0 then return inserted end
-    if prototype.fuel_category then
-        local limit = math.max(0, player:itemLimit(prototype, fuelProfile) - self:itemcount(item))
+    if prototype:is("fuel") then
+        local inv = self:inventory("fuel")
+        if inv then
+            local limit = math.min(amount, math.max(0, player:itemLimit(prototype, config.fuelLimitProfiles) - inv.get_item_count(item)))
 
-        local insertedHere = insert(self, "fuel", item, math.min(amount, limit))
-        inserted = inserted + insertedHere
-        amount = amount - insertedHere
+            local insertedHere = insert(self, "fuel", item, limit)
+            limit = limit - insertedHere
+
+            -- no space left --> replace inferior items
+            if replaceItems and limit > 0 then
+                for __,inferiorFuel in pairs(global.fuelList[prototype.fuel_category]) do
+                    if inferiorFuel.name == prototype.name or limit <= 0 then break end
+
+                    local returnToPlayer = 0
+                    while limit > 0 do
+                        stack = inv.find_item_stack(inferiorFuel.name)
+                        local returnCount = stack and stack.count or 0
+                        if stack and stack.set_stack{ name = item, count = limit } then
+                            limit = limit - stack.count
+                            insertedHere = insertedHere + stack.count
+                            returnToPlayer = returnToPlayer + returnCount
+                        else
+                            break
+                        end
+                    end
+
+                    if returnToPlayer > 0 then
+                        player:returnItems(inferiorFuel.name, returnToPlayer, takenFromCar, takenFromTrash)
+                    end
+                end
+            end
+
+            inserted = inserted + insertedHere
+            amount = amount - insertedHere
+        end
     end
 
     if amount <= 0 then return inserted end
-	if prototype.type == "ammo" then
-        local limit = math.max(0, player:itemLimit(prototype, ammoProfile) - self:itemcount(item))
-        local insertedHere = insert(self, "ammo", item, math.min(amount, limit))
-        inserted = inserted + insertedHere
-        amount = amount - insertedHere
+	if prototype:is("ammo") then
+        local inv = self:inventory("ammo")
+        if inv then
+            local limit = math.min(amount, math.max(0, player:itemLimit(prototype, config.ammoLimitProfiles) - inv.get_item_count(item)))
+
+            local insertedHere = insert(self, "ammo", item, limit)
+            limit = limit - insertedHere
+
+            -- no space left --> replace inferior items
+            if replaceItems and limit > 0 then
+                for __,inferiorAmmo in pairs(global.ammoList[prototype.get_ammo_type().category]) do
+                    if inferiorAmmo.name == prototype.name or limit <= 0 then break end
+
+                    local returnToPlayer = 0
+                    while limit > 0 do
+                        stack = inv.find_item_stack(inferiorAmmo.name)
+                        local returnCount = stack and stack.count or 0
+                        if stack and stack.set_stack{ name = item, count = limit } then
+                            limit = limit - stack.count
+                            insertedHere = insertedHere + stack.count
+                            returnToPlayer = returnToPlayer + returnCount
+                        else
+                            break
+                        end
+                    end
+                    
+                    if returnToPlayer > 0 then
+                        player:returnItems(inferiorAmmo.name, returnToPlayer, takenFromCar, takenFromTrash)
+                    end
+                end
+            end
+
+            inserted = inserted + insertedHere
+            amount = amount - insertedHere
+        end
     end
 
     if amount <= 0 then return inserted 

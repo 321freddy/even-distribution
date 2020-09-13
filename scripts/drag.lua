@@ -47,7 +47,7 @@ function this.distributeItems(player, cache)
 			
 			if takenFromPlayer > 0 then
 				-- itemsInserted = entity.insert{ name = item, count = takenFromPlayer }
-				itemsInserted = entity:customInsert(player, item, takenFromPlayer, config.fuelLimitProfiles, config.ammoLimitProfiles)
+				itemsInserted = entity:customInsert(player, item, takenFromPlayer, takeFromCar, false)
 				local failedToInsert = takenFromPlayer - itemsInserted
 				
 				if failedToInsert > 0 then
@@ -112,7 +112,7 @@ function this.balanceItems(player, cache)
 			amount = amount - itemCount.remaining
 			if amount > 0 then
 				-- local itemsInserted = entity.insert{ name = item, count = amount }
-				local itemsInserted = entity:customInsert(player, item, amount, config.fuelLimitProfiles, config.ammoLimitProfiles)
+				local itemsInserted = entity:customInsert(player, item, amount, takeFromCar, false)
 				itemCount.current = itemCount.current + itemsInserted
 				totalItems = totalItems - itemsInserted
 
@@ -151,7 +151,7 @@ function this.on_selected_entity_changed(event)
 	local cursor_stack = _(player.cursor_stack); if cursor_stack:isnot("valid stack") then return end
 	local selected     = _(player.selected)    ; if selected:isnot("valid") or selected:isIgnored(player) then return end
 
-	if not selected.can_insert{ name = cursor_stack.name, count = 1 } then return end
+	-- if not selected.can_insert{ name = cursor_stack.name, count = 1 } then return end
 
 	local cache = _(global.cache[index]):set{
 		tick             = event.tick,
@@ -173,6 +173,8 @@ function this.on_selected_entity_changed(event)
 end
 
 function this.on_player_fast_transferred(event)
+	-- dlog("on_player_fast_transferred",event)
+
 	local index    = event.player_index
 	local player   = _(game.players[index]); if player:isnot("valid player") or not player:setting("enableDragDistribute") then return end
 	local cache    = _(global.cache[index])
@@ -181,6 +183,8 @@ function this.on_player_fast_transferred(event)
 	if cache.tick == event.tick and event.entity == selected:toPlain() then
 
 		if event.from_player then
+			-- distribute...
+
 			if cache.item then
 				cache.itemCount = selected:itemcount(cache.item) - cache.itemCount
 				
@@ -196,7 +200,7 @@ function this.on_player_fast_transferred(event)
 				this.onStackTransferred(selected, player, cache) -- handle stack transfer
 			end
 		else
-			-- ...
+			-- take...
 		end
 
 	end

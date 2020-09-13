@@ -65,7 +65,7 @@ local function updateLimiter(flow, profiles, action, newValue) -- switch to next
 	-- clamp value to bounds
 	local decimal = (profile.step < 1)
 	if not decimal then value = math.floor(value) end
-	if value > profile.max then value = profile.max end
+	-- if value > profile.max then value = profile.max end
 	if value < profile.min then value = profile.min end
 	
 	-- update GUI
@@ -394,6 +394,21 @@ this.templates.settingsWindow = {
 									}
 								},
 								{
+									type = "checkbox",
+									name = "replace_items",
+									caption = {"settings-gui.replace-items"},
+									state = true,
+									onCreated = function(self)
+										local player = _(self.gui.player)
+										self.state = player:setting("replaceItems")
+									end,
+									onChanged = function(event)
+										local self = event.element
+										local player = _(self.gui.player)
+										player:changeSetting("replaceItems", self.state)
+									end,
+								},
+								{
 									type = "flow",
 									direction = "horizontal",
 									style = {
@@ -609,202 +624,13 @@ this.templates.settingsWindow = {
 									state = true,
 									onCreated = function(self)
 										local player = _(self.gui.player)
-										-- self.state = player:setting("enableDragDistribute")
+										self.state = player:setting("cleanupRequestOverflow")
 									end,
 									onChanged = function(event)
 										local self = event.element
 										local player = _(self.gui.player)
-										-- player:changeSetting("enableDragDistribute", self.state)
+										player:changeSetting("cleanupRequestOverflow", self.state)
 									end,
-								},
-							}
-						},
-					}
-				},
-				{
-					type = "frame",
-					direction = "vertical",
-					style = "ed_settings_inner_frame",
-					children = 
-					{
-						{
-							type = "flow",
-							name = "frame_header",
-							direction = "horizontal",
-							children = 
-							{
-								{
-									type = "label",
-									name = "frame_caption",
-									style = "heading_3_label_yellow",
-									caption = "Autofill [img=info]", --{"settings-gui.drag-title"},
-									tooltip = {"settings-gui.autofill-description"},
-								},
-								{
-									type = "empty-widget",
-									style = "ed_stretch",
-								},
-								{
-									type = "label",
-									style = "heading_3_label_yellow",
-									caption = {"", "[color=red][img=warning-white] ", {"settings-gui.autofill-other-mod-detected"}, "[/color]   "}, --{"settings-gui.drag-title"},
-								},
-								{
-									type = "checkbox",
-									name = "enable_autofill",
-									caption = {"settings-gui.enable"},
-									state = true,
-									onCreated = function(self)
-										local player = _(self.gui.player)
-										self.state = player:setting("enableAutofill")
-										self.parent.frame_caption.enabled = self.state
-									end,
-									onChanged = function(event)
-										local self = event.element
-										self.parent.parent.frame_content.visible = self.state
-										self.parent.frame_caption.enabled = self.state
-
-										local player = _(self.gui.player)
-										player:changeSetting("enableAutofill", self.state)
-									end,
-								},
-							}
-						},
-						{
-							type = "flow",
-							name = "frame_content",
-							direction = "vertical",
-							onCreated = function(self)
-								self.visible = _(self.gui.player):setting("enableAutofill")
-							end,
-							children = 
-							{
-								{
-									type = "flow",
-									direction = "horizontal",
-									style = {
-										vertical_align = "center",
-									},
-									onCreated = function(self)
-										updateLimiter(self, config.fuelAmountProfiles)
-									end,
-									children = 
-									{
-										{
-											type = "label",
-											caption = {"", {"settings-gui.fuel-amount"}, " [img=info]"},
-											state = true,
-										},
-										{
-											type = "empty-widget",
-											style = "ed_stretch",
-										},
-										{
-											type = "slider",
-											name = "fuel_autofill_limit_slider",
-											--style = "red_slider",
-											discrete_slider = false,
-											discrete_values = true,
-											onChanged = function(event)
-												local value = event.element.slider_value
-												if type(value) == "number" then
-													updateLimiter(event.element.parent, config.fuelAmountProfiles, "value", value)
-												end
-											end,
-										},
-										{
-											type = "textfield",
-											name = "fuel_autofill_limit_textfield",
-											style = {
-												parent = "slider_value_textfield",
-												width = 60,
-											},
-											numeric = true,
-											allow_negative = false,
-											lose_focus_on_confirm = true,
-											onChanged = function(event)
-												local value = tonumber(event.element.text)
-												if type(value) == "number" then
-													updateLimiter(event.element.parent, config.fuelAmountProfiles, "value", value)
-												end
-											end,
-										},
-										{
-											type = "button",
-											name = "fuel_autofill_limit_type",
-											style = {
-												padding = 0,
-												width = 56, -- 38,
-											},
-											-- caption = "Stacks",
-											onChanged = function(event)
-												updateLimiter(event.element.parent, config.fuelAmountProfiles, "type")
-											end,
-										},
-									}
-								},
-								{
-									type = "flow",
-									direction = "horizontal",
-									style = {
-										vertical_align = "center",
-									},
-									onCreated = function(self)
-										updateLimiter(self, config.ammoAmountProfiles)
-									end,
-									children = 
-									{
-										{
-											type = "label",
-											caption = {"", {"settings-gui.ammo-amount"}, " [img=info]"},
-											state = true,
-										},
-										{
-											type = "empty-widget",
-											style = "ed_stretch",
-										},
-										{
-											type = "slider",
-											name = "ammo_autofill_limit_slider",
-											--style = "red_slider",
-											discrete_slider = false,
-											discrete_values = true,
-											onChanged = function(event)
-												local value = event.element.slider_value
-												if type(value) == "number" then
-													updateLimiter(event.element.parent, config.ammoAmountProfiles, "value", value)
-												end
-											end,
-										},
-										{
-											type = "textfield",
-											name = "ammo_autofill_limit_textfield",
-											style = {
-												parent = "slider_value_textfield",
-												width = 60,
-											},
-											numeric = true,
-											allow_negative = false,
-											lose_focus_on_confirm = true,
-											onChanged = function(event)
-												local value = tonumber(event.element.text)
-												if type(value) == "number" then
-													updateLimiter(event.element.parent, config.ammoAmountProfiles, "value", value)
-												end
-											end,
-										},
-										{
-											type = "button",
-											name = "ammo_autofill_limit_type",
-											style = {
-												padding = 0,
-												width = 56, -- 38,
-											},
-											onChanged = function(event)
-												updateLimiter(event.element.parent, config.ammoAmountProfiles, "type")
-											end,
-										},
-									}
 								},
 							}
 						},

@@ -8,6 +8,7 @@ local type, rawget, rawset, pairs, ipairs = type, rawget, rawset, pairs, ipairs
 function this.on_scripts_initialized()
     require("scripts.helpers.LuaControl")
     require("scripts.helpers.LuaEntity")
+    require("scripts.helpers.LuaItemPrototype")
     require("scripts.helpers.LuaPlayer")
     require("scripts.helpers.LuaRecipe")
     require("scripts.helpers.Position")
@@ -55,6 +56,8 @@ local conditions = {
 
     -- Custom type conditions
     ["crafting machine"] = util.isCraftingMachine,
+    ["fuel"] = function(obj) return obj.object_name == "LuaItemStack" and obj.prototype.fuel_category ~= nil or obj.fuel_category ~= nil end,
+    ["ammo"] = function(obj) return obj.type == "ammo" end,
 }
 
 local function applyNot(notModeActive, value)
@@ -350,6 +353,91 @@ function this:set(values)
     end
 
     return self
+end
+
+function this:map(func)
+    local obj = rawget(self, "__on")
+    local iter = metatables.uses(obj, "entityAsIndex") and util.epairs or pairs
+    local result = {}
+
+    for k,v in iter(obj) do
+        local k2,v2 = func(k,v)
+        if k2 == nil then
+            result[#result + 1] = v2
+        else
+            result[k2] = v2
+        end
+    end
+
+    return _(result)
+end
+
+function this:toArray()
+    return self:map(function(k,v)
+        return nil, v
+    end)
+end
+
+function this:sort(...)
+    local obj = rawget(self, "__on")
+
+    table.sort(obj, ...)
+
+    return self
+end
+
+function this:sum(key)
+    local obj = rawget(self, "__on")
+    local iter = metatables.uses(obj, "entityAsIndex") and util.epairs or pairs
+    local result = 0
+
+    if type(key) == "function" then
+        for k,v in iter(obj) do
+            result = result + key(k,v)
+        end
+        
+    else
+        for k,v in iter(obj) do
+            result = result + v[key]
+        end
+    end
+
+    return result
+end
+
+function this:groupBy(key)
+    local obj = rawget(self, "__on")
+    local iter = metatables.uses(obj, "entityAsIndex") and util.epairs or pairs
+    local result = {}
+
+    if type(key) == "function" then
+        for k,v in iter(obj) do
+            local value = key(k,v)
+            if value ~= nil then
+                result[value] = result[value] or {}
+                if type(k) == "number" then
+                    result[value][#result[value] + 1] = v
+                else
+                    result[value][k] = v
+                end
+            end
+        end
+        
+    else
+        for k,v in iter(obj) do
+            local value = v[key]
+            if value ~= nil then
+                result[value] = result[value] or {}
+                if type(k) == "number" then
+                    result[value][#result[value] + 1] = v
+                else
+                    result[value][k] = v
+                end
+            end
+        end
+    end
+    
+    return _(result)
 end
 
 return this

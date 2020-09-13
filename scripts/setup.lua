@@ -5,6 +5,9 @@ local util = scripts.util
 local metatables = scripts.metatables
 local defaultTrash = require("default-trash")
 
+local helpers = scripts.helpers
+local _ = helpers.on
+
 function setup.on_init()
 	global.cache = global.cache or {}
 	global.distrEvents = global.distrEvents or {}
@@ -25,6 +28,31 @@ function setup.on_init()
 		onSwitchStateChanged    = {},
 		onLocationChanged       = {}, 
 	}
+
+	-- Fuel upgrade list (ascending fuel value)
+	global.fuelList = _(game.item_prototypes)
+						:where("fuel")
+						:toArray()
+						:groupBy("fuel_category")
+						:sort(function(a,b)
+							return a.fuel_value < b.fuel_value or
+								   a.fuel_acceleration_multiplier < b.fuel_acceleration_multiplier or
+								   a.fuel_top_speed_multiplier < b.fuel_top_speed_multiplier or
+								   a.fuel_emissions_multiplier < b.fuel_emissions_multiplier
+						end)
+						:toPlain()
+
+	-- Ammo upgrade list (ascending damage)
+	global.ammoList = _(game.item_prototypes)
+						:where("ammo")
+						:toArray()
+						:groupBy(function(__,prototype)
+							return prototype.get_ammo_type().category
+						end)
+						:sort(function(a,b)
+							return _(a):calculateDamage() < _(b):calculateDamage()
+						end)
+						:toPlain()
 	
 	for player_index,player in pairs(game.players) do
 		setup.setupPlayerGlobalTable(player_index, player)
@@ -66,6 +94,7 @@ function setup.setupPlayerGlobalTable(player_index, player)
 	if settings.dragMode == nil                     then settings.dragMode = "distribute" end
 	if settings.takeFromInventory == nil            then settings.takeFromInventory = true end
 	if settings.takeFromCar == nil                  then settings.takeFromCar = true end
+	if settings.replaceItems == nil                 then settings.replaceItems = true end
 	if settings.cleanupRequestOverflow == nil       then settings.cleanupRequestOverflow = true end
 
 	if settings.enableDragFuelLimit == nil          then settings.enableDragFuelLimit = false end
@@ -75,13 +104,6 @@ function setup.setupPlayerGlobalTable(player_index, player)
 	if settings.enableDragAmmoLimit == nil          then settings.enableDragAmmoLimit = false end
 	if settings.dragAmmoLimit == nil                then settings.dragAmmoLimit = 1 end
 	if settings.dragAmmoLimitType == nil            then settings.dragAmmoLimitType = "stacks" end
-
-	if settings.autofillFuelLimit == nil                then settings.autofillFuelLimit = 1 end
-	if settings.autofillFuelLimitType == nil            then settings.autofillFuelLimitType = "stacks" end
-
-	if settings.autofillAmmoLimit == nil                then settings.autofillAmmoLimit = 1 end
-	if settings.autofillAmmoLimitType == nil            then settings.autofillAmmoLimitType = "stacks" end
-
 
 	-- migrate settings from old mod version
 	if settings.version == nil then
