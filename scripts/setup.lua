@@ -79,15 +79,6 @@ function setup.setupPlayerGlobalTable(player_index, player)
 	-- init default settings
 	local settings = global.settings[player_index] or {}
 
-	if settings.customTrash == nil then
-		settings.customTrash = {
-			["iron-plate"]      = 800,
-			["copper-plate"]    = 600,
-			["steel-plate"]     = 600,
-			["stone-brick"]     = 400,
-			["artillery-shell"] = 0,
-		}
-	end
 	if settings.enableDragDistribute == nil         then settings.enableDragDistribute = true end
 	if settings.enableInventoryCleanupHotkey == nil then settings.enableInventoryCleanupHotkey = true end
 	if settings.enableAutofill == nil               then settings.enableAutofill = true end
@@ -107,23 +98,17 @@ function setup.setupPlayerGlobalTable(player_index, player)
 
 	-- migrate settings from old mod version
 	if settings.version == nil then
-		if player.mod_settings["inventory-cleanup-custom-trash"].value == "iron-plate:800 copper-plate:600 steel-plate:600 stone-brick:400" then
-			-- change saved default value from old mod version
-			settings.customTrash["artillery-shell"] = 0
-		end
-
+		settings.version                = "1.0.0"
 		settings.enableDragDistribute   = player.mod_settings["enable-ed"].value
 		settings.takeFromCar            = player.mod_settings["take-from-car"].value
 		settings.cleanupRequestOverflow = player.mod_settings["cleanup-logistic-request-overflow"].value
-
-	--elseif settings.version == "0.3.x" then
-		-- ...
 	end
+	--if settings.version == "0.3.x" then
+		-- ...
+	-- end
 
 	-- update settings
-	settings.version = game.active_mods["even-distribution"]
 	global.settings[player_index] = settings
-
 	setup.parsePlayerSettings(player_index)
 
 	-- dlog("Setup player global table ("..player.name.."):", settings)

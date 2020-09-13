@@ -4,9 +4,13 @@ return {
 	["terrain"]                   = 600,
 	
 	--VANILLA ITEMS
-	["iron-plate"]                = "ignore",
-	["copper-plate"]              = "ignore",
-	["steel-plate"]               = "ignore",
+	["iron-plate"]                = 800,
+	["copper-plate"]              = 600,
+	["steel-plate"]               = 600,
+	["stone-brick"]               = 400,
+	-- ["iron-plate"]                = "ignore",
+	-- ["copper-plate"]              = "ignore",
+	-- ["steel-plate"]               = "ignore",
 	["electronic-circuit"]        = "ignore",
 	["advanced-circuit"]          = "ignore",
 	["processing-unit"]           = "ignore",
@@ -14,6 +18,7 @@ return {
 	["wood"]                      = "ignore",
 	["rocket-fuel"]               = 40,
 	["nuclear-fuel"]              = "ignore",
+	["artillery-shell"]           = 0,
 	
 	-- BOBS MODS GROUPS
 	["bob-ores"]                  = 0,

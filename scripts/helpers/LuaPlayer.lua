@@ -49,7 +49,7 @@ function player:trashItems()
 	end
 
 	for item,count in pairs(self:contents()) do
-		local targetAmount = autoTrash[item] or requests[item] or customTrash[item] or defaultTrash[item]
+		local targetAmount = autoTrash[item] or requests[item] or defaultTrash[item] --or customTrash[item] or defaultTrash[item]
 		
 		if targetAmount then
 			local surplus = count - targetAmount
