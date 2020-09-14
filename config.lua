@@ -36,7 +36,7 @@ config.fuelLimitProfiles =
     stacks = {
         min  = 0,
         max  = 1,
-        step = 0.25,
+        step = 0.1,
         next = "items",
     },
     items = {

@@ -87,13 +87,15 @@ function setup.setupPlayerGlobalTable(player_index, player)
 	if settings.takeFromCar == nil                  then settings.takeFromCar = true end
 	if settings.replaceItems == nil                 then settings.replaceItems = true end
 	if settings.cleanupRequestOverflow == nil       then settings.cleanupRequestOverflow = true end
+	if settings.dropTrashToChests == nil       		then settings.dropTrashToChests = true end
+	if settings.itemLimits == nil       			then settings.itemLimits = true end
 
 	if settings.enableDragFuelLimit == nil          then settings.enableDragFuelLimit = false end
-	if settings.dragFuelLimit == nil                then settings.dragFuelLimit = 1 end
+	if settings.dragFuelLimit == nil                then settings.dragFuelLimit = 0.5 end
 	if settings.dragFuelLimitType == nil            then settings.dragFuelLimitType = "stacks" end
 
 	if settings.enableDragAmmoLimit == nil          then settings.enableDragAmmoLimit = false end
-	if settings.dragAmmoLimit == nil                then settings.dragAmmoLimit = 1 end
+	if settings.dragAmmoLimit == nil                then settings.dragAmmoLimit = 0.5 end
 	if settings.dragAmmoLimitType == nil            then settings.dragAmmoLimitType = "stacks" end
 
 	-- migrate settings from old mod version
@@ -102,6 +104,9 @@ function setup.setupPlayerGlobalTable(player_index, player)
 		settings.enableDragDistribute   = player.mod_settings["enable-ed"].value
 		settings.takeFromCar            = player.mod_settings["take-from-car"].value
 		settings.cleanupRequestOverflow = player.mod_settings["cleanup-logistic-request-overflow"].value
+		settings.dropTrashToChests      = player.mod_settings["drop-trash-to-chests"].value
+
+
 	end
 	--if settings.version == "0.3.x" then
 		-- ...

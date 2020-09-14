@@ -61,6 +61,40 @@ data:extend{
 }
 
 
+-- Sprites --
+
+data:extend{
+	{
+		type = "sprite",
+		name = "ed_trash",
+		filename = "__core__/graphics/icons/mip/trash.png",
+		priority = "extra-high-no-scale",
+		size = 32,
+		flags = {"gui-icon"},
+		mipmap_count = 2,
+		scale = 1
+	},
+	{
+		type = "sprite",
+		name = "ed_autotrash",
+		filename = "__even-distribution__/graphics/autotrash.png",
+		priority = "extra-high-no-scale",
+		width = 32,
+		height = 48,
+		flags = {"gui-icon"},
+	},
+	{
+		type = "sprite",
+		name = "ed_overflow",
+		filename = "__even-distribution__/graphics/overflow.png",
+		priority = "extra-high-no-scale",
+		size = 64,
+		flags = {"gui-icon"},
+		scale = 0.5
+	},
+}
+
+
 -- Styles --
 
 local style = data.raw["gui-style"].default
@@ -89,12 +123,18 @@ style.ed_switch_button = {
 		base = {position = {0, 17}, corner_size = 8},
 		shadow = default_dirt
 	},
-	clicked_font_color = button_hovered_font_color,
+	clicked_font_color = button_default_font_color,
 	clicked_graphical_set =
 	{
-		base = {position = {225, 17}, corner_size = 8},
+		base = {position = {0, 17}, corner_size = 8},
 		shadow = default_dirt
 	},
+	-- clicked_font_color = button_hovered_font_color,
+	-- clicked_graphical_set =
+	-- {
+	-- 	base = {position = {225, 17}, corner_size = 8},
+	-- 	shadow = default_dirt
+	-- },
 }
 
 style.ed_switch_button_selected = {
