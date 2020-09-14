@@ -149,27 +149,17 @@ function this.on_selected_entity_changed(event)
 	local index        = event.player_index
 	local player       = _(game.players[index]); if player:isnot("valid player") or not player:setting("enableDragDistribute") then return end
 	local cursor_stack = _(player.cursor_stack); if cursor_stack:isnot("valid stack") then return end
+	local cache        = _(global.cache[index])
 	local selected     = _(player.selected)    ; if selected:isnot("valid") or selected:isIgnored(player) then return end
 
 	-- if not selected.can_insert{ name = cursor_stack.name, count = 1 } then return end
 
-	local cache = _(global.cache[index]):set{
+	cache.selectedEvent = {
 		tick             = event.tick,
 		item             = cursor_stack.name,
 		itemCount        = selected:itemcount(cursor_stack.name),
 		cursorStackCount = cursor_stack.count,
 	}
-	
-	if selected:is("crafting machine") then
-		cache:set{
-			isCrafting    = selected.is_crafting(),
-			inputContents = selected:contents("input"),
-		}
-	end
-	
-	if selected.burner then 
-		cache.remainingFuel = selected.burner.remaining_burning_fuel
-	end
 end
 
 function this.on_player_fast_transferred(event)
@@ -180,13 +170,17 @@ function this.on_player_fast_transferred(event)
 	local cache    = _(global.cache[index])
 	local selected = _(player.selected)    ; if selected:isnot("valid") or selected:isIgnored(player) then return end
 
-	if cache.tick == event.tick and event.entity == selected:toPlain() then
+	if cache.selectedEvent and cache.selectedEvent.tick == event.tick and event.entity == selected:toPlain() then
 
 		if event.from_player then
 			-- distribute...
 
-			if cache.item then
-				cache.itemCount = selected:itemcount(cache.item) - cache.itemCount
+			if cache.selectedEvent.item then
+				cache:set{
+					item             = cache.selectedEvent.item,
+					itemCount        = selected:itemcount(cache.selectedEvent.item) - cache.selectedEvent.itemCount,
+					cursorStackCount = cache.selectedEvent.cursorStackCount,
+				}
 				
 				cache.half = false
 				if cache.itemCount == 0 then
@@ -202,7 +196,6 @@ function this.on_player_fast_transferred(event)
 		else
 			-- take...
 		end
-
 	end
 end
 
@@ -229,8 +222,6 @@ function this.onStackTransferred(entity, player, cache) -- handle vanilla drag s
 			cache.entities[entity] = entity
 		end
 	end
-	
-	cache.tick = nil -- reset event handler tick to avoid invalid on_player_cursor_stack_changed execution
 
 	-- give back transferred items
 	local collected = 0

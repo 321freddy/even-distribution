@@ -66,6 +66,8 @@ function player:playeritemcount(item, includeInv, includeCar)
 	local cursor_stack = self.cursor_stack
 	if cursor_stack.valid_for_read and cursor_stack.name == item then
 		count = count + cursor_stack.count
+	elseif not includeInv and not includeCar then
+		return global.cache[self.index].cursorStackCount or 0
 	end
 
 	if includeInv then
@@ -117,6 +119,11 @@ function player:removeItems(item, amount, takeFromInv, takeFromCar, takeFromTras
 		removed = removed + result
 		cursor_stack.count = cursor_stack.count - result
 		if amount <= removed then return removed end
+	elseif not takeFromInv and not takeFromCar and not takeFromTrash then
+		local main = self:inventory()
+		if _(main):is("valid") then
+			return removed + main.remove{ name = item, count = amount - removed }
+		end
 	end
 	
 	if takeFromCar and self.driving and self:has("valid", "vehicle") then
