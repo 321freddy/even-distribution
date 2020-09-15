@@ -60,11 +60,4 @@ data:extend{
 		default_value = "",
 		allow_blank = true
 	},
-	{
-		type = "bool-setting", -- DEPRECATED
-		name = "early-autotrash-research",
-		order = "zzz",
-		setting_type = "runtime-global",
-		default_value = true,
-	}
 }

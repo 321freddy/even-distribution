@@ -35,7 +35,7 @@ function cleanup.on_inventory_cleanup(event)
 					local takenFromPlayer = player:removeItems(item, amount, true, false, true)
 					
 					if takenFromPlayer > 0 then
-						itemsInserted = cleanup.insert(entity, item, takenFromPlayer)
+						itemsInserted = cleanup.insert(player, entity, item, takenFromPlayer)
 						local failedToInsert = takenFromPlayer - itemsInserted
 						
 						if failedToInsert > 0 then
@@ -64,29 +64,50 @@ function cleanup.on_inventory_cleanup(event)
 	-- end
 end
 
-function cleanup.insert(entity, item, amount)
+function cleanup.insert(player, entity, item, amount)
 
-	local prototype = game.item_prototypes[item]
+	local useLimits = player:setting("cleanupUseLimits")
 	if entity.type == "furnace" and not (entity.get_recipe() or entity.previous_recipe) then
-		local inventory = entity.get_fuel_inventory()
-		if inventory then return inventory.insert{ name = item, count = amount } else return 0 end
+		return entity:customInsert(player, item, amount, false, true, false, useLimits, {
+			fuel     = true,
+			ammo     = false,
+			input    = false,
+			modules  = false,
+			roboport = false,
+			main     = false,
+		})
+
 	elseif entity.prototype.logistic_mode == "requester" then
 		local requested = entity:remainingRequest(item)
-		if requested > 0 then return entity.insert{ name = item, count = math.min(amount, requested) } else return 0 end
-	elseif prototype.type == "module" and entity.get_module_inventory() then
-		local inventory = entity:inventory("input")  
-		if inventory then return inventory.insert{ name = item, count = amount } else return 0 end -- Only insert modules in craftng machine input inventory
+		return entity:customInsert(player, item, math.min(amount, requested), false, true, false, useLimits, {
+			fuel     = false,
+			ammo     = false,
+			input    = false,
+			modules  = false,
+			roboport = false,
+			main     = true,
+		})
+		
 	elseif entity.type == "car" or entity.type == "spider-vehicle" then
-		if prototype.type == "ammo" then
-			local inventory = entity.get_inventory(defines.inventory.car_ammo)
-			if inventory then return inventory.insert{ name = item, count = amount } else return 0 end
-		elseif prototype.fuel_category then
-			local inventory = entity.get_fuel_inventory()
-			if inventory then return inventory.insert{ name = item, count = amount } else return 0 end
-		end
+		return entity:customInsert(player, item, amount, false, true, false, useLimits, {
+			fuel     = true,
+			ammo     = true,
+			input    = false,
+			modules  = false,
+			roboport = false,
+			main     = false,
+		})
 	end
 	
-	return entity.insert{ name = item, count = amount } -- Default distribution
+	-- Default priority insertion
+	return entity:customInsert(player, item, amount, false, true, false, useLimits, {
+		fuel     = true,
+		ammo     = true,
+		input    = true,
+		modules  = false,
+		roboport = true,
+		main     = true,
+	}) 
 end
 
 function cleanup.filterEntities(entities, item, dropToChests)

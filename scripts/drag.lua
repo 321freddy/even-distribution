@@ -28,10 +28,11 @@ function this.on_tick(event) -- handles distribution events
 end
 
 function this.distributeItems(player, cache)
-	local takeFromInv = player:setting("takeFromInventory")
-	local takeFromCar = player:setting("takeFromCar")
-	local item        = cache.item
-	local totalItems  = player:itemcount(item, takeFromInv, takeFromCar)
+	local takeFromInv  = player:setting("takeFromInventory")
+	local takeFromCar  = player:setting("takeFromCar")
+	local replaceItems = player:setting("replaceItems")
+	local item         = cache.item
+	local totalItems   = player:itemcount(item, takeFromInv, takeFromCar)
 
 	if cache.half then totalItems = math.ceil(totalItems / 2) end
 
@@ -46,10 +47,12 @@ function this.distributeItems(player, cache)
 			if takenFromPlayer < amount then color = config.colors.insufficientItems end
 			
 			if takenFromPlayer > 0 then
-				-- itemsInserted = entity.insert{ name = item, count = takenFromPlayer }
-				itemsInserted = entity:customInsert(player, item, takenFromPlayer, takeFromCar, false)
+				itemsInserted = entity:customInsert(player, item, takenFromPlayer, takeFromCar, false, replaceItems, true, {
+					-- if modules are recipe ingredients, dont put into module slots
+					-- modules = not entity:is("crafting machine") or not _(entity.get_recipe()):hasIngredient(item),
+				})
+
 				local failedToInsert = takenFromPlayer - itemsInserted
-				
 				if failedToInsert > 0 then
 					player:returnItems(item, failedToInsert, takeFromCar, false)
 					color = config.colors.targetFull
@@ -69,9 +72,10 @@ function this.distributeItems(player, cache)
 end
 
 function this.balanceItems(player, cache)
-	local takeFromInv = player:setting("takeFromInventory")
-	local takeFromCar = player:setting("takeFromCar")
-	local item        = cache.item
+	local takeFromInv       = player:setting("takeFromInventory")
+	local takeFromCar       = player:setting("takeFromCar")
+	local replaceItems      = player:setting("replaceItems")
+	local item              = cache.item
 	local entitiesToProcess = metatables.new("entityAsIndex")
 	local itemCounts        = metatables.new("entityAsIndex")
 
@@ -111,8 +115,11 @@ function this.balanceItems(player, cache)
 			
 			amount = amount - itemCount.remaining
 			if amount > 0 then
-				-- local itemsInserted = entity.insert{ name = item, count = amount }
-				local itemsInserted = entity:customInsert(player, item, amount, takeFromCar, false)
+				local itemsInserted = entity:customInsert(player, item, amount, takeFromCar, false, replaceItems, true, {
+					-- if modules are recipe ingredients, dont put into module slots
+					-- modules = not entity:is("crafting machine") or not _(entity.get_recipe()):hasIngredient(item),
+				})
+
 				itemCount.current = itemCount.current + itemsInserted
 				totalItems = totalItems - itemsInserted
 

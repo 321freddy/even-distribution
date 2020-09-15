@@ -42,5 +42,6 @@ luac.out
 even-distribution/mod-list.json
 *.pdn
 even-distribution/mod-settings.json
+graphics/old/*
 
 .vscode/

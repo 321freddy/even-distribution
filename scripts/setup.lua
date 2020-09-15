@@ -59,7 +59,7 @@ function setup.on_init()
 	end
 
 	for _,force in pairs(game.forces) do
-		setup.applyEarlyAutotrash(force) 
+		setup.enableLogisticsTab(force) 
 	end
 end
 
@@ -88,7 +88,7 @@ function setup.setupPlayerGlobalTable(player_index, player)
 	if settings.replaceItems == nil                 then settings.replaceItems = true end
 	if settings.cleanupRequestOverflow == nil       then settings.cleanupRequestOverflow = true end
 	if settings.dropTrashToChests == nil       		then settings.dropTrashToChests = true end
-	if settings.itemLimits == nil       			then settings.itemLimits = true end
+	if settings.cleanupUseLimits == nil       		then settings.cleanupUseLimits = false end
 
 	if settings.enableDragFuelLimit == nil          then settings.enableDragFuelLimit = false end
 	if settings.dragFuelLimit == nil                then settings.dragFuelLimit = 0.5 end
@@ -123,54 +123,17 @@ function setup.on_runtime_mod_setting_changed(event)
 	local setting = setup.parsedSettings[event.setting]
 	if setting then 
 		setting.parse(event.player_index)
-	elseif event.setting == "early-autotrash-research" then 
-		for _,force in pairs(game.forces) do
-			setup.applyEarlyAutotrash(force) 
-		end
 	end
 end
 
 function setup.on_force_created(event)
-	setup.applyEarlyAutotrash(event.force or event.destination)
+	setup.enableLogisticsTab(event.force or event.destination)
 end
 setup.on_forces_merged = setup.on_force_created
 setup.on_technology_effects_reset = setup.on_force_created
 
-function setup.applyEarlyAutotrash(force)
-	if settings.global["early-autotrash-research"].value then -- enable logistic tab
-		force.character_logistic_requests = true
-		force.auto_character_trash_slots = true
-		if force.character_trash_slot_count == 0 then
-			force.character_trash_slot_count = 10
-		end
-
-	else -- revert changes
-		setup.resetLogisticTechEffects(force)
-	end
-end
-
-function setup.resetLogisticTechEffects(force)
-	local trashslots = 0
-	local autotrash = false
-	local requests = false
-
-	for _,tech in pairs(force.technologies) do
-		if tech.researched then
-			for _,effect in pairs(tech.effects) do
-				if effect.type == "character-logistic-trash-slots" then
-					trashslots = trashslots + effect.modifier
-				elseif effect.type == "auto-character-logistic-trash-slots" then
-					autotrash = autotrash or effect.modifier
-				elseif effect.type == "character-logistic-requests" then
-					requests = requests or effect.modifier
-				end
-			end
-		end
-	end
-
-	force.character_trash_slot_count  = trashslots
-	force.auto_character_trash_slots  = autotrash
-	force.character_logistic_requests = requests
+function setup.enableLogisticsTab(force)
+	force.technologies["enable-logistics-tab"].researched = true
 end
 
 function setup.createPlayerCache(index)

@@ -926,12 +926,12 @@ this.templates.settingsWindow = {
 									state = true,
 									onCreated = function(self)
 										local player = _(self.gui.player)
-										self.state = player:setting("itemLimits")
+										self.state = player:setting("cleanupUseLimits")
 									end,
 									onChanged = function(event)
 										local self = event.element
 										local player = _(self.gui.player)
-										player:changeSetting("itemLimits", self.state)
+										player:changeSetting("cleanupUseLimits", self.state)
 									end,
 								},
 							}

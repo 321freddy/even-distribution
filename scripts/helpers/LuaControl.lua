@@ -94,16 +94,26 @@ local function insert(self, name, item, amount)
 end
 
 -- priority insert with fuel and ammo limits
-function control:customInsert(player, item, amount, takenFromCar, takenFromTrash)
-	local replaceItems = player:setting("replaceItems")
+function control:customInsert(player, item, amount, takenFromCar, takenFromTrash, replaceItems, useLimits, allowed)
+    if amount <= 0 then return 0 end
+
     local inserted = 0
     local prototype = _(game.item_prototypes[item])
+
+    -- allow/disallow insertion into specific inventories by passing table with true/false values (default is allow)
+    allowed = _({
+        fuel     = true, -- set default values
+        ammo     = true,
+        input    = true,
+        modules  = true,
+        roboport = true,
+        main     = true,
+    }):set(allowed or {}):toPlain()
     
-    if amount <= 0 then return inserted end
-    if prototype:is("fuel") then
+    if allowed.fuel and prototype:is("fuel") then
         local inv = self:inventory("fuel")
         if inv then
-            local limit = math.min(amount, math.max(0, player:itemLimit(prototype, config.fuelLimitProfiles) - inv.get_item_count(item)))
+            local limit = useLimits and math.min(amount, math.max(0, player:itemLimit(prototype, config.fuelLimitProfiles) - inv.get_item_count(item))) or amount
 
             local insertedHere = insert(self, "fuel", item, limit)
             limit = limit - insertedHere
@@ -138,10 +148,10 @@ function control:customInsert(player, item, amount, takenFromCar, takenFromTrash
     end
 
     if amount <= 0 then return inserted end
-	if prototype:is("ammo") then
+	if allowed.ammo and prototype:is("ammo") then
         local inv = self:inventory("ammo")
         if inv then
-            local limit = math.min(amount, math.max(0, player:itemLimit(prototype, config.ammoLimitProfiles) - inv.get_item_count(item)))
+            local limit = useLimits and math.min(amount, math.max(0, player:itemLimit(prototype, config.ammoLimitProfiles) - inv.get_item_count(item))) or amount
 
             local insertedHere = insert(self, "ammo", item, limit)
             limit = limit - insertedHere
@@ -175,21 +185,21 @@ function control:customInsert(player, item, amount, takenFromCar, takenFromTrash
         end
     end
 
-    if amount <= 0 then return inserted 
-    else
+    if amount <= 0 then return inserted end
+    if allowed.input then
         local insertedHere = insert(self, "input", item, amount)
         inserted = inserted + insertedHere
         amount = amount - insertedHere
 	end
 
     if amount <= 0 then return inserted end
-    if not self:is("crafting machine") or not _(self.get_recipe()):hasIngredient(item) then
+    if allowed.modules then
         local insertedHere = insert(self, "modules", item, amount)
         inserted = inserted + insertedHere
         amount = amount - insertedHere
     end
 
-    if self.type == "roboport" then
+    if allowed.roboport and self.type == "roboport" then
         if amount <= 0 then return inserted end
         local insertedHere = insert(self, "roboport_robot", item, amount)
         inserted = inserted + insertedHere
@@ -201,8 +211,8 @@ function control:customInsert(player, item, amount, takenFromCar, takenFromTrash
         amount = amount - insertedHere
     end
     
-    if amount <= 0 then return inserted
-    else
+    if amount <= 0 then return inserted end
+    if allowed.main then
         local insertedHere = insert(self, "main", item, amount)
         inserted = inserted + insertedHere
         amount = amount - insertedHere

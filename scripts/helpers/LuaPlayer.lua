@@ -24,7 +24,6 @@ function player:droprange()
 end
 
 function player:trashItems()
-	local customTrash  = global.settings[self.index].customTrash
 	local defaultTrash = global.defaultTrash
 	local trash        = self:contents("character_trash")
 	
