@@ -589,7 +589,7 @@ this.templates.settingsWindow = {
 								},
 								{
 									type = "label",
-									caption = "Items include:",
+									caption = {"settings-gui.inventory-cleanup-list"},
 								},
 								{
 									type = "flow",
@@ -629,12 +629,17 @@ this.templates.settingsWindow = {
 													ignored_by_interaction = true,
 													style = {
 														horizontal_align = "center",
+														vertical_spacing = 2,
 													},
 													children = {
 														{
 															type = "flow",
 															direction = "horizontal",
 															ignored_by_interaction = true,
+															style = {
+																horizontal_spacing = 2,
+																top_margin = 2,
+															},
 															children = {
 																{
 																	type = "sprite",
@@ -652,6 +657,10 @@ this.templates.settingsWindow = {
 															type = "flow",
 															direction = "horizontal",
 															ignored_by_interaction = true,
+															style = {
+																horizontal_spacing = 2,
+																top_margin = 2,
+															},
 															children = {
 																{
 																	type = "sprite",
@@ -671,10 +680,16 @@ this.templates.settingsWindow = {
 															ignored_by_interaction = true,
 															style = {
 																parent = "black_label",
-																font = "default-bold"
+																font = "default-bold",
 															}
 														},
 													}
+												},
+												{
+													type = "checkbox",
+													ignored_by_interaction = true,
+													state = true,
+													enabled = false,
 												},
 											}
 										},
@@ -707,6 +722,12 @@ this.templates.settingsWindow = {
 											-- 	player:changeSetting("takeFromCar", false)
 											-- end,
 											children = {
+												{
+													type = "checkbox",
+													ignored_by_interaction = true,
+													state = true,
+													enabled = false,
+												},
 												{
 													type = "flow",
 													direction = "vertical",
@@ -765,6 +786,12 @@ this.templates.settingsWindow = {
 											-- 	player:changeSetting("takeFromCar", nowActive)
 											-- end,
 											children = {
+												{
+													type = "checkbox",
+													ignored_by_interaction = true,
+													state = true,
+													enabled = false,
+												},
 												{
 													type = "flow",
 													direction = "vertical",
@@ -898,6 +925,13 @@ this.templates.settingsWindow = {
 								{
 									type = "label",
 									caption = {"settings-gui.inventory-cleanup-configure"},
+								},
+								{
+									type = "label",
+									caption = {"settings-gui.inventory-cleanup-ignore"},
+									style = {
+										top_margin = -6,
+									}
 								},
 								{
 									type = "label",

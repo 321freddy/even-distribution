@@ -24,33 +24,27 @@ function player:droprange()
 end
 
 function player:trashItems()
-	local defaultTrash = global.defaultTrash
-	local trash        = self:contents("character_trash")
-	
-	local requests, autoTrash
-	if self:has("valid", "character") then 
-		autoTrash = self.auto_trash_filters
-
-		for item,amount in pairs(autoTrash) do
-			if amount >= 4294967295 then -- max value set to infinity, so no autotrash
-				autoTrash[item] = nil
-			end
-		end
-
-		if self:setting("cleanupRequestOverflow") then 
-			requests = self:requests()
-		else 
-			requests = {} 
-		end
-	else 
-		requests = {} 
-		autoTrash = {}
-	end
+	local cleanupRequestOverflow = self:setting("cleanupRequestOverflow")
+	local defaultTrash           = global.defaultTrash
+	local trash                  = self:contents("character_trash")
+	local logisticSlots          = self:has("valid", "character") and _(self.character):logisticSlots() or {}
 
 	for item,count in pairs(self:contents()) do
-		local targetAmount = autoTrash[item] or requests[item] or defaultTrash[item] --or customTrash[item] or defaultTrash[item]
 		
-		if targetAmount then
+		local targetAmount = count
+		local slot = logisticSlots[item]
+
+		if not slot then -- default if no logistic slot with this item
+			targetAmount = defaultTrash[item]
+
+		elseif cleanupRequestOverflow and slot.min > 0 then -- request overflow
+			targetAmount = slot.min
+
+		elseif slot.max < 4294967295 then -- max value set to infinity = no autotrash
+			targetAmount = slot.max
+		end
+
+		if targetAmount ~= nil then
 			local surplus = count - targetAmount
 			if surplus > 0 then trash[item] = (trash[item] or 0) + surplus end
 		end

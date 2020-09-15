@@ -88,7 +88,7 @@ function setup.setupPlayerGlobalTable(player_index, player)
 	if settings.replaceItems == nil                 then settings.replaceItems = true end
 	if settings.cleanupRequestOverflow == nil       then settings.cleanupRequestOverflow = true end
 	if settings.dropTrashToChests == nil       		then settings.dropTrashToChests = true end
-	if settings.cleanupUseLimits == nil       		then settings.cleanupUseLimits = false end
+	if settings.cleanupUseLimits == nil       		then settings.cleanupUseLimits = true end
 
 	if settings.enableDragFuelLimit == nil          then settings.enableDragFuelLimit = false end
 	if settings.dragFuelLimit == nil                then settings.dragFuelLimit = 0.5 end

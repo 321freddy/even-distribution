@@ -38,6 +38,21 @@ function entity:entityrequest(item) -- fetch specific item request
 	return count
 end
 
+function entity:logisticSlots() -- fetch all requests as table
+	local logisticSlots = {}
+
+    if self.character_logistic_slot_count > 0 then
+		for i = 1, self.character_logistic_slot_count do
+			local slot = self.get_personal_logistic_slot(i)
+			if slot and slot.name then
+				logisticSlots[slot.name] = slot
+			end
+		end
+	end
+	
+	return logisticSlots
+end
+
 function entity:isIgnored(player)
 	return config.ignoredEntities[self.type] or 
 		   config.ignoredEntities[self.name] or 
