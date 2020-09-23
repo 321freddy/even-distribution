@@ -892,14 +892,19 @@ this.templates.settingsWindow = {
 								},
 								{
 									type = "label",
-									caption = {"settings-gui.inventory-cleanup-ignore"},
+									caption = {"", "[color=gray]", {"settings-gui.inventory-cleanup-override"}, "[/color]"},
 									style = {
 										top_margin = -6,
 									}
 								},
 								{
 									type = "label",
-									caption = " ",
+									caption = {"", "[color=gray]", {"settings-gui.inventory-cleanup-ignore"}, "[/color] [img=info]"},
+									tooltip = {"settings-gui.inventory-cleanup-ignore-description"},
+									style = {
+										top_margin = -6,
+										bottom_margin = 20,
+									}
 								},
 								{
 									type = "checkbox",
