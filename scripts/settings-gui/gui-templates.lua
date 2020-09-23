@@ -194,13 +194,17 @@ this.templates.settingsWindow = {
 				parent = "control_settings_scroll_pane", --"scroll_pane_with_dark_background_under_subheader",
 				minimal_width = 450, --530, -- 350,
 				minimal_height = 344, -- Inventory GUI height
-				maximal_height = 600,
+				maximal_height = 800, --600,
 			},
 			children = {
 				{
 					type = "frame",
 					direction = "vertical",
-					style = "ed_settings_inner_frame",
+					style = {
+						parent = "ed_settings_inner_frame",
+						top_margin = 3,
+						bottom_margin = 3,
+					},
 					children = 
 					{
 						{
@@ -544,7 +548,10 @@ this.templates.settingsWindow = {
 				{
 					type = "frame",
 					direction = "vertical",
-					style = "ed_settings_inner_frame",
+					style = {
+						parent = "ed_settings_inner_frame",
+						bottom_margin = 3,
+					},
 					children = 
 					{
 						{
@@ -944,7 +951,10 @@ this.templates.settingsWindow = {
 				-- {
 				-- 	type = "frame",
 				-- 	direction = "vertical",
-				-- 	style = "ed_settings_inner_frame",
+				-- 	style = {
+				-- 	parent = "ed_settings_inner_frame",
+				-- 	bottom_margin = 3,
+				-- }
 				-- 	children = 
 				-- 	{
 				-- 		{
@@ -1070,7 +1080,10 @@ this.templates.settingsWindow = {
 				{
 					type = "frame",
 					direction = "vertical",
-					style = "ed_settings_inner_frame",
+					style = {
+						parent = "ed_settings_inner_frame",
+						bottom_margin = 3,
+					},
 					children = 
 					{
 						{
