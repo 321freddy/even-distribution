@@ -232,6 +232,7 @@ this.templates.settingsWindow = {
 										local player = _(self.gui.player)
 										self.state = player:setting("enableDragDistribute")
 										self.parent.frame_caption.enabled = self.state
+										self.visible = not settings.global["disable-distribute"].value
 									end,
 									onChanged = function(event)
 										local self = event.element
@@ -240,6 +241,14 @@ this.templates.settingsWindow = {
 
 										local player = _(self.gui.player)
 										player:changeSetting("enableDragDistribute", self.state)
+									end,
+								},
+								{
+									type = "label",
+									style = "invalid_label",
+									caption = {"settings-gui.globally-disabled"},
+									onCreated = function(self)
+										self.visible = settings.global["disable-distribute"].value
 									end,
 								},
 							}
@@ -579,6 +588,7 @@ this.templates.settingsWindow = {
 										local player = _(self.gui.player)
 										self.state = player:setting("enableInventoryCleanupHotkey")
 										self.parent.frame_caption.enabled = self.state
+										self.visible = not settings.global["disable-inventory-cleanup"].value
 									end,
 									onChanged = function(event)
 										local self = event.element
@@ -587,6 +597,14 @@ this.templates.settingsWindow = {
 
 										local player = _(self.gui.player)
 										player:changeSetting("enableInventoryCleanupHotkey", self.state)
+									end,
+								},
+								{
+									type = "label",
+									style = "invalid_label",
+									caption = {"settings-gui.globally-disabled"},
+									onCreated = function(self)
+										self.visible = settings.global["disable-inventory-cleanup"].value
 									end,
 								},
 							}
@@ -983,6 +1001,7 @@ this.templates.settingsWindow = {
 				-- 						local player = _(self.gui.player)
 				-- 						self.state = player:setting("enableInventoryCleanupHotkey")
 				-- 						self.parent.frame_caption.enabled = self.state
+				-- 						self.visible = not settings.global["disable-inventory-fill"].value
 				-- 					end,
 				-- 					onChanged = function(event)
 				-- 						local self = event.element
@@ -991,6 +1010,14 @@ this.templates.settingsWindow = {
 
 				-- 						local player = _(self.gui.player)
 				-- 						player:changeSetting("enableInventoryCleanupHotkey", self.state)
+				-- 					end,
+				-- 				},
+				-- 				{
+				-- 					type = "label",
+				-- 					style = "invalid_label",
+				-- 					caption = {"settings-gui.globally-disabled"},
+				-- 					onCreated = function(self)
+				-- 						self.visible = settings.global["disable-inventory-fill"].value
 				-- 					end,
 				-- 				},
 				-- 			}
