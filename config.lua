@@ -10,6 +10,7 @@ config.colors = -- flying text colors
 config.ignoredEntities = -- entity type or name
 { 
     ["player"] = true, 
+    ["character"] = true, 
     ["character-corpse"] = true, 
     ["factory-overlay-controller"] = true,
 
@@ -17,6 +18,8 @@ config.ignoredEntities = -- entity type or name
     ["underground-belt"] = true, 
     ["splitter"] = true, 
     ["loader"] = true, 
+    ["logistic-robot"] = true, 
+    ["construction-robot"] = true, 
     ["simple-entity"] = true, 
     ["simple-entity-with-force"] = true, 
     ["simple-entity-with-owner"] = true,

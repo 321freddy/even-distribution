@@ -219,7 +219,7 @@ function this.onStackTransferred(entity, player, cache) -- handle vanilla drag s
 		if cache.applyTick and distrEvents[cache.applyTick] then distrEvents[cache.applyTick][player.index] = nil end
 		
 		-- wait before applying distribution (seconds defined in mod config)
-		cache.applyTick = game.tick + math.max(math.ceil(60 * _(player):setting("distribution-delay")), 1)
+		cache.applyTick = game.tick + math.max(math.ceil(60 * _(player):setting("distributionDelay")), 1)
 		
 		distrEvents[cache.applyTick] = distrEvents[cache.applyTick] or {}
 		distrEvents[cache.applyTick][player.index] = cache

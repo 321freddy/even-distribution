@@ -97,6 +97,16 @@ local function updateLimiter(flow, profiles, action, newValue) -- switch to next
 	player:changeSetting(profiles.valueSetting, value)
 end
 
+local function updateIgnoredEntities(self)
+	local player = _(self.gui.player)
+	self.clear()
+		
+	for name in pairs(player:setting("ignoredEntities")) do
+		gui.create(player, this.templates.ignoredEntityChooser, { name = name }, self)
+	end
+	gui.create(player, this.templates.ignoredEntityChooser, {}, self)
+end
+
 this.templates.settingsWindow = {
 	type = "frame",
 	name = "ed_settings_window",
@@ -705,22 +715,6 @@ this.templates.settingsWindow = {
 												right_margin   = -2,
 												padding        = 2,
 											},
-											-- onCreated = function(self)
-											-- 	local player = _(self.gui.player)
-											-- 	self.style = player:setting("takeFromInventory") and "ed_switch_button_selected" or "ed_switch_button"
-											-- end,
-											-- onChanged = function(event)
-											-- 	local flow = event.element.parent
-											-- 	local nowActive = event.element.style.name == "ed_switch_button"
-											-- 	if flow.button_take_from_car.style.name == "ed_switch_button_selected" then nowActive = true end
-
-											-- 	flow.button_take_from_inventory.style = nowActive and "ed_switch_button_selected" or "ed_switch_button"
-											-- 	flow.button_take_from_car.style       = "ed_switch_button"
-												
-											-- 	local player = _(flow.gui.player)
-											-- 	player:changeSetting("takeFromInventory", nowActive)
-											-- 	player:changeSetting("takeFromCar", false)
-											-- end,
 											children = {
 												{
 													type = "checkbox",
@@ -770,21 +764,6 @@ this.templates.settingsWindow = {
 												right_margin   = -2,
 												padding        = 2,
 											},
-											-- onCreated = function(self)
-											-- 	local player = _(self.gui.player)
-											-- 	self.style = player:setting("takeFromCar") and "ed_switch_button_selected" or "ed_switch_button"
-											-- end,
-											-- onChanged = function(event)
-											-- 	local flow = event.element.parent
-											-- 	local nowActive = event.element.style.name == "ed_switch_button"
-												
-											-- 	flow.button_take_from_inventory.style = "ed_switch_button_selected"
-											-- 	flow.button_take_from_car.style       = nowActive and "ed_switch_button_selected" or "ed_switch_button"
-												
-											-- 	local player = _(flow.gui.player)
-											-- 	player:changeSetting("takeFromInventory", true)
-											-- 	player:changeSetting("takeFromCar", nowActive)
-											-- end,
 											children = {
 												{
 													type = "checkbox",
@@ -847,21 +826,6 @@ this.templates.settingsWindow = {
 												self.style = nowActive and "ed_switch_button_selected" or "ed_switch_button"
 												self.checkbox_request_overflow.state = nowActive
 											end,
-											-- onCreated = function(self)
-											-- 	local player = _(self.gui.player)
-											-- 	self.style = player:setting("takeFromCar") and "ed_switch_button_selected" or "ed_switch_button"
-											-- end,
-											-- onChanged = function(event)
-											-- 	local flow = event.element.parent
-											-- 	local nowActive = event.element.style.name == "ed_switch_button"
-												
-											-- 	flow.button_take_from_inventory.style = "ed_switch_button_selected"
-											-- 	flow.button_take_from_car.style       = nowActive and "ed_switch_button_selected" or "ed_switch_button"
-												
-											-- 	local player = _(flow.gui.player)
-											-- 	player:changeSetting("takeFromInventory", true)
-											-- 	player:changeSetting("takeFromCar", nowActive)
-											-- end,
 											children = {
 												{
 													type = "checkbox",
@@ -1156,20 +1120,213 @@ this.templates.settingsWindow = {
 							children = 
 							{
 								{
-									type = "checkbox",
-									name = "include_defaults",
-									caption = {"settings-gui.include-defaults"},
-									state = true,
-									enabled = false,
-									onCreated = function(self)
-										local player = _(self.gui.player)
-										-- self.state = player:setting("enableDragDistribute")
-									end,
-									onChanged = function(event)
-										local self = event.element
-										local player = _(self.gui.player)
-										-- player:changeSetting("enableDragDistribute", self.state)
-									end,
+									type = "flow",
+									direction = "horizontal",
+									style = {
+										vertical_align = "center",
+									},
+									children = 
+									{
+										{
+											type = "label",
+											caption = {"", {"settings-gui.distribution-delay"}, " [img=info]"},
+											tooltip = {"settings-gui.distribution-delay-description"},
+										},
+										{
+											type = "empty-widget",
+											style = "ed_stretch",
+										},
+										{
+											type = "slider",
+											name = "delay_slider",
+											discrete_slider = false,
+											discrete_values = true,
+											minimum_value = 0,
+											maximum_value = 5,
+											value_step = 0.1,
+											onCreated = function(self)
+												local player = _(self.gui.player)
+												self.slider_value = player:setting("distributionDelay")
+											end,
+											onChanged = function(event)
+												local self = event.element
+												local player = _(self.gui.player)
+												local value = self.slider_value
+
+												if type(value) == "number" then
+													-- clamp value to bounds
+													-- if value > 5 then value = 5 end
+													if value < 0 then value = 0 end
+
+													self.slider_value = value
+													self.parent.delay_textfield.text = value
+
+													player:changeSetting("distributionDelay", value)
+												end
+											end,
+										},
+										{
+											type = "textfield",
+											name = "delay_textfield",
+											style = {
+												parent = "slider_value_textfield",
+												width = 60,
+											},
+											numeric = true,
+											allow_decimal = true,
+											allow_negative = false,
+											lose_focus_on_confirm = true,
+											onCreated = function(self)
+												local player = _(self.gui.player)
+												self.text = player:setting("distributionDelay")
+											end,
+											onChanged = function(event)
+												local self = event.element
+												local player = _(self.gui.player)
+												local value = tonumber(self.text)
+
+												if type(value) == "number" then
+													-- clamp value to bounds
+													-- if value > 5 then value = 5 end
+													if value < 0 then value = 0 end
+
+													self.text = value
+													self.parent.delay_slider.slider_value = value
+
+													player:changeSetting("distributionDelay", value)
+												end
+											end,
+										},
+										{
+											type = "button",
+											name = "delay_type",
+											enabled = false,
+											caption = "s",
+											style = {
+												padding = 0,
+												width = 56, -- 38,
+											},
+										},
+									},
+								},
+								{
+									type = "flow",
+									direction = "horizontal",
+									style = {
+										vertical_align = "center",
+									},
+									children = 
+									{
+										{
+											type = "label",
+											caption = {"", {"settings-gui.max-inventory-cleanup-drop-range"}, " [img=info]"},
+											tooltip = {"settings-gui.max-inventory-cleanup-drop-range-description"},
+										},
+										{
+											type = "empty-widget",
+											style = "ed_stretch",
+										},
+										{
+											type = "slider",
+											name = "range_slider",
+											discrete_slider = false,
+											discrete_values = true,
+											minimum_value = 0,
+											maximum_value = 100,
+											value_step = 1,
+											onCreated = function(self)
+												local player = _(self.gui.player)
+												self.slider_value = player:setting("cleanupDropRange")
+											end,
+											onChanged = function(event)
+												local self = event.element
+												local player = _(self.gui.player)
+												local value = self.slider_value
+												
+												if type(value) == "number" then
+													-- clamp value to bounds
+													value = math.floor(value)
+													-- if value > 100 then value = 100 end
+													if value < 0 then value = 0 end
+
+													self.slider_value = value
+													self.parent.range_textfield.text = value
+
+													player:changeSetting("cleanupDropRange", value)
+												end
+											end,
+										},
+										{
+											type = "textfield",
+											name = "range_textfield",
+											style = {
+												parent = "slider_value_textfield",
+												width = 60,
+											},
+											numeric = true,
+											allow_decimal = false,
+											allow_negative = false,
+											lose_focus_on_confirm = true,
+											onCreated = function(self)
+												local player = _(self.gui.player)
+												self.text = player:setting("cleanupDropRange")
+											end,
+											onChanged = function(event)
+												local self = event.element
+												local player = _(self.gui.player)
+												local value = tonumber(self.text)
+												
+												if type(value) == "number" then
+													-- clamp value to bounds
+													value = math.floor(value)
+													-- if value > 100 then value = 100 end
+													if value < 0 then value = 0 end
+
+													self.text = value
+													self.parent.range_slider.slider_value = value
+
+													player:changeSetting("cleanupDropRange", value)
+												end
+											end,
+										},
+										{
+											type = "button",
+											name = "range_type",
+											enabled = false,
+											caption = "tiles",
+											style = {
+												padding = 0,
+												width = 56, -- 38,
+											},
+										},
+									},
+								},
+								{
+									type = "flow",
+									direction = "horizontal",
+									children = 
+									{
+										{
+											type = "label",
+											caption = {"settings-gui.ignored-entities"},
+											style = {
+												top_margin = 10,
+											},
+										},
+										{
+											type = "empty-widget",
+											style = "ed_stretch",
+										},
+										{
+											type = "table",
+											column_count = 6,
+											draw_vertical_lines = false,
+											draw_horizontal_lines = false,
+											draw_horizontal_line_after_headers = false,
+											vertical_centering = false,
+											onCreated = updateIgnoredEntities,
+										},
+									},
 								},
 							}
 						},
@@ -1178,6 +1335,30 @@ this.templates.settingsWindow = {
 			}
 		},
 	}
+}
+
+this.templates.ignoredEntityChooser = {
+	type = "choose-elem-button",
+	name = "ignored_entity_chooser",
+	unique = false,
+	elem_type = "entity",
+	onCreated = function(self, data)
+		self.elem_value = data.name
+		self.elem_filters = {{ filter = "name", name = _(global.allowedEntities):keys():toPlain() }}
+	end,
+	onChanged = function(event)
+		local parent = event.element.parent
+		local player = _(parent.gui.player)
+		local ignoredEntities = {}
+
+		for __,child in pairs(parent.children) do
+			local value = child.elem_value
+			if value then ignoredEntities[value] = true end
+		end
+
+		player:changeSetting("ignoredEntities", ignoredEntities)
+		updateIgnoredEntities(parent)
+	end,
 }
 
 return {this, function(_controller) controller = _controller end}

@@ -61,18 +61,7 @@ local specialParameters = {
 
 local function registerHandlers(template, ID)
 	ID = ID or template.ID
-	
 	local elemName = template.name
-	if template.unique == false then 
-	
-		-- duplicates are named NAME[i] where i is the index starting at 1 (-> multiple can exist at once)
-		for i = 1, MAX_DUPLICATES do
-			if not eventHandlers[ID..";"..elemName.."#"..i] then
-				elemName = elemName.."#"..i
-				break
-			end
-		end
-	end
 	
 	for _,event in pairs(events) do -- register event handler functions with generated ID
 		if template[event] then
@@ -137,12 +126,13 @@ function gui.create(player, template, data, parent, ID) -- recursively builds a 
 	parent = parent or getRoot(template, player)
 	
 	local elemName = template.name
+	local uniqueElemName = elemName
 	if template.unique == false then 
 	
 		-- duplicates are named NAME[i] where i is the index starting at 1 (-> multiple can exist at once)
 		for i = 1, MAX_DUPLICATES do
 			if not parent[elemName.."#"..i] then
-				elemName = elemName.."#"..i
+				uniqueElemName = elemName.."#"..i
 				break
 			end
 		end
@@ -150,8 +140,8 @@ function gui.create(player, template, data, parent, ID) -- recursively builds a 
 	elseif template.ID then -- destroy any existing instances of this template if it's not unique
 		gui.destroy(player, template, parent)
 	end
-		
-	local created = parent.add(getParameters(template, elemName)) -- create gui element
+	
+	local created = parent.add(getParameters(template, uniqueElemName)) -- create gui element
 
 	-- Apply custom styles
 	local style = _(template.style)

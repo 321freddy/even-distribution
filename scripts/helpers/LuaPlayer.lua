@@ -20,7 +20,7 @@ function player:changeSetting(name, newValue)
 end
 
 function player:droprange()
-	return math.min(self.reach_distance * config.rangeMultiplier, self:setting("max-inventory-cleanup-drop-range"))
+	return math.min(self.reach_distance * config.rangeMultiplier, self:setting("cleanupDropRange"))
 end
 
 function player:trashItems()

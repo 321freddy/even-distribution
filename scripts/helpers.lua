@@ -378,6 +378,12 @@ function this:toArray()
     end)
 end
 
+function this:keys()
+    return self:map(function(k)
+        return nil, k
+    end)
+end
+
 function this:sort(...)
     local obj = rawget(self, "__on")
 

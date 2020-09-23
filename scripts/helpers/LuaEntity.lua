@@ -54,8 +54,7 @@ function entity:logisticSlots() -- fetch all requests as table
 end
 
 function entity:isIgnored(player)
-	return config.ignoredEntities[self.type] or 
-		   config.ignoredEntities[self.name] or 
+	return not global.allowedEntities[self.name] or
 		   global.settings[player.index].ignoredEntities[self.name]
 end
 

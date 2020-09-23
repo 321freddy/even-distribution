@@ -4,6 +4,7 @@ local setup = {}
 local util = scripts.util
 local metatables = scripts.metatables
 local defaultTrash = require("default-trash")
+local config = require("config")
 
 local helpers = scripts.helpers
 local _ = helpers.on
@@ -13,6 +14,17 @@ function setup.on_init()
 	global.distrEvents = global.distrEvents or {}
 	global.settings = global.settings or {}
 	global.defaultTrash = setup.generateTrashItemList()
+
+	global.allowedEntities = _(game.entity_prototypes)
+								:where(function(prototype)
+									return util.hasInventory(prototype) and 
+										   not config.ignoredEntities[prototype.type] and 
+										   not config.ignoredEntities[prototype.name]
+								end)
+								:map(function(name)
+									return name, true
+								end)
+								:toPlain()
 
 	-- GUI events are saved in global.guiEvents["EVENT NAME"][PLAYER INDEX][GUI ELEMENT INDEX]
 	global.guiEvents = global.guiEvents or 
@@ -67,73 +79,12 @@ setup.on_configuration_changed = setup.on_init
 
 function setup.on_player_created(event)
 	setup.setupPlayerGlobalTable(event.player_index)
-	
-	-- local player = game.players[event.player_index]
-	-- player.print({"message.usage"}, {r=1, g=0.85, b=0})
 end
 
 function setup.setupPlayerGlobalTable(player_index, player)
 	player = player or game.players[player_index]
 	setup.createPlayerCache(player_index)
-
-	-- init default settings
-	local settings = global.settings[player_index] or {}
-
-	if settings.enableDragDistribute == nil         then settings.enableDragDistribute = true end
-	if settings.enableInventoryCleanupHotkey == nil then settings.enableInventoryCleanupHotkey = true end
-	if settings.enableAutofill == nil               then settings.enableAutofill = true end
-	if settings.dragMode == nil                     then settings.dragMode = "distribute" end
-	if settings.takeFromInventory == nil            then settings.takeFromInventory = true end
-	if settings.takeFromCar == nil                  then settings.takeFromCar = true end
-	if settings.replaceItems == nil                 then settings.replaceItems = true end
-	if settings.cleanupRequestOverflow == nil       then settings.cleanupRequestOverflow = true end
-	if settings.dropTrashToChests == nil       		then settings.dropTrashToChests = true end
-	if settings.cleanupUseLimits == nil       		then settings.cleanupUseLimits = true end
-
-	if settings.enableDragFuelLimit == nil          then settings.enableDragFuelLimit = false end
-	if settings.dragFuelLimit == nil                then settings.dragFuelLimit = 0.5 end
-	if settings.dragFuelLimitType == nil            then settings.dragFuelLimitType = "stacks" end
-
-	if settings.enableDragAmmoLimit == nil          then settings.enableDragAmmoLimit = false end
-	if settings.dragAmmoLimit == nil                then settings.dragAmmoLimit = 0.5 end
-	if settings.dragAmmoLimitType == nil            then settings.dragAmmoLimitType = "stacks" end
-
-	-- migrate settings from old mod version
-	if settings.version == nil then
-		settings.version                = "1.0.0"
-		settings.enableDragDistribute   = player.mod_settings["enable-ed"].value
-		settings.takeFromCar            = player.mod_settings["take-from-car"].value
-		settings.cleanupRequestOverflow = player.mod_settings["cleanup-logistic-request-overflow"].value
-		settings.dropTrashToChests      = player.mod_settings["drop-trash-to-chests"].value
-
-
-	end
-	--if settings.version == "0.3.x" then
-		-- ...
-	-- end
-
-	-- update settings
-	global.settings[player_index] = settings
-	setup.parsePlayerSettings(player_index)
-
-	-- dlog("Setup player global table ("..player.name.."):", settings)
-end
-
-function setup.on_runtime_mod_setting_changed(event)
-	local setting = setup.parsedSettings[event.setting]
-	if setting then 
-		setting.parse(event.player_index)
-	end
-end
-
-function setup.on_force_created(event)
-	setup.enableLogisticsTab(event.force or event.destination)
-end
-setup.on_forces_merged = setup.on_force_created
-setup.on_technology_effects_reset = setup.on_force_created
-
-function setup.enableLogisticsTab(force)
-	force.technologies["enable-logistics-tab"].researched = true
+	setup.migrateSettings(player)	
 end
 
 function setup.createPlayerCache(index)
@@ -145,52 +96,62 @@ function setup.createPlayerCache(index)
 	metatables.use(global.cache[index].entities, "entityAsIndex")
 end
 
-function setup.parsePlayerSettings(index)
-	for __,setting in pairs(setup.parsedSettings) do setting.parse(index) end
-end
+function setup.migrateSettings(player)
+	local settings = global.settings[player.index] or {}
+	global.settings[player.index] = settings
 
-local function logSettingParseError(playerIndex, setting, value)
-	local player, playerName = game.players[playerIndex], "<UNKNOWN>"
-	local msg = {"message.setting-parse-error", {"mod-setting-name."..setting}, value, ""}
-	
-	if util.isValid(player) then
-		player.print(msg)
-		playerName = player.name
+	-- default values
+	if settings.enableDragDistribute == nil         then settings.enableDragDistribute = true end
+	if settings.enableDragFuelLimit == nil          then settings.enableDragFuelLimit = false end
+	if settings.dragFuelLimit == nil                then settings.dragFuelLimit = 0.5 end
+	if settings.dragFuelLimitType == nil            then settings.dragFuelLimitType = "stacks" end
+	if settings.enableDragAmmoLimit == nil          then settings.enableDragAmmoLimit = false end
+	if settings.dragAmmoLimit == nil                then settings.dragAmmoLimit = 0.5 end
+	if settings.dragAmmoLimitType == nil            then settings.dragAmmoLimitType = "stacks" end
+	if settings.dragMode == nil                     then settings.dragMode = "distribute" end
+	if settings.takeFromInventory == nil            then settings.takeFromInventory = true end
+	if settings.takeFromCar == nil                  then settings.takeFromCar = true end
+	if settings.replaceItems == nil                 then settings.replaceItems = true end
+	if settings.distributionDelay == nil            then settings.distributionDelay = 0.9 end
+
+	if settings.enableInventoryCleanupHotkey == nil then settings.enableInventoryCleanupHotkey = true end
+	if settings.cleanupRequestOverflow == nil       then settings.cleanupRequestOverflow = true end
+	if settings.dropTrashToChests == nil       		then settings.dropTrashToChests = true end
+	if settings.cleanupUseLimits == nil       		then settings.cleanupUseLimits = true end
+	if settings.cleanupDropRange == nil       		then settings.cleanupDropRange = 30 end
+
+	if settings.enablInventoryFillHotkey == nil     then settings.enablInventoryFillHotkey = true end
+
+	-- migrate settings from old mod versions
+	if settings.version == nil then
+		settings.version                = "1.0.0"
+		settings.enableDragDistribute   = player.mod_settings["enable-ed"].value
+		settings.takeFromCar            = player.mod_settings["take-from-car"].value
+		settings.cleanupRequestOverflow = player.mod_settings["cleanup-logistic-request-overflow"].value
+		settings.dropTrashToChests      = player.mod_settings["drop-trash-to-chests"].value
+		settings.distributionDelay      = player.mod_settings["distribution-delay"].value
+		settings.cleanupDropRange       = player.mod_settings["max-inventory-cleanup-drop-range"].value
+		dlog("Player ("..player.name..") settings migrated from none to 1.0.0")
 	end
+	--if settings.version == "0.3.x" then
+		-- ...
+	-- end
+end
+
+
+function setup.on_runtime_mod_setting_changed(event)
 	
-	msg[4] = {"message.for-user", playerName}
-	log(msg)
 end
 
-local function parsedListSetting(settingName, settingInternal, regex, toString, isValid)
-	return {
-		parse = function (index)
-			local setting = game.players[index].mod_settings[settingName].value
-			local parsed = {}
-			
-			for name,value in string.gmatch(setting, regex) do
-				name = string.lower(name)
-				value = value and tonumber(value)
-				
-				if isValid(name, value) then
-					parsed[name] = value or true
-				else
-					logSettingParseError(index, settingName, toString(name, value))
-				end
-			end
-			
-			global.settings[index][settingInternal] = parsed
-		end
-	}
+function setup.on_force_created(event)
+	setup.enableLogisticsTab(event.force or event.destination)
 end
+setup.on_forces_merged = setup.on_force_created
+setup.on_technology_effects_reset = setup.on_force_created
 
-setup.parsedSettings = {
-	["ignored-entities"] = parsedListSetting(
-		"ignored-entities", "ignoredEntities", "%s*([^ ]+)%s*",
-		function (name) return tostring(name) end, -- toString
-		function (name) return game.entity_prototypes[name] end -- isValid
-	),
-}
+function setup.enableLogisticsTab(force)
+	force.technologies["enable-logistics-tab"].researched = true
+end
 
 function setup.generateTrashItemList()
 	local items = {}

@@ -47,6 +47,13 @@ function util.shallowCopy(original) -- Creates a shallow copy of a table
     return copy
 end
 
+function util.hasInventory(prototype)
+	for __,index in pairs(defines.inventory) do
+		if prototype.get_inventory_size(index) then return true end
+	end
+	return false
+end
+
 function util.countTable(tbl)
 	local count = 0
 	for __ in pairs(tbl) do count = count + 1 end
