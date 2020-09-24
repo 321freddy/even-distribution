@@ -138,14 +138,10 @@ function setup.migrateSettings(player)
 	-- end
 end
 
-
-function setup.on_runtime_mod_setting_changed(event)
-	
-end
-
 function setup.on_force_created(event)
 	setup.enableLogisticsTab(event.force or event.destination)
 end
+
 setup.on_forces_merged = setup.on_force_created
 setup.on_technology_effects_reset = setup.on_force_created
 
