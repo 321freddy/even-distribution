@@ -120,7 +120,7 @@ function setup.migrateSettings(player)
 	if settings.cleanupUseLimits == nil       		then settings.cleanupUseLimits = true end
 	if settings.cleanupDropRange == nil       		then settings.cleanupDropRange = 30 end
 
-	if settings.enablInventoryFillHotkey == nil     then settings.enablInventoryFillHotkey = true end
+	if settings.enableInventoryFillHotkey == nil    then settings.enableInventoryFillHotkey = true end
 
 	-- migrate settings from old mod versions
 	if settings.version == nil then

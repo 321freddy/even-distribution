@@ -321,17 +321,11 @@ this.templates.settingsWindow = {
 											name = "button_take_from_hand",
 											tooltip = {"settings-gui.hand-tooltip"},
 											sprite = "utility/hand",
-											style = {
-												parent = "ed_switch_button_selected",
-												minimal_width  = 40,
-												minimal_height = 40,
-												left_margin    = -2,
-												right_margin   = -2,
-											},
+											style = "ed_switch_button_small_selected",
 											onChanged = function(event)
 												local flow = event.element.parent
-												flow.button_take_from_inventory.style = "ed_switch_button"
-												flow.button_take_from_car.style       = "ed_switch_button"
+												flow.button_take_from_inventory.style = "ed_switch_button_small"
+												flow.button_take_from_car.style       = "ed_switch_button_small"
 												
 												local player = _(flow.gui.player)
 												player:changeSetting("takeFromInventory", false)
@@ -343,24 +337,18 @@ this.templates.settingsWindow = {
 											name = "button_take_from_inventory",
 											tooltip = {"settings-gui.inventory-tooltip"},
 											sprite = "entity/character",
-											style = {
-												parent = "ed_switch_button",
-												minimal_width  = 40,
-												minimal_height = 40,
-												left_margin    = -2,
-												right_margin   = -2,
-											},
+											style = "ed_switch_button_small",
 											onCreated = function(self)
 												local player = _(self.gui.player)
-												self.style = player:setting("takeFromInventory") and "ed_switch_button_selected" or "ed_switch_button"
+												self.style = player:setting("takeFromInventory") and "ed_switch_button_small_selected" or "ed_switch_button_small"
 											end,
 											onChanged = function(event)
 												local flow = event.element.parent
-												local nowActive = event.element.style.name == "ed_switch_button"
-												if flow.button_take_from_car.style.name == "ed_switch_button_selected" then nowActive = true end
+												local nowActive = event.element.style.name == "ed_switch_button_small"
+												if flow.button_take_from_car.style.name == "ed_switch_button_small_selected" then nowActive = true end
 
-												flow.button_take_from_inventory.style = nowActive and "ed_switch_button_selected" or "ed_switch_button"
-												flow.button_take_from_car.style       = "ed_switch_button"
+												flow.button_take_from_inventory.style = nowActive and "ed_switch_button_small_selected" or "ed_switch_button_small"
+												flow.button_take_from_car.style       = "ed_switch_button_small"
 												
 												local player = _(flow.gui.player)
 												player:changeSetting("takeFromInventory", nowActive)
@@ -372,23 +360,17 @@ this.templates.settingsWindow = {
 											name = "button_take_from_car",
 											tooltip = {"settings-gui.car-tooltip"},
 											sprite = "entity/car",
-											style = {
-												parent = "ed_switch_button",
-												minimal_width  = 40,
-												minimal_height = 40,
-												left_margin    = -2,
-												right_margin   = -2,
-											},
+											style = "ed_switch_button_small",
 											onCreated = function(self)
 												local player = _(self.gui.player)
-												self.style = player:setting("takeFromCar") and "ed_switch_button_selected" or "ed_switch_button"
+												self.style = player:setting("takeFromCar") and "ed_switch_button_small_selected" or "ed_switch_button_small"
 											end,
 											onChanged = function(event)
 												local flow = event.element.parent
-												local nowActive = event.element.style.name == "ed_switch_button"
+												local nowActive = event.element.style.name == "ed_switch_button_small"
 												
-												flow.button_take_from_inventory.style = "ed_switch_button_selected"
-												flow.button_take_from_car.style       = nowActive and "ed_switch_button_selected" or "ed_switch_button"
+												flow.button_take_from_inventory.style = "ed_switch_button_small_selected"
+												flow.button_take_from_car.style       = nowActive and "ed_switch_button_small_selected" or "ed_switch_button_small"
 												
 												local player = _(flow.gui.player)
 												player:changeSetting("takeFromInventory", true)
@@ -424,7 +406,6 @@ this.templates.settingsWindow = {
 										{
 											type = "slider",
 											name = "fuel_drag_limit_slider",
-											--style = "red_slider",
 											discrete_slider = false,
 											discrete_values = true,
 											onChanged = function(event)
@@ -492,7 +473,6 @@ this.templates.settingsWindow = {
 										{
 											type = "slider",
 											name = "ammo_drag_limit_slider",
-											--style = "red_slider",
 											discrete_slider = false,
 											discrete_values = true,
 											onChanged = function(event)
@@ -640,14 +620,7 @@ this.templates.settingsWindow = {
 											type = "button",
 											name = "button_defaults",
 											tooltip = {"settings-gui.include-defaults-description"},
-											style = {
-												parent = "ed_switch_button_selected",
-												minimal_width  = 40*2,
-												minimal_height = 40*2+20,
-												left_margin    = -2,
-												right_margin   = -2,
-												padding        = 2,
-											},
+											style = "ed_switch_button_large_selected",
 											-- onChanged = function(event)
 											-- 	local flow = event.element.parent
 											-- 	flow.button_take_from_inventory.style = "ed_switch_button"
@@ -732,14 +705,7 @@ this.templates.settingsWindow = {
 											type = "button",
 											name = "button_trashslots",
 											tooltip = {"settings-gui.include-trashslots-description"},
-											style = {
-												parent = "ed_switch_button_selected",
-												minimal_width  = 40*2,
-												minimal_height = 40*2+20,
-												left_margin    = -2,
-												right_margin   = -2,
-												padding        = 2,
-											},
+											style = "ed_switch_button_large_selected",
 											children = {
 												{
 													type = "checkbox",
@@ -781,14 +747,7 @@ this.templates.settingsWindow = {
 											type = "sprite-button",
 											name = "button_autotrash",
 											tooltip = {"settings-gui.include-autotrash-description"},
-											style = {
-												parent = "ed_switch_button_selected",
-												minimal_width  = 40*2,
-												minimal_height = 40*2+20,
-												left_margin    = -2,
-												right_margin   = -2,
-												padding        = 2,
-											},
+											style = "ed_switch_button_large_selected",
 											children = {
 												{
 													type = "checkbox",
@@ -830,25 +789,18 @@ this.templates.settingsWindow = {
 											type = "sprite-button",
 											name = "button_request_overflow",
 											tooltip = {"settings-gui.cleanup-request-overflow-description"},
-											style = {
-												parent = "ed_switch_button_selected",
-												minimal_width  = 40*2,
-												minimal_height = 40*2+20,
-												left_margin    = -2,
-												right_margin   = -2,
-												padding        = 2,
-											},
+											style = "ed_switch_button_large_selected",
 											onCreated = function(self)
 												local player = _(self.gui.player)
-												self.style = player:setting("cleanupRequestOverflow") and "ed_switch_button_selected" or "ed_switch_button"
+												self.style = player:setting("cleanupRequestOverflow") and "ed_switch_button_large_selected" or "ed_switch_button_large"
 											end,
 											onChanged = function(event)
 												local self = event.element
 												local player = _(self.gui.player)
-												local nowActive = self.style.name == "ed_switch_button"
+												local nowActive = self.style.name == "ed_switch_button_large"
 
 												player:changeSetting("cleanupRequestOverflow", nowActive)
-												self.style = nowActive and "ed_switch_button_selected" or "ed_switch_button"
+												self.style = nowActive and "ed_switch_button_large_selected" or "ed_switch_button_large"
 												self.checkbox_request_overflow.state = nowActive
 											end,
 											children = {
@@ -865,7 +817,7 @@ this.templates.settingsWindow = {
 														local self = event.element
 														local player = _(self.gui.player)
 														player:changeSetting("cleanupRequestOverflow", self.state)
-														self.parent.style = self.state and "ed_switch_button_selected" or "ed_switch_button"
+														self.parent.style = self.state and "ed_switch_button_large_selected" or "ed_switch_button_large"
 													end,
 												},
 												{
@@ -966,144 +918,144 @@ this.templates.settingsWindow = {
 						},
 					}
 				},
-				-- {
-				-- 	type = "frame",
-				-- 	direction = "vertical",
-				-- 	style = {
-				-- 	parent = "ed_settings_inner_frame",
-				-- 	bottom_margin = 3,
-				-- }
-				-- 	children = 
-				-- 	{
-				-- 		{
-				-- 			type = "flow",
-				-- 			name = "frame_header",
-				-- 			direction = "horizontal",
-				-- 			children = 
-				-- 			{
-				-- 				{
-				-- 					type = "label",
-				-- 					name = "frame_caption",
-				-- 					style = "heading_3_label_yellow",
-				-- 					caption = "Inventory Fill hotkey",--{"", {"settings-gui.inventory-cleanup-title"}, " [img=info]"},
-				-- 					-- tooltip = {"settings-gui.inventory-cleanup-description"},
-				-- 				},
-				-- 				{
-				-- 					type = "empty-widget",
-				-- 					style = "ed_stretch",
-				-- 				},
-				-- 				{
-				-- 					type = "checkbox",
-				-- 					name = "enable_inventory_fill_hotkey",
-				-- 					caption = {"settings-gui.enable"},
-				-- 					state = true,
-				-- 					onCreated = function(self)
-				-- 						local player = _(self.gui.player)
-				-- 						self.state = player:setting("enableInventoryCleanupHotkey")
-				-- 						self.parent.frame_caption.enabled = self.state
-				-- 						self.visible = not settings.global["disable-inventory-fill"].value
-				-- 					end,
-				-- 					onChanged = function(event)
-				-- 						local self = event.element
-				-- 						self.parent.parent.frame_content.visible = self.state
-				-- 						self.parent.frame_caption.enabled = self.state
+				{
+					type = "frame",
+					direction = "vertical",
+					style = {
+						parent = "ed_settings_inner_frame",
+						bottom_margin = 3,
+					},
+					children = 
+					{
+						{
+							type = "flow",
+							name = "frame_header",
+							direction = "horizontal",
+							children = 
+							{
+								{
+									type = "label",
+									name = "frame_caption",
+									style = "heading_3_label_yellow",
+									caption = "Inventory Fill Hotkey",--{"", {"settings-gui.inventory-cleanup-title"}, " [img=info]"},
+									-- tooltip = {"settings-gui.inventory-cleanup-description"},
+								},
+								{
+									type = "empty-widget",
+									style = "ed_stretch",
+								},
+								{
+									type = "checkbox",
+									name = "enable_inventory_fill_hotkey",
+									caption = {"settings-gui.enable"},
+									state = true,
+									onCreated = function(self)
+										local player = _(self.gui.player)
+										self.state = player:setting("enableInventoryFillHotkey")
+										self.parent.frame_caption.enabled = self.state
+										self.visible = not settings.global["disable-inventory-fill"].value
+									end,
+									onChanged = function(event)
+										local self = event.element
+										self.parent.parent.frame_content.visible = self.state
+										self.parent.frame_caption.enabled = self.state
 
-				-- 						local player = _(self.gui.player)
-				-- 						player:changeSetting("enableInventoryCleanupHotkey", self.state)
-				-- 					end,
-				-- 				},
-				-- 				{
-				-- 					type = "label",
-				-- 					style = "invalid_label",
-				-- 					caption = {"settings-gui.globally-disabled"},
-				-- 					onCreated = function(self)
-				-- 						self.visible = settings.global["disable-inventory-fill"].value
-				-- 					end,
-				-- 				},
-				-- 			}
-				-- 		},
-				-- 		{
-				-- 			type = "flow",
-				-- 			name = "frame_content",
-				-- 			direction = "vertical",
-				-- 			onCreated = function(self)
-				-- 				self.visible = _(self.gui.player):setting("enableInventoryCleanupHotkey")
-				-- 			end,
-				-- 			children = 
-				-- 			{
-				-- 				{
-				-- 					type = "label",
-				-- 					caption = {"", "[color=gray]", {"settings-gui.inventory-cleanup-configure"}, "[/color]"},
-				-- 				},
-				-- 				{
-				-- 					type = "checkbox",
-				-- 					name = "include_defaults",
-				-- 					caption = {"settings-gui.include-defaults"},
-				-- 					state = true,
-				-- 					enabled = false,
-				-- 					onCreated = function(self)
-				-- 						local player = _(self.gui.player)
-				-- 						-- self.state = player:setting("enableDragDistribute")
-				-- 					end,
-				-- 					onChanged = function(event)
-				-- 						local self = event.element
-				-- 						local player = _(self.gui.player)
-				-- 						-- player:changeSetting("enableDragDistribute", self.state)
-				-- 					end,
-				-- 				},
-				-- 				{
-				-- 					type = "checkbox",
-				-- 					name = "include_trashslots",
-				-- 					caption = {"settings-gui.include-trashslots"},
-				-- 					state = true,
-				-- 					enabled = false,
-				-- 					onCreated = function(self)
-				-- 						local player = _(self.gui.player)
-				-- 						-- self.state = player:setting("enableDragDistribute")
-				-- 					end,
-				-- 					onChanged = function(event)
-				-- 						local self = event.element
-				-- 						local player = _(self.gui.player)
-				-- 						-- player:changeSetting("enableDragDistribute", self.state)
-				-- 					end,
-				-- 				},
-				-- 				{
-				-- 					type = "checkbox",
-				-- 					name = "include_autotrash",
-				-- 					caption = {"", {"settings-gui.include-autotrash"}, " [img=info]"},
-				-- 					tooltip = {"settings-gui.include-autotrash-description"},
-				-- 					state = true,
-				-- 					enabled = false,
-				-- 					onCreated = function(self)
-				-- 						local player = _(self.gui.player)
-				-- 						-- self.state = player:setting("enableDragDistribute")
-				-- 					end,
-				-- 					onChanged = function(event)
-				-- 						local self = event.element
-				-- 						local player = _(self.gui.player)
-				-- 						-- player:changeSetting("enableDragDistribute", self.state)
-				-- 					end,
-				-- 				},
-				-- 				{
-				-- 					type = "checkbox",
-				-- 					name = "cleanup_request_overflow",
-				-- 					caption = {"", {"settings-gui.cleanup-request-overflow"}, " [img=info]"},
-				-- 					tooltip = {"settings-gui.cleanup-request-overflow-description"},
-				-- 					state = true,
-				-- 					onCreated = function(self)
-				-- 						local player = _(self.gui.player)
-				-- 						self.state = player:setting("cleanupRequestOverflow")
-				-- 					end,
-				-- 					onChanged = function(event)
-				-- 						local self = event.element
-				-- 						local player = _(self.gui.player)
-				-- 						player:changeSetting("cleanupRequestOverflow", self.state)
-				-- 					end,
-				-- 				},
-				-- 			}
-				-- 		},
-				-- 	}
-				-- },
+										local player = _(self.gui.player)
+										player:changeSetting("enableInventoryFillHotkey", self.state)
+									end,
+								},
+								{
+									type = "label",
+									style = "invalid_label",
+									caption = {"settings-gui.globally-disabled"},
+									onCreated = function(self)
+										self.visible = settings.global["disable-inventory-fill"].value
+									end,
+								},
+							}
+						},
+						{
+							type = "flow",
+							name = "frame_content",
+							direction = "vertical",
+							onCreated = function(self)
+								self.visible = _(self.gui.player):setting("enableInventoryFillHotkey")
+							end,
+							children = 
+							{
+								{
+									type = "label",
+									caption = {"", "[color=gray]", {"settings-gui.inventory-cleanup-configure"}, "[/color]"},
+								},
+								{
+									type = "checkbox",
+									name = "include_defaults",
+									caption = {"settings-gui.include-defaults"},
+									state = true,
+									enabled = false,
+									onCreated = function(self)
+										local player = _(self.gui.player)
+										-- self.state = player:setting("enableDragDistribute")
+									end,
+									onChanged = function(event)
+										local self = event.element
+										local player = _(self.gui.player)
+										-- player:changeSetting("enableDragDistribute", self.state)
+									end,
+								},
+								{
+									type = "checkbox",
+									name = "include_trashslots",
+									caption = {"settings-gui.include-trashslots"},
+									state = true,
+									enabled = false,
+									onCreated = function(self)
+										local player = _(self.gui.player)
+										-- self.state = player:setting("enableDragDistribute")
+									end,
+									onChanged = function(event)
+										local self = event.element
+										local player = _(self.gui.player)
+										-- player:changeSetting("enableDragDistribute", self.state)
+									end,
+								},
+								{
+									type = "checkbox",
+									name = "include_autotrash",
+									caption = {"", {"settings-gui.include-autotrash"}, " [img=info]"},
+									tooltip = {"settings-gui.include-autotrash-description"},
+									state = true,
+									enabled = false,
+									onCreated = function(self)
+										local player = _(self.gui.player)
+										-- self.state = player:setting("enableDragDistribute")
+									end,
+									onChanged = function(event)
+										local self = event.element
+										local player = _(self.gui.player)
+										-- player:changeSetting("enableDragDistribute", self.state)
+									end,
+								},
+								{
+									type = "checkbox",
+									name = "cleanup_request_overflow",
+									caption = {"", {"settings-gui.cleanup-request-overflow"}, " [img=info]"},
+									tooltip = {"settings-gui.cleanup-request-overflow-description"},
+									state = true,
+									onCreated = function(self)
+										local player = _(self.gui.player)
+										self.state = player:setting("cleanupRequestOverflow")
+									end,
+									onChanged = function(event)
+										local self = event.element
+										local player = _(self.gui.player)
+										player:changeSetting("cleanupRequestOverflow", self.state)
+									end,
+								},
+							}
+						},
+					}
+				},
 				{
 					type = "frame",
 					direction = "vertical",
