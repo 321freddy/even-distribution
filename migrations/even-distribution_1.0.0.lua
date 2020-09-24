@@ -29,4 +29,4 @@ for _,force in pairs(game.forces) do
 end
 
 
-log("Even Distribution: Logistics tech effects migrated")
+dlog("Migrated to version 1.0.0")

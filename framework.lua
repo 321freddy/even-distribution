@@ -95,7 +95,7 @@ local function registerFunc(name, id)
 	end
 end
 
-function handleEvent(event) -- Calls all script-functions with the same name as the game event that was just triggered
+local function handleEvent(event) -- Calls all script-functions with the same name as the game event that was just triggered
 	for __,func in pairs(funcs[event.input_name or event.name]) do func(event) end
 end
 

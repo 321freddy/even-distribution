@@ -44,4 +44,19 @@ data:extend{
 			flags = {"icon"}
 		},
 	},
+
+	
+	-- game control hooks
+	{
+		type = "custom-input",
+		name = "fast-entity-transfer-hook",
+		key_sequence = "",
+		linked_game_control = "fast-entity-transfer",
+	},
+	{
+		type = "custom-input",
+		name = "fast-entity-split-hook",
+		key_sequence = "",
+		linked_game_control = "fast-entity-split",
+	},
 }

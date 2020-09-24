@@ -18,6 +18,8 @@ require("framework"){
 
 		"inventory-cleanup", -- SHIFT + C
 		"open-even-distribution-settings", -- ALT + E
+		"fast-entity-transfer-hook",
+		"fast-entity-split-hook",
 
 	}
 	

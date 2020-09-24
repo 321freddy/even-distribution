@@ -156,6 +156,20 @@ function this.balanceItems(player, cache)
 	this.resetCache(cache)
 end
 
+function this.on_fast_entity_transfer_hook(event)
+	local index        = event.player_index
+	local player       = _(game.players[index]); if player:isnot("valid player") then return end
+	local cache        = _(global.cache[index])
+	cache.half = false
+end
+
+function this.on_fast_entity_split_hook(event)
+	local index        = event.player_index
+	local player       = _(game.players[index]); if player:isnot("valid player") then return end
+	local cache        = _(global.cache[index])
+	cache.half = true
+end
+
 function this.on_selected_entity_changed(event)
 	local index        = event.player_index
 	local player       = _(game.players[index]); if player:isnot("valid player") or not player:setting("enableDragDistribute") then return end
@@ -174,8 +188,6 @@ function this.on_selected_entity_changed(event)
 end
 
 function this.on_player_fast_transferred(event)
-	-- dlog("on_player_fast_transferred",event)
-
 	local index    = event.player_index
 	local player   = _(game.players[index]); if player:isnot("valid player") or not player:setting("enableDragDistribute") then return end
 	local cache    = _(global.cache[index])
@@ -193,13 +205,8 @@ function this.on_player_fast_transferred(event)
 					cursorStackCount = cache.selectedEvent.cursorStackCount,
 				}
 				
-				cache.half = false
 				if cache.itemCount == 0 then
 					player.play_sound{ path = "utility/inventory_move" }
-
-				elseif cache.itemCount > 0 then
-					-- determine if half a stack has been transferred (buggy if player only has 1 of the item in inventory but more in car!)
-					cache.half = (cache.itemCount == math.floor(cache.cursorStackCount / 2))
 				end
 
 				this.onStackTransferred(selected, player, cache) -- handle stack transfer
@@ -211,7 +218,6 @@ function this.on_player_fast_transferred(event)
 end
 
 function this.onStackTransferred(entity, player, cache) -- handle vanilla drag stack transfer
-	
 	local takeFromInv = player:setting("takeFromInventory")
 	local takeFromCar = player:setting("takeFromCar")
 	local distributionMode    = player:setting("distributionMode")
