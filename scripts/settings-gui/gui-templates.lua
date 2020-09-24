@@ -10,43 +10,6 @@ local helpers = scripts.helpers
 local _ = helpers.on
 
 
--- this.templates.showSettingsButton = {
--- 	type = "sprite-button",
--- 	name = "show-settings-button",
--- 	onCreated = function (self, data)
--- 		-- self.style = "attach-notes-view-button"
--- 		-- self.tooltip = { "tooltips.view-note" }
-		
--- 		_(self.style):set{
--- 			width  = 36,
--- 			height = 36,
--- 		}
--- 	end,
--- 	onClicked = function (event)
--- 		local player = _(event.element.gui.player)
--- 		local opened = _(player.opened)
--- 		local cache  = _(global.cache[player.index])
-		
--- 		if notes[opened] then
-		
--- 			cache.noteIsHidden = not cache.noteIsHidden -- toggle hidden state if note is present
--- 		else
--- 			notes[opened] = {} -- create new note if no note is present
-			
--- 			local note = notes[opened]
--- 			local setting = player.mod_settings["show-marker-by-default"].value
--- 			if setting and not components.marker.isDisabledForEntity(opened) then -- create marker if necessary
--- 				if not util.isValid(note.marker) then note.marker = components.marker.create(opened) end
--- 			end
-			
--- 			cache.noteIsHidden = false
--- 		end
-		
--- 		controller.buildGUI(player, cache) -- rebuild gui
--- 		opened.last_user = player
--- 	end
--- }
-
 
 local function updateLimiter(flow, profiles, action, newValue) -- switch to next type
 	local player  = _(flow.gui.player)
@@ -124,9 +87,9 @@ this.templates.settingsWindow = {
 		self.frame_header.frame_caption.drag_target = self
 		self.frame_header.filler.drag_target = self
 	end,
-	onClicked = function(event)
+	onClicked = function(self, event)
 		local index  = event.player_index
-		local player = _(event.element.gui.player)
+		local player = _(self.gui.player)
 		local cache  = _(global.cache[player.index])
 
 		-- ...
@@ -168,8 +131,8 @@ this.templates.settingsWindow = {
 				-- 		width = 24,
 				-- 		height = 24,
 				-- 	},
-				-- 	onChanged = function(event)
-				-- 		local player = _(event.element.gui.player)
+				-- 	onChanged = function(self, event)
+				-- 		local player = _(self.gui.player)
 				-- 		controller.destroyGUI(player)
 				-- 	end,
 				-- },
@@ -180,8 +143,8 @@ this.templates.settingsWindow = {
 					hovered_sprite = "utility/close_black",
 					clicked_sprite = "utility/close_black",
 					style = "frame_action_button",
-					onChanged = function(event)
-						local player = _(event.element.gui.player)
+					onChanged = function(self, event)
+						local player = _(self.gui.player)
 						controller.destroyGUI(player)
 					end,
 				},
@@ -234,8 +197,7 @@ this.templates.settingsWindow = {
 										self.parent.frame_caption.enabled = self.state
 										self.visible = not settings.global["disable-distribute"].value
 									end,
-									onChanged = function(event)
-										local self = event.element
+									onChanged = function(self, event)
 										self.parent.parent.frame_content.visible = self.state
 										self.parent.frame_caption.enabled = self.state
 
@@ -287,8 +249,7 @@ this.templates.settingsWindow = {
 													self.switch_state = "right"
 												end
 											end,
-											onChanged = function(event)
-												local self = event.element
+											onChanged = function(self, event)
 												if self.switch_state == "left" then
 													_(self.gui.player):changeSetting("dragMode", "distribute")
 												else
@@ -322,8 +283,8 @@ this.templates.settingsWindow = {
 											tooltip = {"settings-gui.hand-tooltip"},
 											sprite = "utility/hand",
 											style = "ed_switch_button_small_selected",
-											onChanged = function(event)
-												local flow = event.element.parent
+											onChanged = function(self, event)
+												local flow = self.parent
 												flow.button_take_from_inventory.style = "ed_switch_button_small"
 												flow.button_take_from_car.style       = "ed_switch_button_small"
 												
@@ -342,9 +303,9 @@ this.templates.settingsWindow = {
 												local player = _(self.gui.player)
 												self.style = player:setting("takeFromInventory") and "ed_switch_button_small_selected" or "ed_switch_button_small"
 											end,
-											onChanged = function(event)
-												local flow = event.element.parent
-												local nowActive = event.element.style.name == "ed_switch_button_small"
+											onChanged = function(self, event)
+												local flow = self.parent
+												local nowActive = self.style.name == "ed_switch_button_small"
 												if flow.button_take_from_car.style.name == "ed_switch_button_small_selected" then nowActive = true end
 
 												flow.button_take_from_inventory.style = nowActive and "ed_switch_button_small_selected" or "ed_switch_button_small"
@@ -365,9 +326,9 @@ this.templates.settingsWindow = {
 												local player = _(self.gui.player)
 												self.style = player:setting("takeFromCar") and "ed_switch_button_small_selected" or "ed_switch_button_small"
 											end,
-											onChanged = function(event)
-												local flow = event.element.parent
-												local nowActive = event.element.style.name == "ed_switch_button_small"
+											onChanged = function(self, event)
+												local flow = self.parent
+												local nowActive = self.style.name == "ed_switch_button_small"
 												
 												flow.button_take_from_inventory.style = "ed_switch_button_small_selected"
 												flow.button_take_from_car.style       = nowActive and "ed_switch_button_small_selected" or "ed_switch_button_small"
@@ -395,8 +356,8 @@ this.templates.settingsWindow = {
 											name = "fuel_drag_limit_checkbox",
 											caption = {"", {"settings-gui.fuel-limit"}, " [img=info]"},
 											state = true,
-											onChanged = function(event)
-												updateLimiter(event.element.parent, config.fuelLimitProfiles, "enable")
+											onChanged = function(self, event)
+												updateLimiter(self.parent, config.fuelLimitProfiles, "enable")
 											end,
 										},
 										{
@@ -408,10 +369,10 @@ this.templates.settingsWindow = {
 											name = "fuel_drag_limit_slider",
 											discrete_slider = false,
 											discrete_values = true,
-											onChanged = function(event)
-												local value = event.element.slider_value
+											onChanged = function(self, event)
+												local value = self.slider_value
 												if type(value) == "number" then
-													updateLimiter(event.element.parent, config.fuelLimitProfiles, "value", value)
+													updateLimiter(self.parent, config.fuelLimitProfiles, "value", value)
 												end
 											end,
 										},
@@ -425,10 +386,10 @@ this.templates.settingsWindow = {
 											numeric = true,
 											allow_negative = false,
 											lose_focus_on_confirm = true,
-											onChanged = function(event)
-												local value = tonumber(event.element.text)
+											onChanged = function(self, event)
+												local value = tonumber(self.text)
 												if type(value) == "number" then
-													updateLimiter(event.element.parent, config.fuelLimitProfiles, "value", value)
+													updateLimiter(self.parent, config.fuelLimitProfiles, "value", value)
 												end
 											end,
 										},
@@ -440,8 +401,8 @@ this.templates.settingsWindow = {
 												width = 56, -- 38,
 											},
 											-- caption = "Stacks",
-											onChanged = function(event)
-												updateLimiter(event.element.parent, config.fuelLimitProfiles, "type")
+											onChanged = function(self, event)
+												updateLimiter(self.parent, config.fuelLimitProfiles, "type")
 											end,
 										},
 									}
@@ -462,8 +423,8 @@ this.templates.settingsWindow = {
 											name = "ammo_drag_limit_checkbox",
 											caption = {"", {"settings-gui.ammo-limit"}, " [img=info]"},
 											state = true,
-											onChanged = function(event)
-												updateLimiter(event.element.parent, config.ammoLimitProfiles, "enable")
+											onChanged = function(self, event)
+												updateLimiter(self.parent, config.ammoLimitProfiles, "enable")
 											end,
 										},
 										{
@@ -475,10 +436,10 @@ this.templates.settingsWindow = {
 											name = "ammo_drag_limit_slider",
 											discrete_slider = false,
 											discrete_values = true,
-											onChanged = function(event)
-												local value = event.element.slider_value
+											onChanged = function(self, event)
+												local value = self.slider_value
 												if type(value) == "number" then
-													updateLimiter(event.element.parent, config.ammoLimitProfiles, "value", value)
+													updateLimiter(self.parent, config.ammoLimitProfiles, "value", value)
 												end
 											end,
 										},
@@ -492,10 +453,10 @@ this.templates.settingsWindow = {
 											numeric = true,
 											allow_negative = false,
 											lose_focus_on_confirm = true,
-											onChanged = function(event)
-												local value = tonumber(event.element.text)
+											onChanged = function(self, event)
+												local value = tonumber(self.text)
 												if type(value) == "number" then
-													updateLimiter(event.element.parent, config.ammoLimitProfiles, "value", value)
+													updateLimiter(self.parent, config.ammoLimitProfiles, "value", value)
 												end
 											end,
 										},
@@ -506,8 +467,8 @@ this.templates.settingsWindow = {
 												padding = 0,
 												width = 56, -- 38,
 											},
-											onChanged = function(event)
-												updateLimiter(event.element.parent, config.ammoLimitProfiles, "type")
+											onChanged = function(self, event)
+												updateLimiter(self.parent, config.ammoLimitProfiles, "type")
 											end,
 										},
 									}
@@ -524,8 +485,7 @@ this.templates.settingsWindow = {
 										local player = _(self.gui.player)
 										self.state = player:setting("replaceItems")
 									end,
-									onChanged = function(event)
-										local self = event.element
+									onChanged = function(self, event)
 										local player = _(self.gui.player)
 										player:changeSetting("replaceItems", self.state)
 									end,
@@ -570,8 +530,7 @@ this.templates.settingsWindow = {
 										self.parent.frame_caption.enabled = self.state
 										self.visible = not settings.global["disable-inventory-cleanup"].value
 									end,
-									onChanged = function(event)
-										local self = event.element
+									onChanged = function(self, event)
 										self.parent.parent.frame_content.visible = self.state
 										self.parent.frame_caption.enabled = self.state
 
@@ -621,8 +580,8 @@ this.templates.settingsWindow = {
 											name = "button_defaults",
 											tooltip = {"settings-gui.include-defaults-description"},
 											style = "ed_switch_button_large_selected",
-											-- onChanged = function(event)
-											-- 	local flow = event.element.parent
+											-- onChanged = function(self, event)
+											-- 	local flow = self.parent
 											-- 	flow.button_take_from_inventory.style = "ed_switch_button"
 											-- 	flow.button_take_from_car.style       = "ed_switch_button"
 												
@@ -794,8 +753,7 @@ this.templates.settingsWindow = {
 												local player = _(self.gui.player)
 												self.style = player:setting("cleanupRequestOverflow") and "ed_switch_button_large_selected" or "ed_switch_button_large"
 											end,
-											onChanged = function(event)
-												local self = event.element
+											onChanged = function(self, event)
 												local player = _(self.gui.player)
 												local nowActive = self.style.name == "ed_switch_button_large"
 
@@ -813,8 +771,7 @@ this.templates.settingsWindow = {
 														local player = _(self.gui.player)
 														self.state = player:setting("cleanupRequestOverflow")
 													end,
-													onChanged = function(event)
-														local self = event.element
+													onChanged = function(self, event)
 														local player = _(self.gui.player)
 														player:changeSetting("cleanupRequestOverflow", self.state)
 														self.parent.style = self.state and "ed_switch_button_large_selected" or "ed_switch_button_large"
@@ -893,8 +850,7 @@ this.templates.settingsWindow = {
 										local player = _(self.gui.player)
 										self.state = player:setting("dropTrashToChests")
 									end,
-									onChanged = function(event)
-										local self = event.element
+									onChanged = function(self, event)
 										local player = _(self.gui.player)
 										player:changeSetting("dropTrashToChests", self.state)
 									end,
@@ -908,8 +864,7 @@ this.templates.settingsWindow = {
 										local player = _(self.gui.player)
 										self.state = player:setting("cleanupUseLimits")
 									end,
-									onChanged = function(event)
-										local self = event.element
+									onChanged = function(self, event)
 										local player = _(self.gui.player)
 										player:changeSetting("cleanupUseLimits", self.state)
 									end,
@@ -955,8 +910,7 @@ this.templates.settingsWindow = {
 										self.parent.frame_caption.enabled = self.state
 										self.visible = not settings.global["disable-inventory-fill"].value
 									end,
-									onChanged = function(event)
-										local self = event.element
+									onChanged = function(self, event)
 										self.parent.parent.frame_content.visible = self.state
 										self.parent.frame_caption.enabled = self.state
 
@@ -997,8 +951,7 @@ this.templates.settingsWindow = {
 										local player = _(self.gui.player)
 										-- self.state = player:setting("enableDragDistribute")
 									end,
-									onChanged = function(event)
-										local self = event.element
+									onChanged = function(self, event)
 										local player = _(self.gui.player)
 										-- player:changeSetting("enableDragDistribute", self.state)
 									end,
@@ -1013,8 +966,7 @@ this.templates.settingsWindow = {
 										local player = _(self.gui.player)
 										-- self.state = player:setting("enableDragDistribute")
 									end,
-									onChanged = function(event)
-										local self = event.element
+									onChanged = function(self, event)
 										local player = _(self.gui.player)
 										-- player:changeSetting("enableDragDistribute", self.state)
 									end,
@@ -1030,8 +982,7 @@ this.templates.settingsWindow = {
 										local player = _(self.gui.player)
 										-- self.state = player:setting("enableDragDistribute")
 									end,
-									onChanged = function(event)
-										local self = event.element
+									onChanged = function(self, event)
 										local player = _(self.gui.player)
 										-- player:changeSetting("enableDragDistribute", self.state)
 									end,
@@ -1046,8 +997,7 @@ this.templates.settingsWindow = {
 										local player = _(self.gui.player)
 										self.state = player:setting("cleanupRequestOverflow")
 									end,
-									onChanged = function(event)
-										local self = event.element
+									onChanged = function(self, event)
 										local player = _(self.gui.player)
 										player:changeSetting("cleanupRequestOverflow", self.state)
 									end,
@@ -1089,8 +1039,7 @@ this.templates.settingsWindow = {
 									hovered_sprite = "utility/expand_dark",
 									clicked_sprite = "utility/expand_dark",
 									style = "frame_action_button",
-									onChanged = function(event)
-										local self = event.element
+									onChanged = function(self, event)
 										if self.sprite == "utility/expand" then
 											self.parent.parent.frame_content.visible = true
 											self.sprite = "utility/collapse"
@@ -1145,8 +1094,7 @@ this.templates.settingsWindow = {
 												local player = _(self.gui.player)
 												self.slider_value = player:setting("distributionDelay")
 											end,
-											onChanged = function(event)
-												local self = event.element
+											onChanged = function(self, event)
 												local player = _(self.gui.player)
 												local value = self.slider_value
 
@@ -1177,8 +1125,7 @@ this.templates.settingsWindow = {
 												local player = _(self.gui.player)
 												self.text = player:setting("distributionDelay")
 											end,
-											onChanged = function(event)
-												local self = event.element
+											onChanged = function(self, event)
 												local player = _(self.gui.player)
 												local value = tonumber(self.text)
 
@@ -1235,8 +1182,7 @@ this.templates.settingsWindow = {
 												local player = _(self.gui.player)
 												self.slider_value = player:setting("cleanupDropRange")
 											end,
-											onChanged = function(event)
-												local self = event.element
+											onChanged = function(self, event)
 												local player = _(self.gui.player)
 												local value = self.slider_value
 												
@@ -1268,8 +1214,7 @@ this.templates.settingsWindow = {
 												local player = _(self.gui.player)
 												self.text = player:setting("cleanupDropRange")
 											end,
-											onChanged = function(event)
-												local self = event.element
+											onChanged = function(self, event)
 												local player = _(self.gui.player)
 												local value = tonumber(self.text)
 												
@@ -1343,8 +1288,8 @@ this.templates.ignoredEntityChooser = {
 		self.elem_value = data.name
 		self.elem_filters = {{ filter = "name", name = _(global.allowedEntities):keys():toPlain() }}
 	end,
-	onChanged = function(event)
-		local parent = event.element.parent
+	onChanged = function(self, event)
+		local parent = self.parent
 		local player = _(parent.gui.player)
 		local ignoredEntities = {}
 

@@ -212,7 +212,7 @@ local function handleGuiEvent(event, name)
 		local handlers = global.guiEvents[name][event.player_index]
 		if handlers then
 			local handler = handlers[event.element.index]
-			if handler and eventHandlers[handler] then eventHandlers[handler](event) end
+			if handler and eventHandlers[handler] then eventHandlers[handler](event.element, event) end
 		end
 	end
 end
