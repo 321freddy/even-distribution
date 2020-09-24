@@ -15,7 +15,7 @@ function this.on_tick(event) -- handles distribution events
 			local player = _(game.players[player_index])
 	
 			if player:is("valid player") then
-				if player:setting("dragMode") == "distribute" then
+				if player:setting("distributionMode") == "distribute" then
 					this.distributeItems(player, cache)
 				else
 					this.balanceItems(player, cache)
@@ -28,6 +28,8 @@ function this.on_tick(event) -- handles distribution events
 end
 
 function this.distributeItems(player, cache)
+	local useFuelLimit = player:setting("dragUseFuelLimit")
+	local useAmmoLimit = player:setting("dragUseAmmoLimit")
 	local takeFromInv  = player:setting("takeFromInventory")
 	local takeFromCar  = player:setting("takeFromCar")
 	local replaceItems = player:setting("replaceItems")
@@ -47,7 +49,7 @@ function this.distributeItems(player, cache)
 			if takenFromPlayer < amount then color = config.colors.insufficientItems end
 			
 			if takenFromPlayer > 0 then
-				itemsInserted = entity:customInsert(player, item, takenFromPlayer, takeFromCar, false, replaceItems, true, {
+				itemsInserted = entity:customInsert(player, item, takenFromPlayer, takeFromCar, false, replaceItems, useFuelLimit, useAmmoLimit, {
 					-- if modules are recipe ingredients, dont put into module slots
 					-- modules = not entity:is("crafting machine") or not _(entity.get_recipe()):hasIngredient(item),
 				})
@@ -72,6 +74,8 @@ function this.distributeItems(player, cache)
 end
 
 function this.balanceItems(player, cache)
+	local useFuelLimit      = player:setting("dragUseFuelLimit")
+	local useAmmoLimit      = player:setting("dragUseAmmoLimit")
 	local takeFromInv       = player:setting("takeFromInventory")
 	local takeFromCar       = player:setting("takeFromCar")
 	local replaceItems      = player:setting("replaceItems")
@@ -115,7 +119,7 @@ function this.balanceItems(player, cache)
 			
 			amount = amount - itemCount.remaining
 			if amount > 0 then
-				local itemsInserted = entity:customInsert(player, item, amount, takeFromCar, false, replaceItems, true, {
+				local itemsInserted = entity:customInsert(player, item, amount, takeFromCar, false, replaceItems, useFuelLimit, useAmmoLimit, {
 					-- if modules are recipe ingredients, dont put into module slots
 					-- modules = not entity:is("crafting machine") or not _(entity.get_recipe()):hasIngredient(item),
 				})
@@ -210,7 +214,7 @@ function this.onStackTransferred(entity, player, cache) -- handle vanilla drag s
 	
 	local takeFromInv = player:setting("takeFromInventory")
 	local takeFromCar = player:setting("takeFromCar")
-	local dragMode    = player:setting("dragMode")
+	local distributionMode    = player:setting("distributionMode")
 	local item = cache.item
 
 	if not _(entity):isIgnored(player) then
@@ -268,14 +272,14 @@ function this.onStackTransferred(entity, player, cache) -- handle vanilla drag s
 	local totalItems  = player:itemcount(item, takeFromInv, takeFromCar)
 	if cache.half then totalItems = math.ceil(totalItems / 2) end
 
-	if dragMode == "balance" then
+	if distributionMode == "balance" then
 		_(cache.entities):where("valid", function(entity)
 			totalItems = totalItems + _(entity):itemcount(item)
 		end)
 	end
 
 	util.distribute(cache.entities, totalItems, function(entity, amount)
-		-- if dragMode == "balance" then
+		-- if distributionMode == "balance" then
 		-- 	local count = _(entity):itemcount(item)
 		-- 	if count > amount then
 		-- 		visuals.update(cache.markers[entity], item, count, config.colors.targetFull)

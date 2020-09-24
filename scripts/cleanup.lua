@@ -66,9 +66,10 @@ end
 
 function cleanup.insert(player, entity, item, amount)
 
-	local useLimits = player:setting("cleanupUseLimits")
+	local useFuelLimit = player:setting("cleanupUseFuelLimit")
+	local useAmmoLimit = player:setting("cleanupUseAmmoLimit")
 	if entity.type == "furnace" and not (entity.get_recipe() or entity.previous_recipe) then
-		return entity:customInsert(player, item, amount, false, true, false, useLimits, {
+		return entity:customInsert(player, item, amount, false, true, false, useFuelLimit, useAmmoLimit, {
 			fuel     = true,
 			ammo     = false,
 			input    = false,
@@ -79,7 +80,7 @@ function cleanup.insert(player, entity, item, amount)
 
 	elseif entity.prototype.logistic_mode == "requester" then
 		local requested = entity:remainingRequest(item)
-		return entity:customInsert(player, item, math.min(amount, requested), false, true, false, useLimits, {
+		return entity:customInsert(player, item, math.min(amount, requested), false, true, false, useFuelLimit, useAmmoLimit, {
 			fuel     = false,
 			ammo     = false,
 			input    = false,
@@ -89,7 +90,7 @@ function cleanup.insert(player, entity, item, amount)
 		})
 		
 	elseif entity.type == "car" or entity.type == "spider-vehicle" then
-		return entity:customInsert(player, item, amount, false, true, false, useLimits, {
+		return entity:customInsert(player, item, amount, false, true, false, useFuelLimit, useAmmoLimit, {
 			fuel     = true,
 			ammo     = true,
 			input    = false,
@@ -100,7 +101,7 @@ function cleanup.insert(player, entity, item, amount)
 	end
 	
 	-- Default priority insertion
-	return entity:customInsert(player, item, amount, false, true, false, useLimits, {
+	return entity:customInsert(player, item, amount, false, true, false, useFuelLimit, useAmmoLimit, {
 		fuel     = true,
 		ammo     = true,
 		input    = true,

@@ -101,14 +101,15 @@ function setup.migrateSettings(player)
 	global.settings[player.index] = settings
 
 	-- default values
+	if settings.distributionMode == nil                     then settings.distributionMode = "distribute" end
+	if settings.fuelLimit == nil             		then settings.fuelLimit = 0.5 end
+	if settings.fuelLimitType == nil         		then settings.fuelLimitType = "stacks" end
+	if settings.ammoLimit == nil             		then settings.ammoLimit = 0.5 end
+	if settings.ammoLimitType == nil         		then settings.ammoLimitType = "stacks" end
+
 	if settings.enableDragDistribute == nil         then settings.enableDragDistribute = true end
-	if settings.enableDragFuelLimit == nil          then settings.enableDragFuelLimit = false end
-	if settings.dragFuelLimit == nil                then settings.dragFuelLimit = 0.5 end
-	if settings.dragFuelLimitType == nil            then settings.dragFuelLimitType = "stacks" end
-	if settings.enableDragAmmoLimit == nil          then settings.enableDragAmmoLimit = false end
-	if settings.dragAmmoLimit == nil                then settings.dragAmmoLimit = 0.5 end
-	if settings.dragAmmoLimitType == nil            then settings.dragAmmoLimitType = "stacks" end
-	if settings.dragMode == nil                     then settings.dragMode = "distribute" end
+	if settings.dragUseFuelLimit == nil             then settings.dragUseFuelLimit = true end
+	if settings.dragUseAmmoLimit == nil             then settings.dragUseAmmoLimit = true end
 	if settings.takeFromInventory == nil            then settings.takeFromInventory = true end
 	if settings.takeFromCar == nil                  then settings.takeFromCar = true end
 	if settings.replaceItems == nil                 then settings.replaceItems = true end
@@ -116,8 +117,9 @@ function setup.migrateSettings(player)
 
 	if settings.enableInventoryCleanupHotkey == nil then settings.enableInventoryCleanupHotkey = true end
 	if settings.cleanupRequestOverflow == nil       then settings.cleanupRequestOverflow = true end
-	if settings.dropTrashToChests == nil       		then settings.dropTrashToChests = true end
-	if settings.cleanupUseLimits == nil       		then settings.cleanupUseLimits = true end
+	if settings.dropTrashToChests == nil       		then settings.dropTrashTFueloChests = true end
+	if settings.cleanupUseFuelLimit == nil       	then settings.cleanupUseFuelLimit = true end
+	if settings.cleanupUseAmmoLimit == nil       	then settings.cleanupUseAmmoLimit = true end
 	if settings.cleanupDropRange == nil       		then settings.cleanupDropRange = 30 end
 
 	if settings.enableInventoryFillHotkey == nil    then settings.enableInventoryFillHotkey = true end

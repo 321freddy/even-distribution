@@ -154,7 +154,7 @@ function player:returnItems(item, amount, takenFromCar, takenFromTrash)
 end
 
 function player:itemLimit(prototype, profile)
-	if profile and self:setting(profile.enableSetting) then
+	if profile then
 		local limit = self:setting(profile.valueSetting)
 		local type = self:setting(profile.typeSetting)
 

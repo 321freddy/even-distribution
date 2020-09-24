@@ -94,7 +94,7 @@ local function insert(self, name, item, amount)
 end
 
 -- priority insert with fuel and ammo limits
-function control:customInsert(player, item, amount, takenFromCar, takenFromTrash, replaceItems, useLimits, allowed)
+function control:customInsert(player, item, amount, takenFromCar, takenFromTrash, replaceItems, useFuelLimit, useAmmoLimit, allowed)
     if amount <= 0 then return 0 end
 
     local inserted = 0
@@ -113,7 +113,7 @@ function control:customInsert(player, item, amount, takenFromCar, takenFromTrash
     if allowed.fuel and prototype:is("fuel") then
         local inv = self:inventory("fuel")
         if inv then
-            local limit = useLimits and math.min(amount, math.max(0, player:itemLimit(prototype, config.fuelLimitProfiles) - inv.get_item_count(item))) or amount
+            local limit = useFuelLimit and math.min(amount, math.max(0, player:itemLimit(prototype, config.fuelLimitProfiles) - inv.get_item_count(item))) or amount
 
             local insertedHere = insert(self, "fuel", item, limit)
             limit = limit - insertedHere
@@ -151,7 +151,7 @@ function control:customInsert(player, item, amount, takenFromCar, takenFromTrash
 	if allowed.ammo and prototype:is("ammo") then
         local inv = self:inventory("ammo")
         if inv then
-            local limit = useLimits and math.min(amount, math.max(0, player:itemLimit(prototype, config.ammoLimitProfiles) - inv.get_item_count(item))) or amount
+            local limit = useAmmoLimit and math.min(amount, math.max(0, player:itemLimit(prototype, config.ammoLimitProfiles) - inv.get_item_count(item))) or amount
 
             local insertedHere = insert(self, "ammo", item, limit)
             limit = limit - insertedHere

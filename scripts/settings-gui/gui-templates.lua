@@ -81,7 +81,7 @@ this.templates.settingsWindow = {
 		local resolution = player.display_resolution
 		local scale = player.display_scale
 
-		self.location = { 0, resolution.height / (4.85 * scale * scale)  }
+		self.location = { 0, math.max(0, resolution.height / 2 - 400 * scale)  }
 
 		self.frame_header.drag_target = self
 		self.frame_header.frame_caption.drag_target = self
@@ -159,6 +159,12 @@ this.templates.settingsWindow = {
 				minimal_height = 344, -- Inventory GUI height
 				maximal_height = 800, --600,
 			},
+			onCreated = function(self)
+				local player = _(self.gui.player)
+				local resolution = player.display_resolution
+				local scale = player.display_scale
+				self.style.maximal_height = math.min(800, resolution.height / scale)
+			end,
 			children = {
 				{
 					type = "frame",
@@ -166,6 +172,200 @@ this.templates.settingsWindow = {
 					style = {
 						parent = "ed_settings_inner_frame",
 						top_margin = 3,
+						bottom_margin = 3,
+					},
+					children = 
+					{
+						{
+							type = "flow",
+							name = "frame_header",
+							direction = "horizontal",
+							children = 
+							{
+								{
+									type = "label",
+									name = "frame_caption",
+									style = "heading_3_label_yellow",
+									caption = "General", --{"settings-gui.drag-title"},
+								},
+							}
+						},
+						{
+							type = "flow",
+							name = "frame_content",
+							direction = "vertical",
+							onCreated = function(self)
+								self.visible = _(self.gui.player):setting("enableDragDistribute")
+							end,
+							children = 
+							{
+								{
+									type = "flow",
+									direction = "vertical",
+									style = {
+										horizontal_align = "center",
+										top_margin = 16, --4,
+										bottom_margin = 16, --4
+									},
+									children = 
+									{
+										{
+											type = "switch",
+											name = "mode_switch",
+											left_label_caption  = {"", "[font=default-large-semibold]", {"settings-gui.drag-evenly-distribute"}, "[/font]"},
+											right_label_caption = {"", "[font=default-large-semibold]", {"settings-gui.drag-balance-inventories"}, "[/font]"},
+											style = {
+												horizontally_stretchable = true,
+											},
+											onCreated = function(self)
+												if _(self.gui.player):setting("distributionMode") == "distribute" then
+													self.switch_state = "left"
+												else
+													self.switch_state = "right"
+												end
+											end,
+											onChanged = function(self, event)
+												if self.switch_state == "left" then
+													_(self.gui.player):changeSetting("distributionMode", "distribute")
+												else
+													_(self.gui.player):changeSetting("distributionMode", "balance")
+												end
+											end,
+										},
+									}
+								},
+								{
+									type = "flow",
+									direction = "horizontal",
+									style = {
+										vertical_align = "center",
+									},
+									onCreated = function(self)
+										updateLimiter(self, config.fuelLimitProfiles)
+									end,
+									children = 
+									{
+										{
+											type = "label",
+											caption = {"", {"settings-gui.fuel-limit"}, " [img=info]"},
+										},
+										{
+											type = "empty-widget",
+											style = "ed_stretch",
+										},
+										{
+											type = "slider",
+											name = "fuel_drag_limit_slider",
+											discrete_slider = false,
+											discrete_values = true,
+											onChanged = function(self, event)
+												local value = self.slider_value
+												if type(value) == "number" then
+													updateLimiter(self.parent, config.fuelLimitProfiles, "value", value)
+												end
+											end,
+										},
+										{
+											type = "textfield",
+											name = "fuel_drag_limit_textfield",
+											style = {
+												parent = "slider_value_textfield",
+												width = 60,
+											},
+											numeric = true,
+											allow_negative = false,
+											lose_focus_on_confirm = true,
+											onChanged = function(self, event)
+												local value = tonumber(self.text)
+												if type(value) == "number" then
+													updateLimiter(self.parent, config.fuelLimitProfiles, "value", value)
+												end
+											end,
+										},
+										{
+											type = "button",
+											name = "fuel_drag_limit_type",
+											style = {
+												padding = 0,
+												width = 56, -- 38,
+											},
+											-- caption = "Stacks",
+											onChanged = function(self, event)
+												updateLimiter(self.parent, config.fuelLimitProfiles, "type")
+											end,
+										},
+									}
+								},
+								{
+									type = "flow",
+									direction = "horizontal",
+									style = {
+										vertical_align = "center",
+									},
+									onCreated = function(self)
+										updateLimiter(self, config.ammoLimitProfiles)
+									end,
+									children = 
+									{
+										{
+											type = "label",
+											caption = {"", {"settings-gui.ammo-limit"}, " [img=info]"},
+										},
+										{
+											type = "empty-widget",
+											style = "ed_stretch",
+										},
+										{
+											type = "slider",
+											name = "ammo_drag_limit_slider",
+											discrete_slider = false,
+											discrete_values = true,
+											onChanged = function(self, event)
+												local value = self.slider_value
+												if type(value) == "number" then
+													updateLimiter(self.parent, config.ammoLimitProfiles, "value", value)
+												end
+											end,
+										},
+										{
+											type = "textfield",
+											name = "ammo_drag_limit_textfield",
+											style = {
+												parent = "slider_value_textfield",
+												width = 60,
+											},
+											numeric = true,
+											allow_negative = false,
+											lose_focus_on_confirm = true,
+											onChanged = function(self, event)
+												local value = tonumber(self.text)
+												if type(value) == "number" then
+													updateLimiter(self.parent, config.ammoLimitProfiles, "value", value)
+												end
+											end,
+										},
+										{
+											type = "button",
+											name = "ammo_drag_limit_type",
+											style = {
+												padding = 0,
+												width = 56, -- 38,
+											},
+											onChanged = function(self, event)
+												updateLimiter(self.parent, config.ammoLimitProfiles, "type")
+											end,
+										},
+									}
+								},
+							}
+						},
+					}
+				},
+				{
+					type = "frame",
+					direction = "vertical",
+					style = {
+						parent = "ed_settings_inner_frame",
 						bottom_margin = 3,
 					},
 					children = 
@@ -224,41 +424,6 @@ this.templates.settingsWindow = {
 							end,
 							children = 
 							{
-								{
-									type = "flow",
-									direction = "vertical",
-									style = {
-										horizontal_align = "center",
-										top_margin = 16, --4,
-										bottom_margin = 16, --4
-									},
-									children = 
-									{
-										{
-											type = "switch",
-											name = "mode_switch",
-											left_label_caption  = {"", "[font=default-large-semibold]", {"settings-gui.drag-evenly-distribute"}, "[/font]"},
-											right_label_caption = {"", "[font=default-large-semibold]", {"settings-gui.drag-balance-inventories"}, "[/font]"},
-											style = {
-												horizontally_stretchable = true,
-											},
-											onCreated = function(self)
-												if _(self.gui.player):setting("dragMode") == "distribute" then
-													self.switch_state = "left"
-												else
-													self.switch_state = "right"
-												end
-											end,
-											onChanged = function(self, event)
-												if self.switch_state == "left" then
-													_(self.gui.player):changeSetting("dragMode", "distribute")
-												else
-													_(self.gui.player):changeSetting("dragMode", "balance")
-												end
-											end,
-										},
-									}
-								},
 								{
 									type = "flow",
 									direction = "horizontal",
@@ -341,137 +506,32 @@ this.templates.settingsWindow = {
 									}
 								},
 								{
-									type = "flow",
-									direction = "horizontal",
-									style = {
-										vertical_align = "center",
-									},
+									type = "checkbox",
+									name = "drag_fuel_limit",
+									caption = {"settings-gui.use-fuel-limit"},
+									state = true,
 									onCreated = function(self)
-										updateLimiter(self, config.fuelLimitProfiles)
+										local player = _(self.gui.player)
+										self.state = player:setting("dragUseFuelLimit")
 									end,
-									children = 
-									{
-										{
-											type = "checkbox",
-											name = "fuel_drag_limit_checkbox",
-											caption = {"", {"settings-gui.fuel-limit"}, " [img=info]"},
-											state = true,
-											onChanged = function(self, event)
-												updateLimiter(self.parent, config.fuelLimitProfiles, "enable")
-											end,
-										},
-										{
-											type = "empty-widget",
-											style = "ed_stretch",
-										},
-										{
-											type = "slider",
-											name = "fuel_drag_limit_slider",
-											discrete_slider = false,
-											discrete_values = true,
-											onChanged = function(self, event)
-												local value = self.slider_value
-												if type(value) == "number" then
-													updateLimiter(self.parent, config.fuelLimitProfiles, "value", value)
-												end
-											end,
-										},
-										{
-											type = "textfield",
-											name = "fuel_drag_limit_textfield",
-											style = {
-												parent = "slider_value_textfield",
-												width = 60,
-											},
-											numeric = true,
-											allow_negative = false,
-											lose_focus_on_confirm = true,
-											onChanged = function(self, event)
-												local value = tonumber(self.text)
-												if type(value) == "number" then
-													updateLimiter(self.parent, config.fuelLimitProfiles, "value", value)
-												end
-											end,
-										},
-										{
-											type = "button",
-											name = "fuel_drag_limit_type",
-											style = {
-												padding = 0,
-												width = 56, -- 38,
-											},
-											-- caption = "Stacks",
-											onChanged = function(self, event)
-												updateLimiter(self.parent, config.fuelLimitProfiles, "type")
-											end,
-										},
-									}
+									onChanged = function(self, event)
+										local player = _(self.gui.player)
+										player:changeSetting("dragUseFuelLimit", self.state)
+									end,
 								},
 								{
-									type = "flow",
-									direction = "horizontal",
-									style = {
-										vertical_align = "center",
-									},
+									type = "checkbox",
+									name = "drag_ammo_limit",
+									caption = {"settings-gui.use-ammo-limit"},
+									state = true,
 									onCreated = function(self)
-										updateLimiter(self, config.ammoLimitProfiles)
+										local player = _(self.gui.player)
+										self.state = player:setting("dragUseAmmoLimit")
 									end,
-									children = 
-									{
-										{
-											type = "checkbox",
-											name = "ammo_drag_limit_checkbox",
-											caption = {"", {"settings-gui.ammo-limit"}, " [img=info]"},
-											state = true,
-											onChanged = function(self, event)
-												updateLimiter(self.parent, config.ammoLimitProfiles, "enable")
-											end,
-										},
-										{
-											type = "empty-widget",
-											style = "ed_stretch",
-										},
-										{
-											type = "slider",
-											name = "ammo_drag_limit_slider",
-											discrete_slider = false,
-											discrete_values = true,
-											onChanged = function(self, event)
-												local value = self.slider_value
-												if type(value) == "number" then
-													updateLimiter(self.parent, config.ammoLimitProfiles, "value", value)
-												end
-											end,
-										},
-										{
-											type = "textfield",
-											name = "ammo_drag_limit_textfield",
-											style = {
-												parent = "slider_value_textfield",
-												width = 60,
-											},
-											numeric = true,
-											allow_negative = false,
-											lose_focus_on_confirm = true,
-											onChanged = function(self, event)
-												local value = tonumber(self.text)
-												if type(value) == "number" then
-													updateLimiter(self.parent, config.ammoLimitProfiles, "value", value)
-												end
-											end,
-										},
-										{
-											type = "button",
-											name = "ammo_drag_limit_type",
-											style = {
-												padding = 0,
-												width = 56, -- 38,
-											},
-											onChanged = function(self, event)
-												updateLimiter(self.parent, config.ammoLimitProfiles, "type")
-											end,
-										},
-									}
+									onChanged = function(self, event)
+										local player = _(self.gui.player)
+										player:changeSetting("dragUseAmmoLimit", self.state)
+									end,
 								},
 								{
 									type = "checkbox",
@@ -842,6 +902,34 @@ this.templates.settingsWindow = {
 								},
 								{
 									type = "checkbox",
+									name = "cleanup_fuel_limit",
+									caption = {"settings-gui.use-fuel-limit"},
+									state = true,
+									onCreated = function(self)
+										local player = _(self.gui.player)
+										self.state = player:setting("cleanupUseFuelLimit")
+									end,
+									onChanged = function(self, event)
+										local player = _(self.gui.player)
+										player:changeSetting("cleanupUseFuelLimit", self.state)
+									end,
+								},
+								{
+									type = "checkbox",
+									name = "cleanup_ammo_limit",
+									caption = {"settings-gui.use-ammo-limit"},
+									state = true,
+									onCreated = function(self)
+										local player = _(self.gui.player)
+										self.state = player:setting("cleanupUseAmmoLimit")
+									end,
+									onChanged = function(self, event)
+										local player = _(self.gui.player)
+										player:changeSetting("cleanupUseAmmoLimit", self.state)
+									end,
+								},
+								{
+									type = "checkbox",
 									name = "drop_trash_to_chests",
 									caption = {"", {"settings-gui.drop-trash-to-chests"}, " [img=info]"},
 									tooltip = {"settings-gui.drop-trash-to-chests-description"},
@@ -853,20 +941,6 @@ this.templates.settingsWindow = {
 									onChanged = function(self, event)
 										local player = _(self.gui.player)
 										player:changeSetting("dropTrashToChests", self.state)
-									end,
-								},
-								{
-									type = "checkbox",
-									name = "item_limits",
-									caption = {"settings-gui.item-limits"},
-									state = true,
-									onCreated = function(self)
-										local player = _(self.gui.player)
-										self.state = player:setting("cleanupUseLimits")
-									end,
-									onChanged = function(self, event)
-										local player = _(self.gui.player)
-										player:changeSetting("cleanupUseLimits", self.state)
 									end,
 								},
 							}

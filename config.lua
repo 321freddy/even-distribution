@@ -30,9 +30,9 @@ config.rangeMultiplier = 3 -- inventory cleanup drop range multiplier
 config.fuelLimitProfiles = 
 {
     name          = "fuel_drag_limit",
-    enableSetting = "enableDragFuelLimit",
-    typeSetting   = "dragFuelLimitType",
-    valueSetting  = "dragFuelLimit",
+    -- enableSetting = "enableDragFuelLimit",
+    typeSetting   = "fuelLimitType",
+    valueSetting  = "fuelLimit",
     typeLocale    = "fuel-limit-type",
     tooltipLocale = "fuel-limit-tooltip",
 
@@ -59,9 +59,9 @@ config.fuelLimitProfiles =
 config.ammoLimitProfiles = 
 {
     name          = "ammo_drag_limit",
-    enableSetting = "enableDragAmmoLimit",
-    typeSetting   = "dragAmmoLimitType",
-    valueSetting  = "dragAmmoLimit",
+    -- enableSetting = "enableDragAmmoLimit",
+    typeSetting   = "ammoLimitType",
+    valueSetting  = "ammoLimit",
     typeLocale    = "ammo-limit-type",
     tooltipLocale = "ammo-limit-tooltip",
 
