@@ -2,10 +2,7 @@
 
 local this = {}
 local util = scripts.util
-local components = scripts.components
 local gui = scripts["gui-tools"]
-local mod_gui = require("mod-gui")
-local config = require("config")
 local templates = scripts["settings-gui.gui-templates"].templates
 
 local helpers = scripts.helpers
@@ -26,7 +23,7 @@ end
 
 function this.on_open_even_distribution_settings(event)
 	local player = _(game.players[event.player_index]); if player:isnot("valid player") then return end
-
+	
 	if player.is_shortcut_toggled("open-even-distribution-settings") then
 		this.destroyGUI(player)
 	else

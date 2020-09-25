@@ -1,5 +1,4 @@
 local util = {}
-local config = require("config")
 
 function util.doEvery(tick, func, args)
 	if (game.tick % tick) == 0 then func(args) end
@@ -42,7 +41,7 @@ function util.isCraftingMachine(entity)
 end
 
 function util.shallowCopy(original) -- Creates a shallow copy of a table
-    copy = {}
+    local copy = {}
     for key,value in pairs(original) do copy[key] = value  end
     return copy
 end

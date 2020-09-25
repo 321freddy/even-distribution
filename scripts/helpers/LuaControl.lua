@@ -125,7 +125,7 @@ function control:customInsert(player, item, amount, takenFromCar, takenFromTrash
 
                     local returnToPlayer = 0
                     while limit > 0 do
-                        stack = inv.find_item_stack(inferiorFuel.name)
+                        local stack = inv.find_item_stack(inferiorFuel.name)
                         local returnCount = stack and stack.count or 0
                         if stack and stack.set_stack{ name = item, count = limit } then
                             limit = limit - stack.count
@@ -163,7 +163,7 @@ function control:customInsert(player, item, amount, takenFromCar, takenFromTrash
 
                     local returnToPlayer = 0
                     while limit > 0 do
-                        stack = inv.find_item_stack(inferiorAmmo.name)
+                        local stack = inv.find_item_stack(inferiorAmmo.name)
                         local returnCount = stack and stack.count or 0
                         if stack and stack.set_stack{ name = item, count = limit } then
                             limit = limit - stack.count

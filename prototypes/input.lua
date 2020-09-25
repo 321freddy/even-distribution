@@ -8,7 +8,7 @@ data:extend{
 	{
 		type = "custom-input",
 		name = "open-even-distribution-settings",
-		key_sequence = "ALT + E",
+		key_sequence = "ALT + F",
 		consuming = "game-only"
 	},
 	{

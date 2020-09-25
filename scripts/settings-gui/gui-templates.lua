@@ -537,9 +537,6 @@ this.templates.settingsWindow = {
 									type = "checkbox",
 									name = "replace_items",
 									caption = {"settings-gui.replace-items"},
-									style = {
-										minimal_height = 28,
-									},
 									state = true,
 									onCreated = function(self)
 										local player = _(self.gui.player)
