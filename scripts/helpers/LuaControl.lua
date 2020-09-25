@@ -88,7 +88,11 @@ local function insert(self, name, item, amount)
     local inv = self:inventory(name)
     if inv then
         -- inv.sort_and_merge()
-        return inv.insert{ name = item, count = amount }
+        local inserted = inv.insert{ name = item, count = amount }
+        if inserted < amount then  -- retry for things like furnace ingredients (can be overfilled)
+            inserted = inserted + inv.insert{ name = item, count = amount - inserted }
+        end
+        return inserted
     end
     return 0
 end

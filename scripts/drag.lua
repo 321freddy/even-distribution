@@ -102,7 +102,7 @@ function this.balanceItems(player, cache)
 		entitiesToProcess[entity] = entity
 		itemCounts[entity] = {
 			original = count,
-			remaining = count - removed,  -- items remaining inside them (unable to take out)
+			remaining = count - removed,  -- amount above balanced level (unable to take out)
 			current = count - removed,
 		}
 	end)
