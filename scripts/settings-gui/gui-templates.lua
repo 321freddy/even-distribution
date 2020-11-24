@@ -10,6 +10,31 @@ local helpers = scripts.helpers
 local _ = helpers.on
 
 
+this.templates.settingsButton = {
+	type = "sprite-button",
+	name = "expand_settings",
+	tooltip = {"settings-gui.open-settings"},
+	sprite = "ed_logo",
+	hovered_sprite = "ed_logo",
+	clicked_sprite = "ed_logo",
+	style = {
+		parent = "tool_button_blue",
+		width = 40,
+		height = 40,
+		padding = 5,
+	},
+	root = function(player) return player.gui.relative end,
+	anchor = {
+		gui      = defines.relative_gui_type.controller_gui,
+		position = defines.relative_gui_position.left,
+	},
+	onChanged = function(self, event)
+		local player = _(self.gui.player)
+		controller.destroyButton(player)
+		controller.buildGUI(player)
+	end,
+}
+
 
 local function updateLimiter(flow, profiles, action, newValue) -- switch to next type
 	local player  = _(flow.gui.player)
@@ -75,31 +100,19 @@ this.templates.settingsWindow = {
 	name = "ed_settings_window",
 	direction = "vertical",
 	--caption = "Even Distribution",
-	root = function(player) return player.gui.screen end,
-	onCreated = function(self)
-		local player = _(self.gui.player)
-		local resolution = player.display_resolution
-		local scale = player.display_scale
-
-		self.location = { 0, math.max(0, resolution.height / 2 - 400 * scale)  }
-
-		self.frame_header.drag_target = self
-		self.frame_header.frame_caption.drag_target = self
-		self.frame_header.filler.drag_target = self
-	end,
-	onClicked = function(self, event)
-		local index  = event.player_index
-		local player = _(self.gui.player)
-		local cache  = _(global.cache[player.index])
-
-		-- ...
-		--dlog("clicked")
-	end,
+	root = function(player) return player.gui.relative end,
+	anchor = {
+		gui      = defines.relative_gui_type.controller_gui,
+		position = defines.relative_gui_position.left,
+	},
 	children = {
 		{
 			type = "flow",
 			name = "frame_header",
 			direction = "horizontal",
+			style = {
+				vertically_stretchable = false,
+			},
 			children = 
 			{
 				{
@@ -146,6 +159,7 @@ this.templates.settingsWindow = {
 					onChanged = function(self, event)
 						local player = _(self.gui.player)
 						controller.destroyGUI(player)
+						controller.buildButton(player)
 					end,
 				},
 			}
@@ -156,8 +170,8 @@ this.templates.settingsWindow = {
 			style = {
 				parent = "control_settings_scroll_pane", --"scroll_pane_with_dark_background_under_subheader",
 				minimal_width = 450, --530, -- 350,
-				minimal_height = 344, -- Inventory GUI height
-				maximal_height = 800, --600,
+				--minimal_height = 344, -- Inventory GUI height
+				maximal_height = 600,
 			},
 			onCreated = function(self)
 				local player = _(self.gui.player)
@@ -194,9 +208,6 @@ this.templates.settingsWindow = {
 							type = "flow",
 							name = "frame_content",
 							direction = "vertical",
-							onCreated = function(self)
-								self.visible = _(self.gui.player):setting("enableDragDistribute")
-							end,
 							children = 
 							{
 								{
@@ -446,7 +457,7 @@ this.templates.settingsWindow = {
 											type = "sprite-button",
 											name = "button_take_from_hand",
 											tooltip = {"settings-gui.hand-tooltip"},
-											sprite = "utility/hand",
+											sprite = "utility/hand_black",
 											style = "ed_switch_button_small_selected",
 											onChanged = function(self, event)
 												local flow = self.parent

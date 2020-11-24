@@ -1,6 +1,15 @@
 data:extend{
 	{
 		type = "sprite",
+		name = "ed_logo",
+		filename = "__even-distribution__/graphics/icon.png",
+		priority = "extra-high-no-scale",
+		size = 64,
+		scale = 1,
+		flags = {"gui-icon"}
+	},
+	{
+		type = "sprite",
 		name = "ed_trash",
 		filename = "__even-distribution__/graphics/trash.png",
 		priority = "extra-high-no-scale",

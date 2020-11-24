@@ -8,27 +8,20 @@ local templates = scripts["settings-gui.gui-templates"].templates
 local helpers = scripts.helpers
 local _ = helpers.on
 
-function this.on_lua_shortcut(event)
-	local player = _(game.players[event.player_index]); if player:isnot("valid player") then return end
-
-	if event.prototype_name == "open-even-distribution-settings" then
-		
-		if player.is_shortcut_toggled("open-even-distribution-settings") then
-			this.destroyGUI(player)
-		else
-			this.buildGUI(player)
-		end
+function this.on_init()
+	for player_index,player in pairs(game.players) do
+		local player = _(player); if player:isnot("valid player") then return end
+		this.destroyGUI(player)
+		this.buildButton(player)
 	end
 end
 
-function this.on_open_even_distribution_settings(event)
+this.on_configuration_changed = this.on_init
+
+function this.on_player_created(event)
 	local player = _(game.players[event.player_index]); if player:isnot("valid player") then return end
-	
-	if player.is_shortcut_toggled("open-even-distribution-settings") then
-		this.destroyGUI(player)
-	else
-		this.buildGUI(player)
-	end
+	this.destroyGUI(player)
+	this.buildButton(player)
 end
 
 function this.on_runtime_mod_setting_changed(event)
@@ -45,12 +38,19 @@ end
 function this.buildGUI(player)
 	gui.destroy(player, templates.settingsWindow)
 	gui.create(player, templates.settingsWindow, { })
-	player.set_shortcut_toggled("open-even-distribution-settings", true)
 end
 
 function this.destroyGUI(player)
 	gui.destroy(player, templates.settingsWindow)
-	player.set_shortcut_toggled("open-even-distribution-settings", false)
+end
+
+function this.buildButton(player)
+	gui.destroy(player, templates.settingsButton)
+	gui.create(player, templates.settingsButton, { })
+end
+
+function this.destroyButton(player)
+	gui.destroy(player, templates.settingsButton)
 end
 
 return this
