@@ -149,7 +149,7 @@ function this.insert(player, entity, item, amount)
 	local useFuelLimit = player:setting("cleanupUseFuelLimit")
 	local useAmmoLimit = player:setting("cleanupUseAmmoLimit")
 	if entity.type == "furnace" and not (entity.get_recipe() or entity.previous_recipe) then
-		return entity:customInsert(player, item, amount, false, true, false, useFuelLimit, useAmmoLimit, {
+		return entity:customInsert(player, item, amount, false, true, false, useFuelLimit, useAmmoLimit, false, {
 			fuel     = true,
 			ammo     = false,
 			input    = false,
@@ -159,8 +159,7 @@ function this.insert(player, entity, item, amount)
 		})
 
 	elseif entity.prototype.logistic_mode == "requester" then
-		local requested = entity:remainingRequest(item)
-		return entity:customInsert(player, item, math.min(amount, requested), false, true, false, useFuelLimit, useAmmoLimit, {
+		return entity:customInsert(player, item, amount, false, true, false, useFuelLimit, useAmmoLimit, true, {
 			fuel     = false,
 			ammo     = false,
 			input    = false,
@@ -168,9 +167,19 @@ function this.insert(player, entity, item, amount)
 			roboport = false,
 			main     = true,
 		})
+
+	elseif entity.type == "spider-vehicle" and entity.get_logistic_point(defines.logistic_member_index.character_requester) then
+		return entity:customInsert(player, item, amount, false, true, false, useFuelLimit, useAmmoLimit, true, {
+			fuel     = true,
+			ammo     = true,
+			input    = false,
+			modules  = false,
+			roboport = false,
+			main     = true,
+		})
 		
 	elseif entity.type == "car" or entity.type == "spider-vehicle" then
-		return entity:customInsert(player, item, amount, false, true, false, useFuelLimit, useAmmoLimit, {
+		return entity:customInsert(player, item, amount, false, true, false, useFuelLimit, useAmmoLimit, false, {
 			fuel     = true,
 			ammo     = true,
 			input    = false,
@@ -181,7 +190,7 @@ function this.insert(player, entity, item, amount)
 	end
 	
 	-- Default priority insertion
-	return entity:customInsert(player, item, amount, false, true, false, useFuelLimit, useAmmoLimit, {
+	return entity:customInsert(player, item, amount, false, true, false, useFuelLimit, useAmmoLimit, false, {
 		fuel     = true,
 		ammo     = true,
 		input    = true,
@@ -203,7 +212,7 @@ function this.filterEntities(entities, item, dropToChests)
 				result[entity] = entity
 			elseif entity:is("crafting machine") and _(entity.get_recipe() or (entity.type == "furnace" and entity.previous_recipe)):hasIngredient(item) then
 				result[entity] = entity
-			elseif entity.prototype.logistic_mode == "requester" and entity:remainingRequest(item) > 0 then
+			elseif (entity.prototype.logistic_mode == "requester" or (entity.type == "spider-vehicle" and entity.get_logistic_point(defines.logistic_member_index.character_requester))) and entity:remainingRequest(item) > 0 then
 				result[entity] = entity
 			elseif dropToChests and (entity.type == "container" or entity.type == "logistic-container") and entity.get_item_count(item) > 0 then
 				result[entity] = entity

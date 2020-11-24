@@ -98,7 +98,7 @@ local function insert(self, name, item, amount)
 end
 
 -- priority insert with fuel and ammo limits
-function control:customInsert(player, item, amount, takenFromCar, takenFromTrash, replaceItems, useFuelLimit, useAmmoLimit, allowed)
+function control:customInsert(player, item, amount, takenFromCar, takenFromTrash, replaceItems, useFuelLimit, useAmmoLimit, useRequestLimit, allowed)
     if amount <= 0 then return 0 end
 
     local inserted = 0
@@ -188,7 +188,7 @@ function control:customInsert(player, item, amount, takenFromCar, takenFromTrash
             amount = amount - insertedHere
         end
     end
-
+    
     if amount <= 0 then return inserted end
     if allowed.input then
         local insertedHere = insert(self, "input", item, amount)
@@ -217,7 +217,9 @@ function control:customInsert(player, item, amount, takenFromCar, takenFromTrash
     
     if amount <= 0 then return inserted end
     if allowed.main then
-        local insertedHere = insert(self, "main", item, amount)
+        local limit = useRequestLimit and math.min(amount, math.max(0, self:remainingRequest(item))) or amount
+        local insertedHere = insert(self, "main", item, limit)
+        
         inserted = inserted + insertedHere
         amount = amount - insertedHere
 	end
