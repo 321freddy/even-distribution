@@ -9,8 +9,6 @@ function player:setting(name)
 		if settings.global["disable-distribute"].value then return false end
 	elseif name == "enableInventoryCleanupHotkey" then
 		if settings.global["disable-inventory-cleanup"].value then return false end
-	elseif name == "enablInventoryFillHotkey" then
-		if settings.global["disable-inventory-fill"].value then return false end
 	end
 
 	local setting = global.settings[self.index][name]

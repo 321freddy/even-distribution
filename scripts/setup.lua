@@ -66,12 +66,12 @@ function setup.on_init()
 						end)
 						:toPlain()
 	
-	for player_index,player in pairs(game.players) do
-		setup.setupPlayerGlobalTable(player_index, player)
-	end
-
 	for _,force in pairs(game.forces) do
 		setup.enableLogisticsTab(force) 
+	end
+
+	for player_index,player in pairs(game.players) do
+		setup.setupPlayerGlobalTable(player_index, player)
 	end
 end
 
@@ -82,7 +82,7 @@ function setup.on_player_created(event)
 end
 
 function setup.setupPlayerGlobalTable(player_index, player)
-	player = player or game.players[player_index]
+	player = _(player or game.players[player_index])
 	setup.createPlayerCache(player_index)
 	setup.migrateSettings(player)	
 end
@@ -122,8 +122,6 @@ function setup.migrateSettings(player)
 	if settings.cleanupUseAmmoLimit == nil       	then settings.cleanupUseAmmoLimit = true end
 	if settings.cleanupDropRange == nil       		then settings.cleanupDropRange = 30 end
 
-	if settings.enableInventoryFillHotkey == nil    then settings.enableInventoryFillHotkey = true end
-
 	-- migrate settings from old mod versions
 	if settings.version == nil then
 		settings.version                = "1.0.0"
@@ -133,6 +131,35 @@ function setup.migrateSettings(player)
 		settings.dropTrashToChests      = player.mod_settings["drop-trash-to-chests"].value
 		settings.distributionDelay      = player.mod_settings["distribution-delay"].value
 		settings.cleanupDropRange       = player.mod_settings["max-inventory-cleanup-drop-range"].value
+
+		-- move custom trash to logistic slots
+		if settings.customTrash and 
+		   player:has("valid", "character") and 
+		   player.character_personal_logistic_requests_enabled then
+
+			local slotCount = player.character_logistic_slot_count
+			local slots = player:logisticSlots()
+			local toBeMoved =_(settings.customTrash):where(function(item,count)
+				return true --global.defaultTrash[item] ~= count
+			end)
+			
+			local newSlotCount = table_size(toBeMoved:toPlain())
+			if newSlotCount > 0 then
+				player.character_logistic_slot_count = slotCount + newSlotCount + 1
+				toBeMoved:where(function(item,count)
+									return slots[item] == nil
+								end, 
+								function(item,count)
+									player.set_personal_logistic_slot(slotCount + 2, {
+										name = item,
+										min = 0,
+										max = count,
+									})
+									slotCount = slotCount + 1
+								end)
+			end
+		end
+
 		dlog("Player ("..player.name..") settings migrated from none to 1.0.0")
 	end
 	--if settings.version == "0.3.x" then

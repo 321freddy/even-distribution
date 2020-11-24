@@ -13,13 +13,6 @@ data:extend{
 		order = "b",
 		default_value = false
 	},
-	{
-		type = "bool-setting",
-		name = "disable-inventory-fill",
-		setting_type = "runtime-global",
-		order = "c",
-		default_value = false
-	},
 	
 	{
 		type = "bool-setting",
@@ -27,15 +20,6 @@ data:extend{
 		setting_type = "runtime-per-user",
 		order = "zzz",
 		default_value = true,
-	},
-	{
-		type = "string-setting",
-		name = "settings-storage",
-		setting_type = "runtime-per-user",
-		order = "zzz",
-		default_value = "",
-		allow_blank = true,
-		hidden = true,
 	},
 
 	-------------- DEPRECATED SETTINGS (moved to new settings gui) --------------

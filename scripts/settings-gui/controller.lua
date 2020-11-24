@@ -33,8 +33,7 @@ end
 
 function this.on_runtime_mod_setting_changed(event)
 	if event.setting == "disable-distribute" or
-	   event.setting == "disable-inventory-cleanup" or
-	   event.setting == "disable-inventory-fill" then
+	   event.setting == "disable-inventory-cleanup" then
 
 		local player = _(game.players[event.player_index])
 		if player:is("valid player") then
