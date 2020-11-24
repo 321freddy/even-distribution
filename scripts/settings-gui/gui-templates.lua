@@ -202,7 +202,7 @@ this.templates.settingsWindow = {
 									type = "label",
 									name = "frame_caption",
 									style = "heading_3_label_yellow",
-									caption = "General", --{"settings-gui.drag-title"},
+									caption = {"settings-gui.general"},
 								},
 							}
 						},
@@ -721,8 +721,7 @@ this.templates.settingsWindow = {
 									type = "label",
 									name = "frame_caption",
 									style = "heading_3_label_yellow",
-									caption = "Advanced",--{"", {"settings-gui.inventory-cleanup-title"}, " [img=info]"},
-									-- tooltip = {"settings-gui.inventory-cleanup-description"},
+									caption = {"settings-gui.advanced"},
 								},
 								{
 									type = "empty-widget",
