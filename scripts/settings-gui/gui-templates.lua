@@ -630,285 +630,30 @@ this.templates.settingsWindow = {
 								{
 									type = "label",
 									caption = {"", "[color=gray]", {"settings-gui.inventory-cleanup-description"}, "[/color]"},
+									tooltip = {"settings-gui.inventory-cleanup-configure-description"},
 								},
 								{
 									type = "label",
-									caption = {"settings-gui.inventory-cleanup-list"},
-								},
-								{
-									type = "flow",
-									direction = "horizontal",
+									caption = {"", {"settings-gui.inventory-cleanup-configure"}, " [img=info]"},
+									tooltip = {"settings-gui.inventory-cleanup-configure-description"},
 									style = {
-										vertical_align = "center",
-										top_margin = 8,
-										bottom_margin = 8,
-									},
-									children = 
-									{
-										{
-											type = "button",
-											name = "button_defaults",
-											tooltip = {"settings-gui.include-defaults-description"},
-											style = "ed_switch_button_large_selected",
-											-- onChanged = function(self, event)
-											-- 	local flow = self.parent
-											-- 	flow.button_take_from_inventory.style = "ed_switch_button"
-											-- 	flow.button_take_from_car.style       = "ed_switch_button"
-												
-											-- 	local player = _(flow.gui.player)
-											-- 	player:changeSetting("takeFromInventory", false)
-											-- 	player:changeSetting("takeFromCar", false)
-											-- end,
-											children = {
-												{
-													type = "flow",
-													direction = "vertical",
-													ignored_by_interaction = true,
-													style = {
-														horizontal_align = "center",
-														vertical_spacing = 2,
-													},
-													children = {
-														{
-															type = "flow",
-															direction = "horizontal",
-															ignored_by_interaction = true,
-															style = {
-																horizontal_spacing = 2,
-																top_margin = 2,
-															},
-															children = {
-																{
-																	type = "sprite",
-																	sprite = "item/iron-ore",
-																	ignored_by_interaction = true,
-																},
-																{
-																	type = "sprite",
-																	sprite = "item/copper-cable",
-																	ignored_by_interaction = true,
-																},
-															}
-														},
-														{
-															type = "flow",
-															direction = "horizontal",
-															ignored_by_interaction = true,
-															style = {
-																horizontal_spacing = 2,
-																top_margin = 2,
-															},
-															children = {
-																{
-																	type = "sprite",
-																	sprite = "item/iron-stick",
-																	ignored_by_interaction = true,
-																},
-																{
-																	type = "sprite",
-																	sprite = "item/automation-science-pack",
-																	ignored_by_interaction = true,
-																},
-															}
-														},
-														{
-															type = "label",
-															caption = "Defaults",
-															ignored_by_interaction = true,
-															style = {
-																parent = "black_label",
-																font = "default-bold",
-															}
-														},
-													}
-												},
-												{
-													type = "checkbox",
-													ignored_by_interaction = true,
-													state = true,
-													enabled = false,
-												},
-											}
-										},
-										{
-											type = "button",
-											name = "button_trashslots",
-											tooltip = {"settings-gui.include-trashslots-description"},
-											style = "ed_switch_button_large_selected",
-											children = {
-												{
-													type = "checkbox",
-													ignored_by_interaction = true,
-													state = true,
-													enabled = false,
-												},
-												{
-													type = "flow",
-													direction = "vertical",
-													ignored_by_interaction = true,
-													style = {
-														horizontal_align = "center",
-													},
-													children = {
-														{
-															type = "sprite",
-															sprite = "ed_trash",
-															ignored_by_interaction = true,
-															style = {
-																top_margin = 18,
-																bottom_margin = 18,
-															}
-														},
-														{
-															type = "label",
-															caption = "Trash slots",
-															ignored_by_interaction = true,
-															style = {
-																parent = "black_label",
-																font = "default-bold"
-															}
-														},
-													}
-												},
-											}
-										},
-										{
-											type = "sprite-button",
-											name = "button_autotrash",
-											tooltip = {"settings-gui.include-autotrash-description"},
-											style = "ed_switch_button_large_selected",
-											children = {
-												{
-													type = "checkbox",
-													ignored_by_interaction = true,
-													state = true,
-													enabled = false,
-												},
-												{
-													type = "flow",
-													direction = "vertical",
-													ignored_by_interaction = true,
-													style = {
-														horizontal_align = "center",
-													},
-													children = {
-														{
-															type = "sprite",
-															sprite = "ed_autotrash",
-															ignored_by_interaction = true,
-															style = {
-																top_margin = 10,
-																bottom_margin = 10,
-															}
-														},
-														{
-															type = "label",
-															caption = "Auto-trash",
-															ignored_by_interaction = true,
-															style = {
-																parent = "black_label",
-																font = "default-bold"
-															}
-														},
-													}
-												},
-											}
-										},
-										{
-											type = "sprite-button",
-											name = "button_request_overflow",
-											tooltip = {"settings-gui.cleanup-request-overflow-description"},
-											style = "ed_switch_button_large_selected",
-											onCreated = function(self)
-												local player = _(self.gui.player)
-												self.style = player:setting("cleanupRequestOverflow") and "ed_switch_button_large_selected" or "ed_switch_button_large"
-											end,
-											onChanged = function(self, event)
-												local player = _(self.gui.player)
-												local nowActive = self.style.name == "ed_switch_button_large"
-
-												player:changeSetting("cleanupRequestOverflow", nowActive)
-												self.style = nowActive and "ed_switch_button_large_selected" or "ed_switch_button_large"
-												self.checkbox_request_overflow.state = nowActive
-											end,
-											children = {
-												{
-													type = "checkbox",
-													name = "checkbox_request_overflow",
-													tooltip = {"settings-gui.cleanup-request-overflow-description"},
-													state = true,
-													onCreated = function(self)
-														local player = _(self.gui.player)
-														self.state = player:setting("cleanupRequestOverflow")
-													end,
-													onChanged = function(self, event)
-														local player = _(self.gui.player)
-														player:changeSetting("cleanupRequestOverflow", self.state)
-														self.parent.style = self.state and "ed_switch_button_large_selected" or "ed_switch_button_large"
-													end,
-												},
-												{
-													type = "flow",
-													direction = "vertical",
-													ignored_by_interaction = true,
-													style = {
-														horizontal_align = "center",
-														width = 65,
-													},
-													children = {
-														{
-															type = "sprite",
-															sprite = "ed_overflow",
-															ignored_by_interaction = true,
-															style = {
-																top_margin = 16,
-																bottom_margin = 4,
-															}
-														},
-														{
-															type = "label",
-															caption = "Request",
-															ignored_by_interaction = true,
-															style = {
-																parent = "black_label",
-																font = "default-bold",
-																bottom_margin = -8,
-															}
-														},
-														{
-															type = "label",
-															caption = "Overflow",
-															ignored_by_interaction = true,
-															style = {
-																parent = "black_label",
-																font = "default-bold",
-															}
-														},
-													}
-												},
-											}
-										},
+										-- top_margin = -6,
+										bottom_margin = 15,
 									}
 								},
 								{
-									type = "label",
-									caption = {"settings-gui.inventory-cleanup-configure"},
-								},
-								{
-									type = "label",
-									caption = {"", "[color=gray]", {"settings-gui.inventory-cleanup-override"}, "[/color]"},
-									style = {
-										top_margin = -6,
-									}
-								},
-								{
-									type = "label",
-									caption = {"", "[color=gray]", {"settings-gui.inventory-cleanup-ignore"}, "[/color] [img=info]"},
-									tooltip = {"settings-gui.inventory-cleanup-ignore-description"},
-									style = {
-										top_margin = -6,
-										bottom_margin = 20,
-									}
+									type = "checkbox",
+									name = "checkbox_request_overflow",
+									caption = {"settings-gui.cleanup-request-overflow"},
+									state = true,
+									onCreated = function(self)
+										local player = _(self.gui.player)
+										self.state = player:setting("cleanupRequestOverflow")
+									end,
+									onChanged = function(self, event)
+										local player = _(self.gui.player)
+										player:changeSetting("cleanupRequestOverflow", self.state)
+									end,
 								},
 								{
 									type = "checkbox",
