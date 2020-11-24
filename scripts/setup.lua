@@ -122,6 +122,8 @@ function setup.migrateSettings(player)
 	if settings.cleanupUseAmmoLimit == nil       	then settings.cleanupUseAmmoLimit = true end
 	if settings.cleanupDropRange == nil       		then settings.cleanupDropRange = 30 end
 
+	if settings.ignoredEntities == nil       		then settings.ignoredEntities = {} end
+
 	-- migrate settings from old mod versions
 	if settings.version == nil then
 		settings.version                = "1.0.0"
