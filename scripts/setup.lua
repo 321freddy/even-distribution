@@ -139,27 +139,23 @@ function setup.migrateSettings(player)
 		   player:has("valid", "character") and 
 		   player.character_personal_logistic_requests_enabled then
 
-			local slotCount = player.character_logistic_slot_count
-			local slots = player:logisticSlots()
-			local toBeMoved =_(settings.customTrash):where(function(item,count)
-				return true --global.defaultTrash[item] ~= count
-			end)
+			local slotCount = player.character.request_slot_count
+			local slots = _(player.character):logisticSlots()
 			
-			local newSlotCount = table_size(toBeMoved:toPlain())
-			if newSlotCount > 0 then
-				player.character_logistic_slot_count = slotCount + newSlotCount + 1
-				toBeMoved:where(function(item,count)
-									return slots[item] == nil
-								end, 
-								function(item,count)
-									player.set_personal_logistic_slot(slotCount + 2, {
-										name = item,
-										min = 0,
-										max = count,
-									})
-									slotCount = slotCount + 1
-								end)
-			end
+			_(settings.customTrash)
+				:where(function(item,count)
+							return slots[item] == nil and global.defaultTrash[item] ~= count
+						end, 
+						function(item,count)
+							player.set_personal_logistic_slot(slotCount + 2, {
+								name = item,
+								min = 0,
+								max = count,
+							})
+							slotCount = slotCount + 1
+						end)
+
+			settings.customTrash = nil
 		end
 
 		dlog("Player ("..player.name..") settings migrated from none to 1.0.0")
