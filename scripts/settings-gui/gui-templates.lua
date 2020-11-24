@@ -37,7 +37,7 @@ local function updateLimiter(flow, profiles, action, newValue) -- switch to next
 	flow[name.."_slider"].set_slider_value_step(profile.step)
 	
 	flow[name.."_slider"].slider_value = value
-	flow[name.."_textfield"].text      = value
+	flow[name.."_textfield"].text      = tostring(value)
 	flow[name.."_type"].caption        = {profiles.typeLocale.."."..type}
 	
 	if profiles.enableSetting then
@@ -1042,7 +1042,7 @@ this.templates.settingsWindow = {
 													if value < 0 then value = 0 end
 
 													self.slider_value = value
-													self.parent.delay_textfield.text = value
+													self.parent.delay_textfield.text = tostring(value)
 
 													player:changeSetting("distributionDelay", value)
 												end
@@ -1061,7 +1061,7 @@ this.templates.settingsWindow = {
 											lose_focus_on_confirm = true,
 											onCreated = function(self)
 												local player = _(self.gui.player)
-												self.text = player:setting("distributionDelay")
+												self.text = tostring(player:setting("distributionDelay"))
 											end,
 											onChanged = function(self, event)
 												local player = _(self.gui.player)
@@ -1072,7 +1072,7 @@ this.templates.settingsWindow = {
 													-- if value > 5 then value = 5 end
 													if value < 0 then value = 0 end
 
-													self.text = value
+													self.text = tostring(value)
 													self.parent.delay_slider.slider_value = value
 
 													player:changeSetting("distributionDelay", value)
@@ -1131,7 +1131,7 @@ this.templates.settingsWindow = {
 													if value < 0 then value = 0 end
 
 													self.slider_value = value
-													self.parent.range_textfield.text = value
+													self.parent.range_textfield.text = tostring(value)
 
 													player:changeSetting("cleanupDropRange", value)
 												end
@@ -1150,7 +1150,7 @@ this.templates.settingsWindow = {
 											lose_focus_on_confirm = true,
 											onCreated = function(self)
 												local player = _(self.gui.player)
-												self.text = player:setting("cleanupDropRange")
+												self.text = tostring(player:setting("cleanupDropRange"))
 											end,
 											onChanged = function(self, event)
 												local player = _(self.gui.player)
@@ -1162,7 +1162,7 @@ this.templates.settingsWindow = {
 													-- if value > 100 then value = 100 end
 													if value < 0 then value = 0 end
 
-													self.text = value
+													self.text = tostring(value)
 													self.parent.range_slider.slider_value = value
 
 													player:changeSetting("cleanupDropRange", value)

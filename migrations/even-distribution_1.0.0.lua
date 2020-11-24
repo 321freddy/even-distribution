@@ -9,8 +9,6 @@ local function resetLogisticTechEffects(force)
 			for _,effect in pairs(tech.effects) do
 				if effect.type == "character-logistic-trash-slots" then
 					trashslots = trashslots + effect.modifier
-				elseif effect.type == "auto-character-logistic-trash-slots" then
-					autotrash = autotrash or effect.modifier
 				elseif effect.type == "character-logistic-requests" then
 					requests = requests or effect.modifier
 				end
@@ -19,7 +17,6 @@ local function resetLogisticTechEffects(force)
 	end
 
 	force.character_trash_slot_count  = trashslots
-	force.auto_character_trash_slots  = autotrash
 	force.character_logistic_requests = requests
 end
 
@@ -29,4 +26,4 @@ for _,force in pairs(game.forces) do
 end
 
 
-dlog("Migrated to version 1.0.0")
+log("Even Distribution: Migrated to version 1.0.0")
