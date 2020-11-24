@@ -26,7 +26,7 @@ this.templates.settingsButton = {
 	root = function(player) return player.gui.relative end,
 	anchor = {
 		gui      = defines.relative_gui_type.controller_gui,
-		position = defines.relative_gui_position.left,
+		position = defines.relative_gui_position.right,
 	},
 	onChanged = function(self, event)
 		local player = _(self.gui.player)
@@ -103,7 +103,7 @@ this.templates.settingsWindow = {
 	root = function(player) return player.gui.relative end,
 	anchor = {
 		gui      = defines.relative_gui_type.controller_gui,
-		position = defines.relative_gui_position.left,
+		position = defines.relative_gui_position.right,
 	},
 	children = {
 		{
@@ -170,8 +170,10 @@ this.templates.settingsWindow = {
 			style = {
 				parent = "control_settings_scroll_pane", --"scroll_pane_with_dark_background_under_subheader",
 				minimal_width = 450, --530, -- 350,
-				--minimal_height = 344, -- Inventory GUI height
-				maximal_height = 600,
+				-- minimal_height = 344, -- Inventory GUI height
+				-- maximal_height = 600,
+				vertically_stretchable = true,
+				vertically_squashable = true,
 			},
 			onCreated = function(self)
 				local player = _(self.gui.player)
