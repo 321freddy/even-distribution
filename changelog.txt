@@ -1,4 +1,19 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.0
+Date: 2020-11-25
+  Changes:
+    - Update for Factorio version 1.1.0
+    - Added custom settings gui
+    - Added balance inventories mode
+    - Added fuel and ammo distribution limits
+    - Added option to replace inferior fuel and ammo items when using CTRL+Click Drag
+    - Added source inventory selection for CTRL+Click Drag (hand only/inventory/vehicle)
+    - Added ability to disable individual ED features globally and per player 
+    - Logistic slots are now always available from the start
+    - Improved distribution visualization
+  Bugfixes:
+    - Various bugfixes
+---------------------------------------------------------------------------------------------------
 Version: 0.3.18
 Date: 2020-05-02
   Changes:
