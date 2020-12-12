@@ -27,7 +27,7 @@ Date: 2020-05-02
 Version: 0.3.17
 Date: 2020-04-01
   Bugfixes:
-    -  Fixed that "Always show logistic tab" setting was incompatible with some mods
+    - Fixed that "Always show logistic tab" setting was incompatible with some mods
 ---------------------------------------------------------------------------------------------------
 Version: 0.3.16
 Date: 2020-03-17
@@ -36,7 +36,7 @@ Date: 2020-03-17
 ---------------------------------------------------------------------------------------------------
 Version: 0.3.15
   Bugfixes:
-    -  Fixed inventory cleanup not working with turrets
+    - Fixed inventory cleanup not working with turrets
 ---------------------------------------------------------------------------------------------------
 Version: 0.3.14
   Changes:
