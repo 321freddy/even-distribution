@@ -37,6 +37,8 @@ return {
 	["bob-intermediates"]         = 0,
 	["bob-intermediate-products"] = 0,
 	["module-intermediates"]      = 0,
+	["module-intermediates-1"]    = 0,
+	["module-intermediates-2"]    = 0,
 	["bob-robot-parts"]           = 0,
 	["bob-roboport-parts"]        = 0,
 	["bob-gas-bottle"]            = 0,
@@ -68,7 +70,14 @@ return {
 	["angels-casting"]            = 0, --400,
 	["petrochem-refining"]        = 0,
 	["bio-processing"]            = 0,
+	["bio-processing-nauvis"]     = 0,
+	["bio-processing-vegetables"] = 0,
 	["bio-processing-alien"]      = 0,
+	["angels-components"]         = 0,
+	["angels-blocks"]             = 0,
+	["angels-tech"]               = 0,
+	["angels-power"]              = 0,
+	["angels-logistics"]          = 0,
 	
 	-- ANGELS MODS ITEMS
 	["wood-bricks"]               = 0,
@@ -88,10 +97,10 @@ return {
 	-- PYANODONS MODS ITEMS
 	["coke"]                      = 500,
 	
-	-- UNDISTRIAL REVOLUTION GROUPS
+	-- INDUSTRIAL REVOLUTION GROUPS
 	["deadlock-processing"]       = 0,
 	["ingots"]       			  = 400,
 	["deadlock-basics"]           = 200,
 	
-	-- UNDISTRIAL REVOLUTION ITEMS
+	-- INDUSTRIAL REVOLUTION ITEMS
 }
