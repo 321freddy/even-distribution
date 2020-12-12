@@ -175,12 +175,6 @@ this.templates.settingsWindow = {
 				vertically_stretchable = true,
 				vertically_squashable = true,
 			},
-			onCreated = function(self)
-				local player = _(self.gui.player)
-				local resolution = player.display_resolution
-				local scale = player.display_scale
-				self.style.maximal_height = math.min(800, resolution.height / scale)
-			end,
 			children = {
 				{
 					type = "frame",
