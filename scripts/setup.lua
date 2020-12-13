@@ -187,7 +187,7 @@ function setup.generateTrashItemList()
 				if item.fuel_category and not defaultTrash[name] then -- fuels default to 2 stacks as desired amount
 					items[name] = 2 * item.stack_size
 				else
-					items[name] = default
+					items[name] = default * item.stack_size
 				end
 			end
 		end

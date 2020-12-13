@@ -1,23 +1,19 @@
 return {
 	-- VANILLA GROUPS
 	["intermediate-products"]     = 0,
-	["terrain"]                   = 600,
+	["terrain"]                   = 6,
 	
 	--VANILLA ITEMS
-	["iron-plate"]                = 800,
-	["copper-plate"]              = 600,
-	["steel-plate"]               = 600,
-	["stone-brick"]               = 400,
+	["iron-plate"]                = 4,
+	["copper-plate"]              = 4,
+	["steel-plate"]               = 4,
 	-- ["iron-plate"]                = "ignore",
 	-- ["copper-plate"]              = "ignore",
 	-- ["steel-plate"]               = "ignore",
-	["electronic-circuit"]        = "ignore",
-	["advanced-circuit"]          = "ignore",
+	["electronic-circuit"]        = 4,
+	["advanced-circuit"]          = 4,
 	["processing-unit"]           = "ignore",
 	["uranium-235"]               = "ignore",
-	["wood"]                      = "ignore",
-	["rocket-fuel"]               = 40,
-	["nuclear-fuel"]              = "ignore",
 	["artillery-shell"]           = 0,
 	
 	-- BOBS MODS GROUPS
@@ -25,9 +21,9 @@ return {
 	["bob-resource"]              = 0,
 	["bob-resource-products"]     = 0,
 	["bob-gems"]                  = 0,
-	["bob-material"]              = 400,
-	["bob-alloy"]                 = 400,
-	["bob-alien-resource"]        = 400,
+	["bob-material"]               = 4,
+	["bob-alloy"]                  = 4,
+	["bob-alien-resource"]         = 4,
 	["bob-resource-chemical"]     = 0,
 	["bob-boards"]                = 0,
 	["bob-electronic-components"] = 0,
@@ -53,8 +49,8 @@ return {
 	["cellulose-fiber"]           = 0,
 	
 	-- DYTECH GROUPS (UNTESTED)
-	["metallurgy-plates"]         = 400,
-	["metallurgy-alloys"]         = 400,
+	["metallurgy-plates"]          = 4,
+	["metallurgy-alloys"]          = 4,
 	["dytechinter"]               = 0,
 	["ore"]                       = 0,
 	["grinded"]                   = 0,
@@ -67,7 +63,7 @@ return {
 	["water-treatment"]           = 0,
 	["angels-fluid-control"]      = 0,
 	["angels-smelting"]           = 0,
-	["angels-casting"]            = 0, --400,
+	["angels-casting"]            = 0, --4,
 	["petrochem-refining"]        = 0,
 	["bio-processing"]            = 0,
 	["bio-processing-nauvis"]     = 0,
@@ -95,12 +91,21 @@ return {
 	["py-fusion-items"]           = 0,
 	
 	-- PYANODONS MODS ITEMS
-	["coke"]                      = 500,
+	["coke"]                      = 2,
 	
 	-- INDUSTRIAL REVOLUTION GROUPS
 	["deadlock-processing"]       = 0,
-	["ingots"]       			  = 400,
-	["deadlock-basics"]           = 200,
+	--["ingots"]       			   = 4,
+	["deadlock-basics"]            = 2,
 	
 	-- INDUSTRIAL REVOLUTION ITEMS
+	
+	-- SPACE EXPLORATION GROUPS
+	["resources"]                 = 0,
+	["ingots"]       			   = 4,
+	["plates"]                     = 4,
+	["science"]                   = 0,
+	
+	-- SPACE EXPLORATION ITEMS
+	["se-lifesupport-canister"]   = "ignore",
 }
