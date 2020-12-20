@@ -21,6 +21,8 @@ function this.on_tick(event) -- handles distribution events
 					this.balanceItems(player, cache)
 				end
 			end
+
+			this.resetCache(cache)
 		end
 
 		distrEvents[event.tick] = nil
@@ -69,8 +71,6 @@ function this.distributeItems(player, cache)
 		-- player.play_sound{ path = "utility/inventory_move" }
 
 	end)
-		
-	this.resetCache(cache)
 end
 
 function this.balanceItems(player, cache)
@@ -152,8 +152,6 @@ function this.balanceItems(player, cache)
 	if totalItems > 0 then
 		player:returnItems(item, totalItems, takeFromCar, false)
 	end
-		
-	this.resetCache(cache)
 end
 
 function this.on_fast_entity_transfer_hook(event)
@@ -218,9 +216,9 @@ function this.on_player_fast_transferred(event)
 end
 
 function this.onStackTransferred(entity, player, cache) -- handle vanilla drag stack transfer
-	local takeFromInv = player:setting("takeFromInventory")
-	local takeFromCar = player:setting("takeFromCar")
-	local distributionMode    = player:setting("distributionMode")
+	local takeFromInv      = player:setting("takeFromInventory")
+	local takeFromCar      = player:setting("takeFromCar")
+	local distributionMode = player:setting("distributionMode")
 	local item = cache.item
 
 	if not _(entity):isIgnored(player) then
@@ -264,7 +262,7 @@ function this.onStackTransferred(entity, player, cache) -- handle vanilla drag s
 		end
 
 		if collected < cache.cursorStackCount then
-			cursor_stack.set_stack{ name = item, count = cache.collected }
+			cursor_stack.set_stack{ name = item, count = collected }
 		else
 			cursor_stack.set_stack{ name = item, count = cache.cursorStackCount }
 			collected = collected - cache.cursorStackCount
