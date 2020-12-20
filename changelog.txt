@@ -1,4 +1,12 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.2
+  Changes:
+    - Added a default autotrash configuration for Shift+C when starting a new game. Replaces old internal configuration to allow easier customization.
+    - Added Shift+C support for Space Exploration
+    - Improved Shift+C support for Angel's and Bob's mods
+  Bugfixes:
+    - Fixed rare possibility of item loss when distributing ammo
+---------------------------------------------------------------------------------------------------
 Version: 1.0.1
 Date: 2020-11-27
   Bugfixes:
