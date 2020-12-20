@@ -1,5 +1,6 @@
 ---------------------------------------------------------------------------------------------------
 Version: 1.0.2
+Date: 2020-12-20
   Changes:
     - Added a default autotrash configuration for Shift+C when starting a new game. Replaces old internal configuration to allow easier customization.
     - Added Shift+C support for Space Exploration
