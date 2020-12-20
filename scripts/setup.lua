@@ -87,6 +87,48 @@ function setup.setupPlayerGlobalTable(player_index, player)
 	setup.migrateSettings(player)	
 end
 
+local function enablesRobots(tech)
+	local recipes = game.recipe_prototypes
+	local items   = game.item_prototypes
+
+	for __,effect in pairs(tech.effects) do
+		if effect.type == "unlock-recipe" then
+			local recipe = recipes[effect.recipe]
+			for __,product in pairs(recipe.products) do
+				if product.type == "item" then 
+					local entity = items[product.name].place_result
+					if entity and entity.type == "roboport" then
+						return true
+					end
+				end
+			end
+		end
+	end
+
+	return false
+end
+
+local function hasRobotsEnabled(force)
+	for __,tech in pairs(force.technologies) do
+		if tech.researched and enablesRobots(tech) then return true end
+	end
+
+	return false
+end
+
+function setup.on_research_finished(event)
+	if enablesRobots(event.research) then
+		for __,player in pairs(event.research.force.players) do
+			if _(player):is("valid player") then
+				local character = _(player.character or player.cutscene_character)
+				if character:is("valid") then
+					character.character_personal_logistic_requests_enabled = true
+				end
+			end
+		end
+	end
+end
+
 function setup.createPlayerCache(index)
 	global.cache[index] = global.cache[index] or {}
 	global.cache[index].items = global.cache[index].items or {}
@@ -99,6 +141,7 @@ end
 function setup.migrateSettings(player)
 	local settings = global.settings[player.index] or {}
 	global.settings[player.index] = settings
+	local character = _(player.character or player.cutscene_character)
 
 	-- default values
 	if settings.distributionMode == nil                     then settings.distributionMode = "distribute" end
@@ -136,18 +179,18 @@ function setup.migrateSettings(player)
 
 		-- move custom trash to logistic slots
 		if settings.customTrash and 
-		   player:has("valid", "character") and 
-		   player.character_personal_logistic_requests_enabled then
+		   character:is("valid") and 
+		   character.character_personal_logistic_requests_enabled then
 
-			local slotCount = player.character.request_slot_count
-			local slots = _(player.character):logisticSlots()
+			local slotCount = character.request_slot_count
+			local slots = character:logisticSlots()
 			
 			_(settings.customTrash)
-				:where(function(item,count)
-							return slots[item] == nil and global.defaultTrash[item] ~= count
+				:wherepair(function(item) -- {item,count}
+							return slots[item[1]] == nil and global.defaultTrash[item[1]] ~= item[2]
 						end, 
 						function(item,count)
-							player.set_personal_logistic_slot(slotCount + 2, {
+							character.set_personal_logistic_slot(slotCount + 2, {
 								name = item,
 								min = 0,
 								max = count,
@@ -159,6 +202,51 @@ function setup.migrateSettings(player)
 		end
 
 		dlog("Player ("..player.name..") settings migrated from none to 1.0.0")
+	end
+
+	-- Add default logistic slot configuration
+	if settings.version == "1.0.0" then
+		settings.version = "1.0.2"
+
+		if character:is("valid") and
+		   character.character_personal_logistic_requests_enabled then
+
+			local slotCount = character.request_slot_count
+			local slots = character:logisticSlots()
+			
+			_({
+				["wood"]               = 1,
+				["coal"]               = 0,
+				["stone"]              = 1,
+				["iron-plate"]         = 4,
+				["copper-plate"]       = 4,
+				["steel-plate"]        = 4,
+				["electronic-circuit"] = 2,
+				["advanced-circuit"]   = 2,
+			})
+				:wherepair(function(item) -- {item,count}
+					dlog(item,game.item_prototypes[item[1]])
+							return slots[item[1]] == nil and 
+								   global.defaultTrash[item[1]] ~= item[2] and
+								   game.item_prototypes[item[1]]
+						end, 
+						function(item,count)
+							character.set_personal_logistic_slot(slotCount + 1, {
+								name = item,
+								min = 0,
+								max = count * game.item_prototypes[item].stack_size,
+							})
+							slotCount = slotCount + 1
+						end)
+
+			settings.customTrash = nil
+		end
+
+		if not hasRobotsEnabled(character.force) then
+			character.character_personal_logistic_requests_enabled = false
+		end
+
+		dlog("Player ("..player.name..") settings migrated from 1.0.0 to 1.0.2")
 	end
 	--if settings.version == "0.3.x" then
 		-- ...

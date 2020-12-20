@@ -1,17 +1,8 @@
 return {
 	-- VANILLA GROUPS
 	["intermediate-products"]     = 0,
-	["terrain"]                   = 6,
 	
 	--VANILLA ITEMS
-	["iron-plate"]                = 4,
-	["copper-plate"]              = 4,
-	["steel-plate"]               = 4,
-	-- ["iron-plate"]                = "ignore",
-	-- ["copper-plate"]              = "ignore",
-	-- ["steel-plate"]               = "ignore",
-	["electronic-circuit"]        = 4,
-	["advanced-circuit"]          = 4,
 	["processing-unit"]           = "ignore",
 	["uranium-235"]               = "ignore",
 	["artillery-shell"]           = 0,
@@ -21,9 +12,9 @@ return {
 	["bob-resource"]              = 0,
 	["bob-resource-products"]     = 0,
 	["bob-gems"]                  = 0,
-	["bob-material"]               = 4,
-	["bob-alloy"]                  = 4,
-	["bob-alien-resource"]         = 4,
+	["bob-material"]              = 0, -- 4,
+	["bob-alloy"]                 = 0, -- 4,
+	["bob-alien-resource"]        = 0, -- 4,
 	["bob-resource-chemical"]     = 0,
 	["bob-boards"]                = 0,
 	["bob-electronic-components"] = 0,
@@ -49,8 +40,8 @@ return {
 	["cellulose-fiber"]           = 0,
 	
 	-- DYTECH GROUPS (UNTESTED)
-	["metallurgy-plates"]          = 4,
-	["metallurgy-alloys"]          = 4,
+	["metallurgy-plates"]         = 0, -- 4,
+	["metallurgy-alloys"]         = 0, -- 4,
 	["dytechinter"]               = 0,
 	["ore"]                       = 0,
 	["grinded"]                   = 0,
@@ -63,7 +54,7 @@ return {
 	["water-treatment"]           = 0,
 	["angels-fluid-control"]      = 0,
 	["angels-smelting"]           = 0,
-	["angels-casting"]            = 0, --4,
+	["angels-casting"]            = 0, -- 4,
 	["petrochem-refining"]        = 0,
 	["bio-processing"]            = 0,
 	["bio-processing-nauvis"]     = 0,
@@ -91,19 +82,17 @@ return {
 	["py-fusion-items"]           = 0,
 	
 	-- PYANODONS MODS ITEMS
-	["coke"]                      = 2,
 	
 	-- INDUSTRIAL REVOLUTION GROUPS
 	["deadlock-processing"]       = 0,
-	--["ingots"]       			   = 4,
-	["deadlock-basics"]            = 2,
+	["deadlock-basics"]           = 0, -- 2,
 	
 	-- INDUSTRIAL REVOLUTION ITEMS
 	
 	-- SPACE EXPLORATION GROUPS
 	["resources"]                 = 0,
-	["ingots"]       			   = 4,
-	["plates"]                     = 4,
+	["ingots"]       			  = 0, -- 4,
+	["plates"]                    = 0, -- 4,
 	["science"]                   = 0,
 	
 	-- SPACE EXPLORATION ITEMS

@@ -301,7 +301,66 @@ function this:unlesskey(...) -- wherenot
     end
 end
 
+function this:wherepair(...)
+    local args = {...}
+    local func = args[#args]
+    local obj = rawget(self, "__on")
+    local iter = metatables.uses(obj, "entityAsIndex") and util.epairs or pairs
 
+    -- user passed anonymouse iterator function to where() directly (as last argument)
+    if #args > 1 and type(func) == "function" then
+        args[#args] = nil
+
+        for k,v in iter(obj) do
+            if _({k,v}):is(unpack(args)) then
+                func(k, v)
+            end 
+        end
+
+        return self
+
+    else  -- or only filter out results and return table
+        local result = {}
+            
+        for k,v in iter(obj) do
+            if _({k,v}):is(...) then
+                result[k] = v
+            end
+        end
+
+        return _(result)
+    end
+end
+
+function this:unlesspair(...) -- wherenot
+    local args = {...}
+    local func = args[#args]
+    local obj = rawget(self, "__on")
+    local iter = metatables.uses(obj, "entityAsIndex") and util.epairs or pairs
+
+    if #args > 1 and type(func) == "function" then -- if user passed anonymouse function to where() directly (as last argument)
+        args[#args] = nil
+
+        for k,v in iter(obj) do
+            if _({k,v}):isnot(unpack(args)) then
+                func(k, v)
+            end 
+        end
+
+        return self
+
+    else  -- else only filter out results
+        local result = {}
+            
+        for k,v in iter(obj) do
+            if _({k,v}):isnot(...) then
+                result[k] = v
+            end
+        end
+
+        return _(result)
+    end
+end
 
 function this:wherehas(condition, ...)
     local args = {...}
