@@ -86,8 +86,7 @@ end
 function setup.setupPlayer(player_index, player)
 	player = _(player or game.players[player_index])
 	setup.createPlayerCache(player_index)
-	setup.migrateSettings(player)	
-	setup.addDefaultLogisticSlots(player)		
+	setup.migrateSettings(player)			
 end
 
 function setup.createPlayerCache(index)
@@ -179,6 +178,8 @@ function setup.migrateSettings(player)
 		end
 		settings.dropTrashTFueloChests = nil
 
+		setup.addDefaultLogisticSlots(player)
+
 		dlog("Player ("..player.name..") settings migrated from 1.0.2 to 1.0.3")
 	end
 
@@ -191,15 +192,15 @@ end
 function setup.on_chunk_charted(event)
 	local force          = event.force
 	local lastCharts     = global.lastCharts
-	local lastChart      = lastCharts[force.name]
+	local lastChart      = lastCharts[force.index]
 	local lastCharacters = global.lastCharacters
 
 	if lastChart == nil or lastChart ~= event.tick  then
-		lastCharts[force.name] = event.tick
+		lastCharts[force.index] = event.tick
 
 		for __,player in pairs(force.players) do
 			local character = _(player.character or player.cutscene_character)
-			if character:is("valid") and lastCharacters[player.name] ~= character:toPlain() then
+			if character:is("valid") and lastCharacters[player.index] ~= character:toPlain() then
 				local slots = character:logisticSlots()
 				if _(slots):is("empty") then
 					dlog("slots empty")
@@ -210,13 +211,18 @@ function setup.on_chunk_charted(event)
 	end
 end
 
+function setup.on_player_respawned(event)
+	local player = game.players[event.player_index]
+	global.lastCharacters[event.player_index] = player.character or player.cutscene_character
+end
+
 function setup.addDefaultLogisticSlots(player, character, slots)
 	if character == nil then 
 		character = _(player.character or player.cutscene_character)
 		if character:isnot("valid") then return end
 	end
 	
-	global.lastCharacters[player.name] = character:toPlain()
+	global.lastCharacters[player.index] = character:toPlain()
 
 	local slotCount = character.request_slot_count
 	slots = slots or character:logisticSlots()
