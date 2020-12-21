@@ -203,7 +203,6 @@ function setup.on_chunk_charted(event)
 			if character:is("valid") and lastCharacters[player.index] ~= character:toPlain() then
 				local slots = character:logisticSlots()
 				if _(slots):is("empty") then
-					dlog("slots empty")
 					setup.addDefaultLogisticSlots(player, character, slots)
 				end
 			end
