@@ -40,6 +40,35 @@ function util.isCraftingMachine(entity)
 	return entity.type == "furnace" or entity.type == "assembling-machine" or entity.type == "rocket-silo"
 end
 
+function util.enablesRobots(tech)
+	local recipes = game.recipe_prototypes
+	local items   = game.item_prototypes
+
+	for __,effect in pairs(tech.effects) do
+		if effect.type == "unlock-recipe" then
+			local recipe = recipes[effect.recipe]
+			for __,product in pairs(recipe.products) do
+				if product.type == "item" then 
+					local entity = items[product.name].place_result
+					if entity and entity.type == "roboport" then
+						return true
+					end
+				end
+			end
+		end
+	end
+
+	return false
+end
+
+function util.hasRobotsEnabled(force)
+	for __,tech in pairs(force.technologies) do
+		if tech.researched and util.enablesRobots(tech) then return true end
+	end
+
+	return false
+end
+
 function util.shallowCopy(original) -- Creates a shallow copy of a table
     local copy = {}
     for key,value in pairs(original) do copy[key] = value  end

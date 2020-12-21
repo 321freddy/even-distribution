@@ -14,6 +14,8 @@ function setup.on_init()
 	global.distrEvents = global.distrEvents or {}
 	global.settings = global.settings or {}
 	global.defaultTrash = setup.generateTrashItemList()
+	global.lastCharts = {}
+	global.lastCharacters = {}
 
 	global.allowedEntities = _(game.entity_prototypes)
 								:where(function(prototype)
@@ -71,62 +73,21 @@ function setup.on_init()
 	end
 
 	for player_index,player in pairs(game.players) do
-		setup.setupPlayerGlobalTable(player_index, player)
+		setup.setupPlayer(player_index, player)
 	end
 end
 
 setup.on_configuration_changed = setup.on_init
 
 function setup.on_player_created(event)
-	setup.setupPlayerGlobalTable(event.player_index)
+	setup.setupPlayer(event.player_index)
 end
 
-function setup.setupPlayerGlobalTable(player_index, player)
+function setup.setupPlayer(player_index, player)
 	player = _(player or game.players[player_index])
 	setup.createPlayerCache(player_index)
 	setup.migrateSettings(player)	
-end
-
-local function enablesRobots(tech)
-	local recipes = game.recipe_prototypes
-	local items   = game.item_prototypes
-
-	for __,effect in pairs(tech.effects) do
-		if effect.type == "unlock-recipe" then
-			local recipe = recipes[effect.recipe]
-			for __,product in pairs(recipe.products) do
-				if product.type == "item" then 
-					local entity = items[product.name].place_result
-					if entity and entity.type == "roboport" then
-						return true
-					end
-				end
-			end
-		end
-	end
-
-	return false
-end
-
-local function hasRobotsEnabled(force)
-	for __,tech in pairs(force.technologies) do
-		if tech.researched and enablesRobots(tech) then return true end
-	end
-
-	return false
-end
-
-function setup.on_research_finished(event)
-	if enablesRobots(event.research) then
-		for __,player in pairs(event.research.force.players) do
-			if _(player):is("valid player") then
-				local character = _(player.character or player.cutscene_character)
-				if character:is("valid") then
-					character.character_personal_logistic_requests_enabled = true
-				end
-			end
-		end
-	end
+	setup.addDefaultLogisticSlots(player)		
 end
 
 function setup.createPlayerCache(index)
@@ -144,7 +105,7 @@ function setup.migrateSettings(player)
 	local character = _(player.character or player.cutscene_character)
 
 	-- default values
-	if settings.distributionMode == nil                     then settings.distributionMode = "distribute" end
+	if settings.distributionMode == nil             then settings.distributionMode = "distribute" end
 	if settings.fuelLimit == nil             		then settings.fuelLimit = 0.5 end
 	if settings.fuelLimitType == nil         		then settings.fuelLimitType = "stacks" end
 	if settings.ammoLimit == nil             		then settings.ammoLimit = 0.5 end
@@ -160,7 +121,7 @@ function setup.migrateSettings(player)
 
 	if settings.enableInventoryCleanupHotkey == nil then settings.enableInventoryCleanupHotkey = true end
 	if settings.cleanupRequestOverflow == nil       then settings.cleanupRequestOverflow = true end
-	if settings.dropTrashToChests == nil       		then settings.dropTrashTFueloChests = true end
+	if settings.dropTrashToChests == nil       		then settings.dropTrashToChests = true end
 	if settings.cleanupUseFuelLimit == nil       	then settings.cleanupUseFuelLimit = true end
 	if settings.cleanupUseAmmoLimit == nil       	then settings.cleanupUseAmmoLimit = true end
 	if settings.cleanupDropRange == nil       		then settings.cleanupDropRange = 30 end
@@ -178,19 +139,18 @@ function setup.migrateSettings(player)
 		settings.cleanupDropRange       = player.mod_settings["max-inventory-cleanup-drop-range"].value
 
 		-- move custom trash to logistic slots
-		if settings.customTrash and 
-		   character:is("valid") and 
-		   character.character_personal_logistic_requests_enabled then
+		if settings.customTrash and character:is("valid") then
 
 			local slotCount = character.request_slot_count
 			local slots = character:logisticSlots()
+			if _(slots):is("empty") then slotCount = 0 end
 			
 			_(settings.customTrash)
 				:wherepair(function(item) -- {item,count}
 							return slots[item[1]] == nil and global.defaultTrash[item[1]] ~= item[2]
 						end, 
 						function(item,count)
-							character.set_personal_logistic_slot(slotCount + 2, {
+							character.set_personal_logistic_slot(slotCount + 1, {
 								name = item,
 								min = 0,
 								max = count,
@@ -208,49 +168,103 @@ function setup.migrateSettings(player)
 	if settings.version == "1.0.0" then
 		settings.version = "1.0.2"
 
-		if character:is("valid") and
-		   character.character_personal_logistic_requests_enabled then
-
-			local slotCount = character.request_slot_count
-			local slots = character:logisticSlots()
-			
-			_({
-				["wood"]               = 1,
-				["coal"]               = 0,
-				["stone"]              = 1,
-				["iron-plate"]         = 4,
-				["copper-plate"]       = 4,
-				["steel-plate"]        = 4,
-				["electronic-circuit"] = 2,
-				["advanced-circuit"]   = 2,
-			})
-				:wherepair(function(item) -- {item,count}
-					dlog(item,game.item_prototypes[item[1]])
-							return slots[item[1]] == nil and 
-								   global.defaultTrash[item[1]] ~= item[2] and
-								   game.item_prototypes[item[1]]
-						end, 
-						function(item,count)
-							character.set_personal_logistic_slot(slotCount + 1, {
-								name = item,
-								min = 0,
-								max = count * game.item_prototypes[item].stack_size,
-							})
-							slotCount = slotCount + 1
-						end)
-
-			settings.customTrash = nil
-		end
-
-		if not hasRobotsEnabled(character.force) then
-			character.character_personal_logistic_requests_enabled = false
-		end
-
 		dlog("Player ("..player.name..") settings migrated from 1.0.0 to 1.0.2")
 	end
+
+	if settings.version == "1.0.2" then
+		settings.version = "1.0.3"
+
+		if settings.dropTrashToChests == nil then 
+			settings.dropTrashToChests = settings.dropTrashTFueloChests
+		end
+		settings.dropTrashTFueloChests = nil
+
+		dlog("Player ("..player.name..") settings migrated from 1.0.2 to 1.0.3")
+	end
+
 	--if settings.version == "0.3.x" then
 		-- ...
 	-- end
+end
+
+-- Detects when player gets new character assigned (hacky but works)
+function setup.on_chunk_charted(event)
+	local force          = event.force
+	local lastCharts     = global.lastCharts
+	local lastChart      = lastCharts[force.name]
+	local lastCharacters = global.lastCharacters
+
+	if lastChart == nil or lastChart ~= event.tick  then
+		lastCharts[force.name] = event.tick
+
+		for __,player in pairs(force.players) do
+			local character = _(player.character or player.cutscene_character)
+			if character:is("valid") and lastCharacters[player.name] ~= character:toPlain() then
+				local slots = character:logisticSlots()
+				if _(slots):is("empty") then
+					dlog("slots empty")
+					setup.addDefaultLogisticSlots(player, character, slots)
+				end
+			end
+		end
+	end
+end
+
+function setup.addDefaultLogisticSlots(player, character, slots)
+	if character == nil then 
+		character = _(player.character or player.cutscene_character)
+		if character:isnot("valid") then return end
+	end
+	
+	global.lastCharacters[player.name] = character:toPlain()
+
+	local slotCount = character.request_slot_count
+	slots = slots or character:logisticSlots()
+	if _(slots):is("empty") then slotCount = 0 end
+	
+	_({
+		["wood"]               = 1,
+		["coal"]               = 0,
+		["stone"]              = 1,
+		["iron-plate"]         = 4,
+		["copper-plate"]       = 4,
+		["steel-plate"]        = 4,
+		["electronic-circuit"] = 2,
+		["advanced-circuit"]   = 2,
+	})
+		:wherepair(
+			function(item) -- {item,count}
+				return slots[item[1]] == nil and 
+						global.defaultTrash[item[1]] ~= item[2] and
+						game.item_prototypes[item[1]]
+			end, 
+			function(item,count)
+				character.set_personal_logistic_slot(slotCount + 1, {
+					name = item,
+					min = 0,
+					max = count * game.item_prototypes[item].stack_size,
+				})
+				slotCount = slotCount + 1
+			end)
+
+	settings.customTrash = nil
+
+	if not util.hasRobotsEnabled(character.force) then
+		character.character_personal_logistic_requests_enabled = false
+	end
+end
+
+function setup.on_research_finished(event)
+	if util.enablesRobots(event.research) then
+		for __,player in pairs(event.research.force.players) do
+			if _(player):is("valid player") then
+				local character = _(player.character or player.cutscene_character)
+				if character:is("valid") then
+					character.character_personal_logistic_requests_enabled = true
+				end
+			end
+		end
+	end
 end
 
 function setup.on_force_created(event)

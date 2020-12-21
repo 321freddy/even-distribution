@@ -12,13 +12,13 @@ function player:setting(name)
 	end
 
 	local setting = global.settings[self.index][name]
-	if setting == nil then return self.mod_settings[name].value end
+	if setting == nil and self.mod_settings[name] then return self.mod_settings[name].value end
 	return setting
 end
 
 function player:changeSetting(name, newValue)
 	local setting = global.settings[self.index]
-	if setting[name] == nil then 
+	if setting[name] == nil and self.mod_settings[name] then 
 		self.mod_settings[name] = { value = newValue } 
 	else
 		setting[name] = newValue
