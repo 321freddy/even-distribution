@@ -3,6 +3,7 @@ Version: 1.0.4
 Date: 2020-12-28
   Changes:
     - Ctrl+Click Drag no longer distributes to ineligible entities
+    - Ctrl+Click Drag now prevents accidental distribution to spidertron (or other vehicles)
     - Added option for Shift+C to drop items to machine output slots
     - Removed the need to spam Shift+C to distribute all items
   Bugfixes:
