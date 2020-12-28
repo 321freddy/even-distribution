@@ -218,8 +218,11 @@ function this.onStackTransferred(entity, player, cache) -- handle vanilla drag s
 	local takeFromCar      = player:setting("takeFromCar")
 	local distributionMode = player:setting("distributionMode")
 	local item = cache.item
+	local first = #cache.entities > 0 and util.epairs(cache.entities)() or nil
 
-	if not _(entity):isIgnored(player) and this.isEntityEligible(entity, item) then
+	if not _(entity):isIgnored(player) and this.isEntityEligible(entity, item) and 
+	   (first == nil or ((first.type == "car" or  first.type == "spider-vehicle") and (entity.type == "car" or  entity.type == "spider-vehicle"))
+	   				 or ((first.type ~= "car" and first.type ~= "spider-vehicle") and (entity.type ~= "car" and entity.type ~= "spider-vehicle"))) then
 	
 		local distrEvents = global.distrEvents -- register new distribution event
 		if cache.applyTick and distrEvents[cache.applyTick] then distrEvents[cache.applyTick][player.index] = nil end
