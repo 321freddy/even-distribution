@@ -109,6 +109,7 @@ function control:customInsert(player, item, amount, takenFromCar, takenFromTrash
         fuel     = true, -- set default values
         ammo     = true,
         input    = true,
+        output   = true,
         modules  = true,
         roboport = true,
         main     = true,

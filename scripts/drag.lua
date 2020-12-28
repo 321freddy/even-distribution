@@ -54,6 +54,7 @@ function this.distributeItems(player, cache)
 				itemsInserted = entity:customInsert(player, item, takenFromPlayer, takeFromCar, false, replaceItems, useFuelLimit, useAmmoLimit, false, {
 					-- if modules are recipe ingredients, dont put into module slots
 					-- modules = not entity:is("crafting machine") or not _(entity.get_recipe()):hasIngredient(item),
+					output = false,
 				})
 
 				local failedToInsert = takenFromPlayer - itemsInserted
@@ -122,6 +123,7 @@ function this.balanceItems(player, cache)
 				local itemsInserted = entity:customInsert(player, item, amount, takeFromCar, false, replaceItems, useFuelLimit, useAmmoLimit, false, {
 					-- if modules are recipe ingredients, dont put into module slots
 					-- modules = not entity:is("crafting machine") or not _(entity.get_recipe()):hasIngredient(item),
+					output = false,
 				})
 
 				itemCount.current = itemCount.current + itemsInserted

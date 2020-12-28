@@ -13,11 +13,25 @@ function recipe:ingredientcount(item) -- get count of a specific item in recipe 
 	return 0
 end
 
+function recipe:productcount(item) -- get count of a specific item in recipe products
+    if self:is("valid") then
+		for __,product in pairs(self.products) do
+			if product.name == item then return product.amount end
+		end
+    end
+    
+	return 0
+end
+
 function recipe:hasIngredient(item)
     return self:ingredientcount(item) > 0
 end
 
-function recipe:ingredientmap() -- ingredient table: name --> amount
+function recipe:hasProduct(item)
+    return self:ingredientcount(item) > 0
+end
+
+function recipe:ingredientmap() -- ingredient table: item name --> amount
 	local ingredients = {}
     
     if self:is("valid") then
@@ -27,4 +41,16 @@ function recipe:ingredientmap() -- ingredient table: name --> amount
 	end
 	
 	return ingredients
+end
+
+function recipe:productmap() -- product table: item name --> amount
+	local products = {}
+    
+    if self:is("valid") then
+        for __,product in pairs(self.products) do
+            if product.type == "item" then products[product.name] = product.amount end
+        end
+	end
+	
+	return products
 end

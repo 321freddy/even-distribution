@@ -121,6 +121,7 @@ function setup.migrateSettings(player)
 	if settings.enableInventoryCleanupHotkey == nil then settings.enableInventoryCleanupHotkey = true end
 	if settings.cleanupRequestOverflow == nil       then settings.cleanupRequestOverflow = true end
 	if settings.dropTrashToChests == nil       		then settings.dropTrashToChests = true end
+	if settings.dropTrashToOutput == nil       		then settings.dropTrashToOutput = true end
 	if settings.cleanupUseFuelLimit == nil       	then settings.cleanupUseFuelLimit = true end
 	if settings.cleanupUseAmmoLimit == nil       	then settings.cleanupUseAmmoLimit = true end
 	if settings.cleanupDropRange == nil       		then settings.cleanupDropRange = 30 end

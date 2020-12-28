@@ -692,6 +692,20 @@ this.templates.settingsWindow = {
 										player:changeSetting("dropTrashToChests", self.state)
 									end,
 								},
+								{
+									type = "checkbox",
+									name = "drop_trash_to_output",
+									caption = {"settings-gui.drop-trash-to-output"},
+									state = true,
+									onCreated = function(self)
+										local player = _(self.gui.player)
+										self.state = player:setting("dropTrashToOutput")
+									end,
+									onChanged = function(self, event)
+										local player = _(self.gui.player)
+										player:changeSetting("dropTrashToOutput", self.state)
+									end,
+								},
 							}
 						},
 					}

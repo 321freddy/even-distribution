@@ -15,20 +15,21 @@ function this.on_inventory_cleanup(event)
 	local area     = _(player.position):perimeter(player:droprange())
 	local entities = _(this.getEntities(area, player))  ; if entities:is("empty") then return end
 	local dropToChests = player:setting("dropTrashToChests")
+	local dropToOutput = player:setting("dropTrashToOutput")
 
 	if player:setting("distributionMode") == "distribute" then
-		this.distributeItems(player, entities, items, dropToChests)
+		this.distributeItems(player, entities, items, dropToChests, dropToOutput)
 	else
-		this.balanceItems(player, entities, items, dropToChests)
+		this.balanceItems(player, entities, items, dropToChests, dropToOutput)
 	end
 end
 
-function this.distributeItems(player, entities, items, dropToChests)
+function this.distributeItems(player, entities, items, dropToChests, dropToOutput)
 	local offY, marked = 0, metatables.new("entityAsIndex")
 	
 	items:each(function(item, totalItems)
 
-		local entitiesToProcess = this.filterEntities(entities, item, dropToChests)
+		local entitiesToProcess = this.filterEntities(entities, item, dropToChests, dropToOutput)
 		
 		if #entitiesToProcess > 0 then
 
@@ -57,12 +58,12 @@ function this.distributeItems(player, entities, items, dropToChests)
 	end)
 end
 
-function this.balanceItems(player, entities, items, dropToChests)
+function this.balanceItems(player, entities, items, dropToChests, dropToOutput)
 	local offY, marked = 0, metatables.new("entityAsIndex")
 
 	items:each(function(item, totalItems)
 
-		local entitiesToProcess = this.filterEntities(entities, item, dropToChests)
+		local entitiesToProcess = this.filterEntities(entities, item, dropToChests, dropToOutput)
 
 		if #entitiesToProcess > 0 then
 			local itemCounts = metatables.new("entityAsIndex")
@@ -148,12 +149,25 @@ function this.insert(player, entity, item, amount)
 
 	local useFuelLimit = player:setting("cleanupUseFuelLimit")
 	local useAmmoLimit = player:setting("cleanupUseAmmoLimit")
+	local dropToOutput = player:setting("dropTrashToOutput")
 	if entity.type == "furnace" and not (entity.get_recipe() or entity.previous_recipe) then
 		return entity:customInsert(player, item, amount, false, true, false, useFuelLimit, useAmmoLimit, false, {
 			fuel     = true,
 			ammo     = false,
 			input    = false,
+			output   = false,
 			modules  = false,
+			roboport = false,
+			main     = false,
+		})
+
+	elseif entity.type == "furnace" or entity.type == "assembling-machine" then
+		return entity:customInsert(player, item, amount, false, true, false, useFuelLimit, useAmmoLimit, false, {
+			fuel     = true,
+			ammo     = false,
+			input    = true,
+			output   = true,
+			modules  = true,
 			roboport = false,
 			main     = false,
 		})
@@ -163,6 +177,7 @@ function this.insert(player, entity, item, amount)
 			fuel     = false,
 			ammo     = false,
 			input    = false,
+			output   = false,
 			modules  = false,
 			roboport = false,
 			main     = true,
@@ -173,6 +188,7 @@ function this.insert(player, entity, item, amount)
 			fuel     = true,
 			ammo     = true,
 			input    = false,
+			output   = false,
 			modules  = false,
 			roboport = false,
 			main     = true,
@@ -183,6 +199,7 @@ function this.insert(player, entity, item, amount)
 			fuel     = true,
 			ammo     = true,
 			input    = false,
+			output   = false,
 			modules  = false,
 			roboport = false,
 			main     = false,
@@ -194,13 +211,14 @@ function this.insert(player, entity, item, amount)
 		fuel     = true,
 		ammo     = true,
 		input    = true,
+		output   = false,
 		modules  = false,
 		roboport = true,
 		main     = true,
 	}) 
 end
 
-function this.filterEntities(entities, item, dropToChests)
+function this.filterEntities(entities, item, dropToChests, dropToOutput)
 	local result = metatables.new("entityAsIndex")
 	local prototype = game.item_prototypes[item]
 	
@@ -211,6 +229,8 @@ function this.filterEntities(entities, item, dropToChests)
 			if entity.burner and entity.burner.fuel_categories[prototype.fuel_category] and entity:inventory("fuel").can_insert(item) then
 				result[entity] = entity
 			elseif entity:is("crafting machine") and _(entity.get_recipe() or (entity.type == "furnace" and entity.previous_recipe)):hasIngredient(item) then
+				result[entity] = entity
+			elseif dropToOutput and (entity.type == "furnace" or entity.type == "assembling-machine") and _(entity.get_recipe() or (entity.type == "furnace" and entity.previous_recipe)):hasProduct(item) then
 				result[entity] = entity
 			elseif (entity.prototype.logistic_mode == "requester" or (entity.type == "spider-vehicle" and entity.get_logistic_point(defines.logistic_member_index.character_requester))) and entity:remainingRequest(item) > 0 then
 				result[entity] = entity
