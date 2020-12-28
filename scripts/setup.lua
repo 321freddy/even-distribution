@@ -178,7 +178,10 @@ function setup.migrateSettings(player)
 		end
 		settings.dropTrashTFueloChests = nil
 
-		setup.addDefaultLogisticSlots(player)
+		global.lastCharacters[player.index] = character:toPlain()
+		if character:is("valid") then 
+			setup.addDefaultLogisticSlots(player, character, character:logisticSlots())
+		end
 
 		dlog("Player ("..player.name..") settings migrated from 1.0.2 to 1.0.3")
 	end
@@ -199,13 +202,19 @@ function setup.on_chunk_charted(event)
 		lastCharts[force.index] = event.tick
 
 		for __,player in pairs(force.players) do
+			player = _(player)
 			local character = _(player.character or player.cutscene_character)
-			if character:is("valid") and lastCharacters[player.index] ~= character:toPlain() then
+			-- dlog("char",lastCharacters[player.index],character:toPlain(), "same:",lastCharacters[player.index] == character:toPlain())
+
+			if player:is("valid player") and player:setting("enableInventoryCleanupHotkey") and
+			   character:is("valid") and lastCharacters[player.index] ~= character:toPlain() then
+				
 				local slots = character:logisticSlots()
 				if _(slots):is("empty") then
 					setup.addDefaultLogisticSlots(player, character, slots)
 				end
 			end
+			global.lastCharacters[player.index] = character:toPlain()
 		end
 	end
 end
@@ -216,15 +225,7 @@ function setup.on_player_respawned(event)
 end
 
 function setup.addDefaultLogisticSlots(player, character, slots)
-	if character == nil then 
-		character = _(player.character or player.cutscene_character)
-		if character:isnot("valid") then return end
-	end
-	
-	global.lastCharacters[player.index] = character:toPlain()
-
 	local slotCount = character.request_slot_count
-	slots = slots or character:logisticSlots()
 	if _(slots):is("empty") then slotCount = 0 end
 	
 	_({
