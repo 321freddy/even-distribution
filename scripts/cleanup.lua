@@ -199,13 +199,13 @@ function this.insert(player, entity, item, amount)
 			main     = false,
 		})
 
-	elseif entity.type == "furnace" or entity.type == "assembling-machine" then
+	elseif entity:is("crafting machine") then
 		return entity:customInsert(player, item, amount, false, true, false, useFuelLimit, useAmmoLimit, false, {
 			fuel     = true,
 			ammo     = false,
 			input    = true,
 			output   = dropToOutput,
-			modules  = true,
+			modules  = false,
 			roboport = false,
 			main     = false,
 		})
