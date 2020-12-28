@@ -204,7 +204,7 @@ function this.insert(player, entity, item, amount)
 			fuel     = true,
 			ammo     = false,
 			input    = true,
-			output   = dropToOutput,
+			output   = dropToOutput and entity.type ~= "rocket-silo",
 			modules  = false,
 			roboport = false,
 			main     = false,

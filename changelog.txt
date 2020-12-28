@@ -1,4 +1,12 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.4
+  Changes:
+    - Ctrl+Click Drag no longer distributes to ineligible entities
+    - Added option for Shift+C to drop items to machine output slots
+    - Removed the need to spam Shift+C to distribute all items
+  Bugfixes:
+    - Fixed Shift+C not distributing ammo to artillery
+---------------------------------------------------------------------------------------------------
 Version: 1.0.3
 Date: 2020-12-21
   Bugfixes:
