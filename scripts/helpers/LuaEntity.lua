@@ -71,3 +71,13 @@ function entity:supportsAmmo(item)
 
 	return false
 end
+
+-- for furnace
+function entity:canSmelt(item)
+	return #game.get_filtered_recipe_prototypes({
+		unpack(_(self.prototype.crafting_categories):map(function(category)
+			return nil, {filter = "category", category = category, mode = "or"}
+		end):toPlain()),
+		{filter = "has-ingredient-item", elem_filters = {{filter = "name", name = item}}, mode = "and"},
+	}) > 0
+end

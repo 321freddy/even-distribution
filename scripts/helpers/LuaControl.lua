@@ -196,6 +196,7 @@ function control:customInsert(player, item, amount, takenFromCar, takenFromTrash
         local insertedHere = insert(self, "input", item, amount)
         inserted = inserted + insertedHere
         amount = amount - insertedHere
+        if insertedHere > 0 then allowed.main = false end
 	end
     
     if amount <= 0 then return inserted end
@@ -210,6 +211,7 @@ function control:customInsert(player, item, amount, takenFromCar, takenFromTrash
         local insertedHere = insert(self, "modules", item, amount)
         inserted = inserted + insertedHere
         amount = amount - insertedHere
+        if insertedHere > 0 then allowed.main = false end
     end
 
     if allowed.roboport and self.type == "roboport" then

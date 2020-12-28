@@ -204,10 +204,6 @@ function this.on_player_fast_transferred(event)
 					itemCount        = selected:itemcount(cache.selectedEvent.item) - cache.selectedEvent.itemCount,
 					cursorStackCount = cache.selectedEvent.cursorStackCount,
 				}
-				
-				if cache.itemCount == 0 then
-					player.play_sound{ path = "utility/inventory_move" }
-				end
 
 				this.onStackTransferred(selected, player, cache) -- handle stack transfer
 			end
@@ -223,7 +219,7 @@ function this.onStackTransferred(entity, player, cache) -- handle vanilla drag s
 	local distributionMode = player:setting("distributionMode")
 	local item = cache.item
 
-	if not _(entity):isIgnored(player) then
+	if not _(entity):isIgnored(player) and this.isEntityEligible(entity, item) then
 	
 		local distrEvents = global.distrEvents -- register new distribution event
 		if cache.applyTick and distrEvents[cache.applyTick] then distrEvents[cache.applyTick][player.index] = nil end
@@ -237,6 +233,10 @@ function this.onStackTransferred(entity, player, cache) -- handle vanilla drag s
 		if not cache.entities[entity] then
 			cache.markers[entity] = entity:mark(player, item)
 			cache.entities[entity] = entity
+		end
+
+		if cache.itemCount == 0 then
+			player.play_sound{ path = "utility/inventory_move" }
 		end
 	end
 
@@ -297,6 +297,35 @@ function this.onStackTransferred(entity, player, cache) -- handle vanilla drag s
 	end)
 	
 	entity:destroyTransferText()
+end
+
+function this.isEntityEligible(entity, item)
+	local prototype = game.item_prototypes[item]
+	entity = _(entity)
+	
+	if entity.can_insert(item) then
+		return true
+	elseif entity.burner and entity.burner.fuel_categories[prototype.fuel_category] then
+		return true
+	elseif entity:is("crafting machine") and (entity.get_recipe() and _(entity.get_recipe()):hasIngredient(item)) then
+		return true
+	elseif entity.type == "furnace" and not entity.get_recipe() and entity:canSmelt(item) then
+		return true
+	elseif entity.type == "rocket-silo" then
+		return true
+	elseif entity.type == "lab" and entity:inventory("lab_input").can_insert(item) then
+		return true
+	elseif (entity.type == "ammo-turret" or entity.type == "artillery-turret" or entity.type == "artillery-wagon") and entity:supportsAmmo(prototype) then
+		return true
+	elseif entity.type == "roboport" and (prototype.type == "repair-tool" or (prototype.place_result and prototype.place_result.max_payload_size ~= nil)) then
+		return true
+	elseif entity.prototype.module_inventory_size and entity.prototype.module_inventory_size > 0 and prototype.type == "module" then
+		return true
+	elseif entity:inventory("main") then
+		return true
+	end
+	
+	return false
 end
 
 function this.resetCache(cache)
