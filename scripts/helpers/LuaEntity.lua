@@ -62,5 +62,12 @@ end
 function entity:supportsAmmo(item)
 	local attackParameters = self.prototype.attack_parameters
 	local ammoType = item.get_ammo_type("turret") or item.get_ammo_type()
-	return attackParameters and (_(attackParameters.ammo_categories):contains(ammoType.category))
+	
+	if attackParameters then
+		return _(attackParameters.ammo_categories):contains(ammoType.category)
+	elseif self.type == "artillery-turret" or self.type == "artillery-wagon" then
+		return ammoType.category == "artillery-shell"
+	end
+
+	return false
 end

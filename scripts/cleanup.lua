@@ -274,7 +274,7 @@ function this.filterEntities(entities, item, dropToChests, dropToOutput)
 				result[entity] = entity
 			elseif entity.type == "lab" and entity:inventory("lab_input").can_insert(item) then
 				result[entity] = entity
-			elseif entity.type == "ammo-turret" and entity:supportsAmmo(prototype) then
+			elseif (entity.type == "ammo-turret" or entity.type == "artillery-turret" or entity.type == "artillery-wagon") and entity:supportsAmmo(prototype) then
 				result[entity] = entity
 			elseif entity.type == "roboport" then
 				result[entity] = entity
