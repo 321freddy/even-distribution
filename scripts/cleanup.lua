@@ -32,27 +32,64 @@ function this.distributeItems(player, entities, items, dropToChests, dropToOutpu
 		local entitiesToProcess = this.filterEntities(entities, item, dropToChests, dropToOutput)
 		
 		if #entitiesToProcess > 0 then
-
+			local itemCounts = metatables.new("entityAsIndex")
 			totalItems = player:removeItems(item, totalItems, true, false, true)
-			util.distribute(entitiesToProcess, totalItems, function(entity, amount)
 
-				if amount > 0 then
-					local itemsInserted = this.insert(player, entity, item, amount)
-					local failedToInsert = amount - itemsInserted
+			_(entitiesToProcess):each(function(entity)
+				local count = entity:itemcount(item)
+				itemCounts[entity] = {
+					original = count,
+					current = count,
+				}
+			end)
 
-					if itemsInserted > 0 then -- visuals
-						entity:spawnDistributionText(item, itemsInserted, offY)
-						if not marked[entity] then
-							entity:mark(player)
-							marked[entity] = true
+			-- distribute collected items evenly
+			local i = 0
+			while totalItems > 0 and #entitiesToProcess > 0 do -- retry if some containers full
+				if i == 1000 then dlog("WARNING: Distribute item loop did not finish!"); break end -- safeguard
+				i = i + 1
+
+				util.distribute(entitiesToProcess, totalItems, function(entity, amount)
+
+					if amount > 0 then
+						local itemCount = itemCounts[entity]
+						local itemsInserted = this.insert(player, entity, item, amount)
+
+						itemCount.current = itemCount.current + itemsInserted
+						totalItems = totalItems - itemsInserted
+
+						local failedToInsert = amount - itemsInserted
+						if failedToInsert > 0 then
+							if itemCount.current ~= itemCount.original then
+								entity:spawnDistributionText(item, itemCount.current - itemCount.original, offY)
+								if not marked[entity] then
+									entity:mark(player)
+									marked[entity] = true
+								end
+							end
+							entitiesToProcess[entity] = nil
+							return
 						end
 					end
-					
-					if failedToInsert > 0 then
-						player:returnItems(item, failedToInsert, false, true)
+				end)
+			end
+
+			_(entitiesToProcess):each(function(entity)
+				local itemCount = itemCounts[entity]
+				local amount = itemCount.current - itemCount.original
+				if amount ~= 0 then
+					entity:spawnDistributionText(item, amount, offY)
+					if not marked[entity] then
+						entity:mark(player)
+						marked[entity] = true
 					end
 				end
 			end)
+
+			if totalItems > 0 then
+				player:returnItems(item, totalItems, false, true)
+			end
+
 			offY = offY - 0.5
 		end
 	end)
@@ -112,7 +149,7 @@ function this.balanceItems(player, entities, items, dropToChests, dropToOutput)
 									marked[entity] = true
 								end
 							end
-							entitiesToProcess[entity] = nil -- set nil while iterating bad?
+							entitiesToProcess[entity] = nil
 							return
 						end
 
