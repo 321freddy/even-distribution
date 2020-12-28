@@ -196,6 +196,13 @@ function control:customInsert(player, item, amount, takenFromCar, takenFromTrash
         inserted = inserted + insertedHere
         amount = amount - insertedHere
 	end
+    
+    if amount <= 0 then return inserted end
+    if allowed.output then
+        local insertedHere = insert(self, "output", item, amount)
+        inserted = inserted + insertedHere
+        amount = amount - insertedHere
+	end
 
     if amount <= 0 then return inserted end
     if allowed.modules then

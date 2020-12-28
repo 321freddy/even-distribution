@@ -150,6 +150,7 @@ function this.insert(player, entity, item, amount)
 	local useFuelLimit = player:setting("cleanupUseFuelLimit")
 	local useAmmoLimit = player:setting("cleanupUseAmmoLimit")
 	local dropToOutput = player:setting("dropTrashToOutput")
+
 	if entity.type == "furnace" and not (entity.get_recipe() or entity.previous_recipe) then
 		return entity:customInsert(player, item, amount, false, true, false, useFuelLimit, useAmmoLimit, false, {
 			fuel     = true,
@@ -166,7 +167,7 @@ function this.insert(player, entity, item, amount)
 			fuel     = true,
 			ammo     = false,
 			input    = true,
-			output   = true,
+			output   = dropToOutput,
 			modules  = true,
 			roboport = false,
 			main     = false,
@@ -230,8 +231,6 @@ function this.filterEntities(entities, item, dropToChests, dropToOutput)
 				result[entity] = entity
 			elseif entity:is("crafting machine") and _(entity.get_recipe() or (entity.type == "furnace" and entity.previous_recipe)):hasIngredient(item) then
 				result[entity] = entity
-			elseif dropToOutput and (entity.type == "furnace" or entity.type == "assembling-machine") and _(entity.get_recipe() or (entity.type == "furnace" and entity.previous_recipe)):hasProduct(item) then
-				result[entity] = entity
 			elseif (entity.prototype.logistic_mode == "requester" or (entity.type == "spider-vehicle" and entity.get_logistic_point(defines.logistic_member_index.character_requester))) and entity:remainingRequest(item) > 0 then
 				result[entity] = entity
 			elseif dropToChests and (entity.type == "container" or entity.type == "logistic-container") and entity.get_item_count(item) > 0 then
@@ -245,6 +244,8 @@ function this.filterEntities(entities, item, dropToChests, dropToOutput)
 			elseif (entity.type == "car" or entity.type == "spider-vehicle") and prototype.type == "ammo" then
 				result[entity] = entity
 			end
+		elseif dropToOutput and (entity.type == "furnace" or entity.type == "assembling-machine") and _(entity.get_recipe() or (entity.type == "furnace" and entity.previous_recipe)):hasProduct(item) and entity:inventory("output").can_insert(item) then
+			result[entity] = entity
 		end
 	end)
 	

@@ -28,7 +28,7 @@ function recipe:hasIngredient(item)
 end
 
 function recipe:hasProduct(item)
-    return self:ingredientcount(item) > 0
+    return self:productcount(item) > 0
 end
 
 function recipe:ingredientmap() -- ingredient table: item name --> amount
