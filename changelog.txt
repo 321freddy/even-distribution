@@ -1,5 +1,6 @@
 ---------------------------------------------------------------------------------------------------
 Version: 1.0.4
+Date: 2020-12-28
   Changes:
     - Ctrl+Click Drag no longer distributes to ineligible entities
     - Added option for Shift+C to drop items to machine output slots
