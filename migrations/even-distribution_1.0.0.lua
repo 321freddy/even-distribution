@@ -21,7 +21,9 @@ local function resetLogisticTechEffects(force)
 end
 
 for _,force in pairs(game.forces) do
-	force.technologies["enable-logistics-tab"].researched = true
+	 if force.technologies["enable-logistics-tab"] then
+     	   force.technologies["enable-logistics-tab"].researched = true
+ 	 end
 	resetLogisticTechEffects(force) 
 end
 
