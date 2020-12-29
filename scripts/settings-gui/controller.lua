@@ -10,18 +10,23 @@ local _ = helpers.on
 
 function this.on_init()
 	for player_index,player in pairs(game.players) do
-		local player = _(player); if player:isnot("valid player") then return end
-		this.destroyGUI(player)
-		this.buildButton(player)
+		player = _(player)
+		if player:is("valid player") then 
+			this.destroyGUI(player)
+			this.buildButton(player)
+		end
 	end
 end
 
 this.on_configuration_changed = this.on_init
 
 function this.on_player_created(event)
-	local player = _(game.players[event.player_index]); if player:isnot("valid player") then return end
-	this.destroyGUI(player)
-	this.buildButton(player)
+	local player = _(game.players[event.player_index])
+	
+	if player:is("valid player") then 
+		this.destroyGUI(player)
+		this.buildButton(player)
+	end
 end
 
 function this.on_runtime_mod_setting_changed(event)
