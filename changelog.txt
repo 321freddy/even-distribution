@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.5
+Date: 2020-12-29
+  Bugfixes:
+    - Fixed crash when distributing to machine outputs with Shift+C
+    - Fixed settings button not being restored properly
+---------------------------------------------------------------------------------------------------
 Version: 1.0.4
 Date: 2020-12-28
   Changes:
