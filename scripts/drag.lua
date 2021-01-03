@@ -310,7 +310,7 @@ function this.isEntityEligible(entity, item)
 		return true
 	elseif entity.burner and entity.burner.fuel_categories[prototype.fuel_category] then
 		return true
-	elseif entity:is("crafting machine") and (entity.get_recipe() and _(entity.get_recipe()):hasIngredient(item)) then
+	elseif entity:is("crafting machine") and entity:recipe():hasIngredient(item) then
 		return true
 	elseif entity.type == "furnace" and not entity.get_recipe() and entity:canSmelt(item) then
 		return true

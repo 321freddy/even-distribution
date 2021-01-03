@@ -200,7 +200,7 @@ function control:customInsert(player, item, amount, takenFromCar, takenFromTrash
 	end
     
     if amount <= 0 then return inserted end
-    if allowed.output then
+    if allowed.output and self:recipe():hasProduct(item) then
         local insertedHere = insert(self, "output", item, amount)
         inserted = inserted + insertedHere
         amount = amount - insertedHere

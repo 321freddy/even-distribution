@@ -58,13 +58,17 @@ function entity:isIgnored(player)
 		   global.settings[player.index].ignoredEntities[self.name]
 end
 
+function entity:recipe()
+	return _(self.get_recipe() or (self.type == "furnace" and self.previous_recipe))
+end
+
 -- for turrets
 function entity:supportsAmmo(item)
 	local ammoType = item.get_ammo_type("turret") or item.get_ammo_type()
 
 	if ammoType then
 		local attackParameters = self.prototype.attack_parameters
-		
+
 		if attackParameters then
 			return _(attackParameters.ammo_categories):contains(ammoType.category)
 		elseif self.type == "artillery-turret" or self.type == "artillery-wagon" then

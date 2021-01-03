@@ -188,7 +188,7 @@ function this.insert(player, entity, item, amount)
 	local useAmmoLimit = player:setting("cleanupUseAmmoLimit")
 	local dropToOutput = player:setting("dropTrashToOutput")
 
-	if entity.type == "furnace" and not (entity.get_recipe() or entity.previous_recipe) then
+	if entity.type == "furnace" and entity:recipe():isnot("valid") then
 		return entity:customInsert(player, item, amount, false, true, false, useFuelLimit, useAmmoLimit, false, {
 			fuel     = true,
 			ammo     = false,
@@ -266,7 +266,7 @@ function this.filterEntities(entities, item, dropToChests, dropToOutput)
 		if entity.can_insert(item) then
 			if entity.burner and entity.burner.fuel_categories[prototype.fuel_category] and entity:inventory("fuel").can_insert(item) then
 				result[entity] = entity
-			elseif entity:is("crafting machine") and _(entity.get_recipe() or (entity.type == "furnace" and entity.previous_recipe)):hasIngredient(item) then
+			elseif entity:is("crafting machine") and entity:recipe():hasIngredient(item) then
 				result[entity] = entity
 			elseif (entity.prototype.logistic_mode == "requester" or (entity.type == "spider-vehicle" and entity.get_logistic_point(defines.logistic_member_index.character_requester))) and entity:remainingRequest(item) > 0 then
 				result[entity] = entity
@@ -281,7 +281,7 @@ function this.filterEntities(entities, item, dropToChests, dropToOutput)
 			elseif (entity.type == "car" or entity.type == "spider-vehicle") and prototype.type == "ammo" then
 				result[entity] = entity
 			end
-		elseif dropToOutput and (entity.type == "furnace" or entity.type == "assembling-machine") and _(entity.get_recipe() or (entity.type == "furnace" and entity.previous_recipe)):hasProduct(item) and entity:inventory("output").can_insert(item) then
+		elseif dropToOutput and (entity.type == "furnace" or entity.type == "assembling-machine") and entity:recipe():hasProduct(item) then
 			result[entity] = entity
 		end
 	end)
