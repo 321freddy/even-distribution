@@ -282,7 +282,9 @@ setup.on_forces_merged = setup.on_force_created
 setup.on_technology_effects_reset = setup.on_force_created
 
 function setup.enableLogisticsTab(force)
-	force.technologies["enable-logistics-tab"].researched = true
+ if force.technologies["enable-logistics-tab"] then
+        force.technologies["enable-logistics-tab"].researched = true
+    end
 end
 
 function setup.generateTrashItemList()
