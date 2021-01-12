@@ -15,6 +15,15 @@ data:extend{
 	},
 	
 	{
+		type = "int-setting",
+		name = "global-max-inventory-cleanup-range",
+		order = "c",
+		setting_type = "runtime-global",
+		default_value = 1000,
+		minimum_value = 0,
+	},
+	
+	{
 		type = "bool-setting",
 		name = "info",
 		setting_type = "runtime-per-user",

@@ -891,16 +891,19 @@ this.templates.settingsWindow = {
 											value_step = 1,
 											onCreated = function(self)
 												local player = _(self.gui.player)
+												self.set_slider_minimum_maximum(0, math.min(100, settings.global["global-max-inventory-cleanup-range"].value))
 												self.slider_value = player:setting("cleanupDropRange")
 											end,
 											onChanged = function(self, event)
 												local player = _(self.gui.player)
 												local value = self.slider_value
+												local max = settings.global["global-max-inventory-cleanup-range"].value
+												self.set_slider_minimum_maximum(0, math.min(100, settings.global["global-max-inventory-cleanup-range"].value))
 												
 												if type(value) == "number" then
 													-- clamp value to bounds
 													value = math.floor(value)
-													-- if value > 100 then value = 100 end
+													if value > max then value = max end
 													if value < 0 then value = 0 end
 
 													self.slider_value = value
@@ -928,11 +931,12 @@ this.templates.settingsWindow = {
 											onChanged = function(self, event)
 												local player = _(self.gui.player)
 												local value = tonumber(self.text)
+												local max = settings.global["global-max-inventory-cleanup-range"].value
 												
 												if type(value) == "number" then
 													-- clamp value to bounds
 													value = math.floor(value)
-													-- if value > 100 then value = 100 end
+													if value > max then value = max end
 													if value < 0 then value = 0 end
 
 													self.text = tostring(value)
