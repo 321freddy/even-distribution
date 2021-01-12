@@ -1,5 +1,14 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.7
+Date: 2021-01-12
+  Changes:
+    - Added map setting to limit Shift+C range globally
+  Bugfixes:
+    - Fixed fuel/ammo limits not always accepting fractional values
+    - Fixed fuel/ammo limit sliders not updating properly when changing the unit
+---------------------------------------------------------------------------------------------------
 Version: 1.0.6
+Date: 2021-01-03
   Bugfixes:
     - Fixed crash when distributing non-ammo to turrets
     - Fixed Shift+C placing fuel in machine outputs
