@@ -36,14 +36,23 @@ this.templates.settingsButton = {
 }
 
 
-local function updateLimiter(flow, profiles, action, newValue) -- switch to next type
+local function updateLimiter(flow, profiles, action) -- switch to next type
 	local player  = _(flow.gui.player)
-	local value   = action == "value" and newValue or player:setting(profiles.valueSetting)
+
 	local oldType = player:setting(profiles.typeSetting)
 	local type    = action == "type" and profiles[oldType].next or oldType
 	local profile = profiles[type]
 	local name    = profiles.name
 	local enabled = true
+	
+	local value = 0
+	if action == "slider" then
+		value = flow[name.."_slider"].slider_value
+	elseif action == "text" then
+		value = tonumber(flow[name.."_textfield"].text)
+	else
+		value = player:setting(profiles.valueSetting)
+	end
 
 	if profiles.enableSetting then
 		enabled = player:setting(profiles.enableSetting)
@@ -61,9 +70,12 @@ local function updateLimiter(flow, profiles, action, newValue) -- switch to next
 	flow[name.."_slider"].set_slider_minimum_maximum(profile.min, profile.max)
 	flow[name.."_slider"].set_slider_value_step(profile.step)
 	
-	flow[name.."_slider"].slider_value = value
-	flow[name.."_textfield"].text      = tostring(value)
+	flow[name.."_slider"].slider_value = 0
+	flow[name.."_slider"].slider_value = math.max(math.min(value, profile.max), profile.min)
 	flow[name.."_type"].caption        = {profiles.typeLocale.."."..type}
+	if action ~= "text" then 
+		flow[name.."_textfield"].text  = tostring(value) 
+	end
 	
 	if profiles.enableSetting then
 		flow[name.."_checkbox"].state    = enabled
@@ -266,9 +278,8 @@ this.templates.settingsWindow = {
 											discrete_slider = false,
 											discrete_values = true,
 											onChanged = function(self, event)
-												local value = self.slider_value
-												if type(value) == "number" then
-													updateLimiter(self.parent, config.fuelLimitProfiles, "value", value)
+												if type(self.slider_value) == "number" then
+													updateLimiter(self.parent, config.fuelLimitProfiles, "slider")
 												end
 											end,
 										},
@@ -283,9 +294,8 @@ this.templates.settingsWindow = {
 											allow_negative = false,
 											lose_focus_on_confirm = true,
 											onChanged = function(self, event)
-												local value = tonumber(self.text)
-												if type(value) == "number" then
-													updateLimiter(self.parent, config.fuelLimitProfiles, "value", value)
+												if type(tonumber(self.text)) == "number" then
+													updateLimiter(self.parent, config.fuelLimitProfiles, "text")
 												end
 											end,
 										},
@@ -328,9 +338,8 @@ this.templates.settingsWindow = {
 											discrete_slider = false,
 											discrete_values = true,
 											onChanged = function(self, event)
-												local value = self.slider_value
-												if type(value) == "number" then
-													updateLimiter(self.parent, config.ammoLimitProfiles, "value", value)
+												if type(self.slider_value) == "number" then
+													updateLimiter(self.parent, config.ammoLimitProfiles, "slider")
 												end
 											end,
 										},
@@ -345,9 +354,8 @@ this.templates.settingsWindow = {
 											allow_negative = false,
 											lose_focus_on_confirm = true,
 											onChanged = function(self, event)
-												local value = tonumber(self.text)
-												if type(value) == "number" then
-													updateLimiter(self.parent, config.ammoLimitProfiles, "value", value)
+												if type(tonumber(self.text)) == "number" then
+													updateLimiter(self.parent, config.ammoLimitProfiles, "text")
 												end
 											end,
 										},
