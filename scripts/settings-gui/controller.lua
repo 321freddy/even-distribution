@@ -34,7 +34,7 @@ function this.on_runtime_mod_setting_changed(event)
 	   event.setting == "disable-inventory-cleanup" then
 
 		local player = _(game.players[event.player_index])
-		if player:is("valid player") then
+		if player:is("valid player") and gui.get(player, templates.settingsWindow) then
 			this.buildGUI(player)
 		end
 	end
