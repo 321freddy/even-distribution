@@ -204,6 +204,8 @@ end
 function setup.addDefaultLogisticSlots(character)
 	local slotCount = 0
 	local slots = {}
+
+	character.character_personal_logistic_requests_enabled = false
 	
 	_(config.defaultLogisticSlots)
 		:wherepair(
@@ -220,8 +222,6 @@ function setup.addDefaultLogisticSlots(character)
 				})
 				slotCount = slotCount + 1
 			end)
-
-	character.character_personal_logistic_requests_enabled = false
 end
 
 function setup.on_force_created(event)
