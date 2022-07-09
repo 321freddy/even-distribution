@@ -106,7 +106,7 @@ function setup.migrateSettings(player)
 	if settings.distributionMode == nil             then settings.distributionMode = "distribute" end
 	if settings.fuelLimit == nil             		then settings.fuelLimit = 0.5 end
 	if settings.fuelLimitType == nil         		then settings.fuelLimitType = "stacks" end
-	if settings.ammoLimit == nil             		then settings.ammoLimit = 0.5 end
+	if settings.ammoLimit == nil             		then settings.ammoLimit = 0.05 end
 	if settings.ammoLimitType == nil         		then settings.ammoLimitType = "stacks" end
 
 	if settings.enableDragDistribute == nil         then settings.enableDragDistribute = true end
