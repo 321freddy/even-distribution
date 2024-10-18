@@ -258,7 +258,7 @@ end
 
 function this.filterEntities(entities, item, dropToChests, dropToOutput)
 	local result = metatables.new("entityAsIndex")
-	local prototype = game.item_prototypes[item]
+	local prototype = prototypes.item[item]
 	
 	_(entities):each(function(__, entity)
 		entity = _(entity)

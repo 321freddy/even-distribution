@@ -55,7 +55,7 @@ function this.deliveryDamage(delivery)
 end
 
 function this.entityAttackDamage(name)
-	local entity = game.entity_prototypes[name]
+	local entity = prototypes.entity[name]
     local damage = 0
     
 	if entity then
@@ -108,7 +108,7 @@ function this.radiusOfDelivery(delivery)
 end
 
 function this.radiusFromEntity(name)
-	local entity = game.entity_prototypes[name]
+	local entity = prototypes.entity[name]
     local radius = 0
     
 	if entity then

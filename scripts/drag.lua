@@ -8,7 +8,7 @@ local helpers = scripts.helpers
 local _ = helpers.on
 
 function this.on_tick(event) -- handles distribution events
-	local distrEvents = global.distrEvents
+	local distrEvents = storage.distrEvents
 
 	if distrEvents[event.tick] then
 		for player_index, cache in pairs(distrEvents[event.tick]) do
@@ -159,14 +159,14 @@ end
 function this.on_fast_entity_transfer_hook(event)
 	local index        = event.player_index
 	local player       = _(game.players[index]); if player:isnot("valid player") then return end
-	local cache        = _(global.cache[index])
+	local cache        = _(storage.cache[index])
 	cache.half = false
 end
 
 function this.on_fast_entity_split_hook(event)
 	local index        = event.player_index
 	local player       = _(game.players[index]); if player:isnot("valid player") then return end
-	local cache        = _(global.cache[index])
+	local cache        = _(storage.cache[index])
 	cache.half = true
 end
 
@@ -174,7 +174,7 @@ function this.on_selected_entity_changed(event)
 	local index        = event.player_index
 	local player       = _(game.players[index]); if player:isnot("valid player") or not player:setting("enableDragDistribute") then return end
 	local cursor_stack = _(player.cursor_stack); if cursor_stack:isnot("valid stack") then return end
-	local cache        = _(global.cache[index])
+	local cache        = _(storage.cache[index])
 	local selected     = _(player.selected)    ; if selected:isnot("valid") or selected:isIgnored(player) then return end
 
 	-- if not selected.can_insert{ name = cursor_stack.name, count = 1 } then return end
@@ -190,7 +190,7 @@ end
 function this.on_player_fast_transferred(event)
 	local index    = event.player_index
 	local player   = _(game.players[index]); if player:isnot("valid player") or not player:setting("enableDragDistribute") then return end
-	local cache    = _(global.cache[index])
+	local cache    = _(storage.cache[index])
 	local selected = _(player.selected)    ; if selected:isnot("valid") or selected:isIgnored(player) then return end
 
 	if cache.selectedEvent and cache.selectedEvent.tick == event.tick and event.entity == selected:toPlain() then
@@ -224,7 +224,7 @@ function this.onStackTransferred(entity, player, cache) -- handle vanilla drag s
 	   (first == nil or ((first.type == "car" or  first.type == "spider-vehicle") and (entity.type == "car" or  entity.type == "spider-vehicle"))
 	   				 or ((first.type ~= "car" and first.type ~= "spider-vehicle") and (entity.type ~= "car" and entity.type ~= "spider-vehicle"))) then
 	
-		local distrEvents = global.distrEvents -- register new distribution event
+		local distrEvents = storage.distrEvents -- register new distribution event
 		if cache.applyTick and distrEvents[cache.applyTick] then distrEvents[cache.applyTick][player.index] = nil end
 		
 		-- wait before applying distribution (seconds defined in mod config)
@@ -301,11 +301,11 @@ function this.onStackTransferred(entity, player, cache) -- handle vanilla drag s
 		visuals.update(cache.markers[entity], item, amount)
 	end)
 	
-	entity:destroyTransferText()
+	player.clear_local_flying_texts()
 end
 
 function this.isEntityEligible(entity, item)
-	local prototype = game.item_prototypes[item]
+	local prototype = prototypes.item[item]
 	entity = _(entity)
 	
 	if entity.can_insert(item) then
@@ -343,7 +343,7 @@ end
 function this.on_pre_player_mined_item(event) -- remove mined/dead entities from cache
 	local entity = event.entity
 	
-	for __,cache in pairs(global.cache) do
+	for __,cache in pairs(storage.cache) do
 		if cache.entities[entity] then
 			_(cache.markers[entity]):unmark() -- remove markers
 			cache.markers[entity] = nil
@@ -363,12 +363,12 @@ function this.script_raised_destroy(event)
 end
 
 function this.on_player_died(event) -- resets distribution cache and events for that player
-	local cache = global.cache[event.player_index]
+	local cache = storage.cache[event.player_index]
 	
 	if cache then
 		this.resetCache(cache)
 		
-		local distrEvents = global.distrEvents -- remove distribution event
+		local distrEvents = storage.distrEvents -- remove distribution event
 		if cache.applyTick and distrEvents[cache.applyTick] then
 			distrEvents[cache.applyTick][event.player_index] = nil
 			cache.applyTick = nil

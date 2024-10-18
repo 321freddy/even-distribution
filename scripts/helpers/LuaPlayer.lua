@@ -10,16 +10,16 @@ function player:setting(name)
 	elseif name == "enableInventoryCleanupHotkey" then
 		if settings.global["disable-inventory-cleanup"].value then return false end
 	elseif name == "cleanupDropRange" then
-		return math.min(global.settings[self.index].cleanupDropRange, settings.global["global-max-inventory-cleanup-range"].value)
+		return math.min(storage.settings[self.index].cleanupDropRange, settings.global["global-max-inventory-cleanup-range"].value)
 	end
 
-	local setting = global.settings[self.index][name]
+	local setting = storage.settings[self.index][name]
 	if setting == nil and self.mod_settings[name] then return self.mod_settings[name].value end
 	return setting
 end
 
 function player:changeSetting(name, newValue)
-	local setting = global.settings[self.index]
+	local setting = storage.settings[self.index]
 	if setting[name] == nil and self.mod_settings[name] then 
 		self.mod_settings[name] = { value = newValue } 
 	else
@@ -33,7 +33,7 @@ end
 
 function player:trashItems()
 	local cleanupRequestOverflow = self:setting("cleanupRequestOverflow")
-	local defaultTrash           = global.defaultTrash
+	local defaultTrash           = storage.defaultTrash
 	local trash                  = self:contents("character_trash")
 	local logisticSlots          = self:has("valid", "character") and _(self.character):logisticSlots() or {}
 
@@ -68,7 +68,7 @@ function player:playeritemcount(item, includeInv, includeCar)
 	if cursor_stack and cursor_stack.valid_for_read and cursor_stack.name == item then
 		count = count + cursor_stack.count
 	elseif not includeInv and not includeCar then
-		return global.cache[self.index].cursorStackCount or 0
+		return storage.cache[self.index].cursorStackCount or 0
 	end
 
 	if includeInv then
