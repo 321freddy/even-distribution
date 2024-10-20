@@ -68,7 +68,7 @@ function this.distributeItems(player, cache)
 		end
 		
 		-- feedback
-		entity:spawnDistributionText(item, itemsInserted, 0, color)
+		entity:spawnDistributionText(player,item, itemsInserted, 0, color)
 		-- player.play_sound{ path = "utility/inventory_move" }
 
 	end)
@@ -131,7 +131,7 @@ function this.balanceItems(player, cache)
 
 				local failedToInsert = amount - itemsInserted
 				if failedToInsert > 0 then
-					entity:spawnDistributionText(item, itemCount.current - itemCount.original, 0, config.colors.targetFull)
+					entity:spawnDistributionText(player,item, itemCount.current - itemCount.original, 0, config.colors.targetFull)
 					entitiesToProcess[entity] = nil -- set nil while iterating bad?
 					return
 				end
@@ -147,7 +147,7 @@ function this.balanceItems(player, cache)
 	_(entitiesToProcess):each(function(entity)
 		local itemCount = itemCounts[entity]
 		local amount = itemCount.current - itemCount.original
-		_(entity):spawnDistributionText(item, amount, 0, (itemCount.current == 0) and config.colors.insufficientItems 
+		_(entity):spawnDistributionText(player,item, amount, 0, (itemCount.current == 0) and config.colors.insufficientItems 
 																				   or config.colors.default)
 	end)
 
@@ -178,7 +178,6 @@ function this.on_selected_entity_changed(event)
 	local selected     = _(player.selected)    ; if selected:isnot("valid") or selected:isIgnored(player) then return end
 
 	-- if not selected.can_insert{ name = cursor_stack.name, count = 1 } then return end
-
 	cache.selectedEvent = {
 		tick             = event.tick,
 		item             = cursor_stack.name,
@@ -198,7 +197,7 @@ function this.on_player_fast_transferred(event)
 		if event.from_player then
 			-- distribute...
 
-			if cache.selectedEvent.item then
+			if cache.selectedEvent.item	 then
 				cache:set{
 					item             = cache.selectedEvent.item,
 					itemCount        = selected:itemcount(cache.selectedEvent.item) - cache.selectedEvent.itemCount,
@@ -220,9 +219,9 @@ function this.onStackTransferred(entity, player, cache) -- handle vanilla drag s
 	local item = cache.item
 	local first = #cache.entities > 0 and util.epairs(cache.entities)() or nil
 
-	if not _(entity):isIgnored(player) and this.isEntityEligible(entity, item) and 
-	   (first == nil or ((first.type == "car" or  first.type == "spider-vehicle") and (entity.type == "car" or  entity.type == "spider-vehicle"))
-	   				 or ((first.type ~= "car" and first.type ~= "spider-vehicle") and (entity.type ~= "car" and entity.type ~= "spider-vehicle"))) then
+	if _(entity):is("valid") and not _(entity):isIgnored(player) and this.isEntityEligible(entity, item) and 
+	   (_(first):isnot("valid") or ((first.type == "car" or  first.type == "spider-vehicle") and (entity.type == "car" or  entity.type == "spider-vehicle"))
+	   				 		    or ((first.type ~= "car" and first.type ~= "spider-vehicle") and (entity.type ~= "car" and entity.type ~= "spider-vehicle"))) then
 	
 		local distrEvents = storage.distrEvents -- register new distribution event
 		if cache.applyTick and distrEvents[cache.applyTick] then distrEvents[cache.applyTick][player.index] = nil end

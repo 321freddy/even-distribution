@@ -51,7 +51,7 @@ local conditions = {
     ["string"] = function(obj) return type(obj) == "string" end,
     ["number"] = function(obj) return type(obj) == "number" end,
     ["table"] = function(obj) return type(obj) == "table" end,
-    ["object"] = function(obj) return type(obj) == "userdata" end,
+    ["userdata"] = function(obj) return type(obj) == "userdata" end,
     ["empty"] = util.isEmpty,
     ["filled"] = util.isFilled,
     ["valid"] = util.isValid,

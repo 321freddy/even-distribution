@@ -24,7 +24,7 @@ end
 
 function this.damageFromAction(action)
     if action.action_delivery then
-        local multiplier = action.radius and action.radius * action.radius * math.pi or 1
+        local multiplier = action.radius and action.radius * action.radius * math.pi or 1 -- FIXME: no radius??
 
         return _(action.action_delivery)
                 :sum(function(__,delivery)
@@ -44,10 +44,10 @@ function this.deliveryDamage(delivery)
                            (effect.type == 'create-entity' and this.entityAttackDamage(effect.entity_name) or 0)
                 end)
         
-	elseif delivery.projectile then
+	elseif delivery.projectile then -- FIXME: gibts net??
         return this.entityAttackDamage(delivery.projectile)
         
-	elseif delivery.stream then
+	elseif delivery.stream then -- FIXME: gibts net??
 		return this.entityAttackDamage(delivery.stream)
     end
 

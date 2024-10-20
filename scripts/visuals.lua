@@ -98,21 +98,11 @@ function this.update(marker, item, count, color)
 end
 
 function helpers:unmark() -- destroy distribution marker of entity
-    if self:is("object") then return self:is("valid") and self.destroy() end
+    if self:is("userdata") then return self:is("valid") and self.destroy() end
     
-    local source, player
-    self:where("table", function(__, marker)
+    self:where("userdata", "valid", function(__, marker)
             marker.destroy()
         end)
-        :where("number", function(__, id)
-            if rendering.is_valid(id) then --FIXME: LuaRenderObject
-                if not source and rendering.get_target(id)  then source = _(rendering.get_target(id).entity) end
-                if not player and rendering.get_players(id) then player = _(rendering.get_players(id)[1]) end
-                rendering.destroy(id)
-            end
-        end)
-
-    if source and player and source:is("valid") and player:is("valid player") then source:mark(player) end
 end
 
 function this.unmark(cache) -- destroy all distribution markers of a player (using cache)
@@ -123,17 +113,14 @@ function this.unmark(cache) -- destroy all distribution markers of a player (usi
 	cache.markers = metatables.new("entityAsIndex")
 end
 
-function helpers:spawnDistributionText(item, amount, offY, color) -- spawn distribution text on entity
-	local surface = self.surface
+function helpers:spawnDistributionText(player, item, amount, offY, color) -- spawn distribution text on entity
 	local pos = self.position
 
-    dlog({"", "       ", -amount, " ", prototypes.item[item].localised_name}) --FIXME: 
-	-- surface.create_entity{ -- spawn text
-	-- 	name = "distribution-text",
-	-- 	position = { pos.x - 0.5, pos.y + (offY or 0) },
-	-- 	text = {"", "       ", -amount, " ", prototypes.item[item].localised_name},
-	-- 	color = color or config.colors.default
-	-- }
+    player.create_local_flying_text{ -- spawn text
+        text = {"", "       ", -amount, " ", prototypes.item[item].localised_name},
+		position = { pos.x - 0.5, pos.y + (offY or 0) },
+		color = color or config.colors.default
+	}
 end
 
 return this

@@ -26,9 +26,9 @@ end
 
 function this.distributeItems(player, entities, items, dropToChests, dropToOutput)
 	local offY, marked = 0, metatables.new("entityAsIndex")
-	
+	dlog(items)
 	items:each(function(item, totalItems)
-
+		dlog(item, totalItems)
 		local entitiesToProcess = this.filterEntities(entities, item, dropToChests, dropToOutput)
 		
 		if #entitiesToProcess > 0 then
@@ -61,7 +61,7 @@ function this.distributeItems(player, entities, items, dropToChests, dropToOutpu
 						local failedToInsert = amount - itemsInserted
 						if failedToInsert > 0 then
 							if itemCount.current ~= itemCount.original then
-								entity:spawnDistributionText(item, itemCount.current - itemCount.original, offY)
+								entity:spawnDistributionText(player,item, itemCount.current - itemCount.original, offY)
 								if not marked[entity] then
 									entity:mark(player)
 									marked[entity] = true
@@ -78,7 +78,7 @@ function this.distributeItems(player, entities, items, dropToChests, dropToOutpu
 				local itemCount = itemCounts[entity]
 				local amount = itemCount.current - itemCount.original
 				if amount ~= 0 then
-					entity:spawnDistributionText(item, amount, offY)
+					entity:spawnDistributionText(player,item, amount, offY)
 					if not marked[entity] then
 						entity:mark(player)
 						marked[entity] = true
@@ -143,7 +143,7 @@ function this.balanceItems(player, entities, items, dropToChests, dropToOutput)
 						local failedToInsert = amount - itemsInserted
 						if failedToInsert > 0 then
 							if itemCount.current ~= itemCount.original then
-								entity:spawnDistributionText(item, itemCount.current - itemCount.original, offY)
+								entity:spawnDistributionText(player,item, itemCount.current - itemCount.original, offY)
 								if not marked[entity] then
 									entity:mark(player)
 									marked[entity] = true
@@ -165,7 +165,7 @@ function this.balanceItems(player, entities, items, dropToChests, dropToOutput)
 				local itemCount = itemCounts[entity]
 				local amount = itemCount.current - itemCount.original
 				if amount ~= 0 then
-					entity:spawnDistributionText(item, amount, offY)
+					entity:spawnDistributionText(player,item, amount, offY)
 					if not marked[entity] then
 						entity:mark(player)
 						marked[entity] = true

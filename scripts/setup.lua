@@ -60,7 +60,7 @@ function setup.on_init()
 						:where("ammo")
 						:toArray()
 						:groupBy(function(__,prototype)
-							return prototype.get_ammo_type().category
+							return prototype.ammo_category.name
 						end)
 						:sort(function(a,b)
 							return _(a):calculateDamage() < _(b):calculateDamage()
@@ -137,20 +137,20 @@ function setup.migrateSettings(player)
 		settings.cleanupDropRange       = player.mod_settings["max-inventory-cleanup-drop-range"].value
 
 		if player:is("valid") then
-			local logisticPoint = _(player.get_requester_point())
+			local logisticPoint = _(player:requesterPoint())
 
 			-- move custom trash to logistic slots
 			if settings.customTrash and logisticPoint:is("valid") then
 				
 				local section = logisticPoint.add_section("Even Distribution (migrated settings)")
-				local slotCount = 0
+				local slotCount = 1
 				
 				_(settings.customTrash)
 					:wherepair(function(item) -- {item,count}
-								return slots[item[1]] == nil and storage.defaultTrash[item[1]] ~= item[2]
+								return storage.defaultTrash[item[1]] ~= item[2]
 							end, 
 							function(item,count)
-								section.set_slot(slotCount + 1, {
+								section.set_slot(slotCount, {
 									name = item,
 									min = 0,
 									max = count,
@@ -203,29 +203,30 @@ function setup.migrateSettings(player)
 end
 
 function setup.addDefaultLogisticSlots(player)
-	local slotCount = 0
-	local slots = {}
-
-	local logisticPoint = _(player.get_requester_point())
-	local section = logisticPoint.add_section("Even Distribution")
-	-- character.character_personal_logistic_requests_enabled = false
-	section.active = false
+	local logisticPoint = _(player:requesterPoint())
 	
-	_(config.defaultLogisticSlots)
-		:wherepair(
-			function(item) -- {item,count}
-				return slots[item[1]] == nil and 
-					   storage.defaultTrash[item[1]] ~= item[2] and
-					   prototypes.item[item[1]]
-			end, 
-			function(item,count)
-				section.set_slot(slotCount + 1, {
-					name = item,
-					min = 0,
-					max = count * prototypes.item[item].stack_size,
-				})
-				slotCount = slotCount + 1
-			end)
+	if logisticPoint:is("valid") then
+		local slotCount = 1
+		local section = logisticPoint.add_section("Even Distribution default trash items")
+		-- section.active = false
+		logisticPoint.enabled = false
+
+		_(config.defaultLogisticSlots)
+			:wherepair(
+				function(item) -- {1=item,2=count}
+					local prototype = prototypes.item[item[1]]
+					return prototype and storage.defaultTrash[item[1]] ~= item[2] * prototype.stack_size
+				end,
+				function(item,count)
+					dlog("setting slot " ,item,count)
+					section.set_slot(slotCount, {
+						value = item,
+						min = 0,
+						max = count * prototypes.item[item].stack_size,
+					})
+					slotCount = slotCount + 1
+				end)
+	end
 end
 
 function setup.on_force_created(event)

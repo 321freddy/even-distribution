@@ -6,7 +6,7 @@ local _ = scripts.helpers.on
 
 function control:request(item) -- fetch specific item request
 	local count = 0
-	local logisticPoint = _(self.get_requester_point())
+	local logisticPoint = _(self:requesterPoint())
     
     if logisticPoint:is("valid") then
         local filters = logisticPoint.filters
@@ -23,9 +23,19 @@ function control:request(item) -- fetch specific item request
 	return count
 end
 
+function control:requesterPoint()
+    if self.is_player() and _(self.character):is("valid") then
+        return self.character.get_requester_point()
+    elseif self.is_player() and _(self.cutscene_character):is("valid") then
+        return self.cutscene_character.get_requester_point()
+    else
+        return self.get_requester_point()
+    end
+end
+
 function control:logisticSlots() -- fetch all requests as a dict[name -> CompiledLogisticFilter]
 	local logisticSlots = {}
-	local logisticPoint = _(self.get_requester_point())
+	local logisticPoint = _(self:requesterPoint())
 
     if logisticPoint:is("valid") then
         local filters = logisticPoint.filters
@@ -103,7 +113,13 @@ function control:contents(name)
 
     local inv = self:inventory(name)
     if _(inv):isnot("valid") then return {} end
-    return inv.get_contents()
+
+    local contents = inv.get_contents()
+    local contents_converted = {}
+    for __, content in pairs(contents) do
+        contents_converted[content.name] = content.count
+    end
+    return contents_converted
 end
 
 local function insert(self, name, item, amount)
@@ -186,7 +202,7 @@ function control:customInsert(player, item, amount, takenFromCar, takenFromTrash
 
             -- no space left --> replace inferior items
             if replaceItems and limit > 0 then
-                for __,inferiorAmmo in pairs(storage.ammoList[prototype.get_ammo_type().category]) do
+                for __,inferiorAmmo in pairs(storage.ammoList[prototype.ammo_category.name]) do
                     if inferiorAmmo.name == prototype.name or limit <= 0 then break end
 
                     local returnToPlayer = 0

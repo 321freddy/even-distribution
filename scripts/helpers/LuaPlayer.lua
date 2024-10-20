@@ -38,18 +38,18 @@ function player:trashItems()
 	local logisticSlots          = self:has("valid", "character") and _(self.character):logisticSlots() or {}
 
 	for item,count in pairs(self:contents()) do
-		
+
 		local targetAmount = count
 		local slot = logisticSlots[item]
 
 		if not slot then -- default if no logistic slot with this item
 			targetAmount = defaultTrash[item]
 
-		elseif cleanupRequestOverflow and slot.min > 0 then -- request overflow
-			targetAmount = slot.min
+		elseif cleanupRequestOverflow and slot.count > 0 then -- request overflow
+			targetAmount = slot.count
 
-		elseif slot.max < 4294967295 then -- max value set to infinity = no autotrash
-			targetAmount = slot.max
+		elseif slot.max_count < 4294967295 then -- max value set to infinity = no autotrash
+			targetAmount = slot.max_count
 		end
 
 		if targetAmount ~= nil then

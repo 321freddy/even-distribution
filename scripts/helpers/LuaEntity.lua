@@ -17,16 +17,11 @@ end
 
 -- for turrets
 function entity:supportsAmmo(item)
-	local ammoType = item.get_ammo_type("turret") or item.get_ammo_type()
+	local ammoCategory = item.ammo_category
+	local attackParameters = self.prototype.attack_parameters
 
-	if ammoType then
-		local attackParameters = self.prototype.attack_parameters
-
-		if attackParameters then
-			return _(attackParameters.ammo_categories):contains(ammoType.category)
-		elseif self.type == "artillery-turret" or self.type == "artillery-wagon" then
-			return ammoType.category == "artillery-shell"
-		end
+	if attackParameters and _(ammoCategory):is("valid") then
+		return _(attackParameters.ammo_categories):contains(ammoCategory.name)
 	end
 
 	return false
