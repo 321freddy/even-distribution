@@ -1,7 +1,7 @@
 local gui = {}
 local util = scripts.util
 local templates = scripts["gui-templates"]
-local mod_gui = require("mod-gui")
+-- local mod_gui = require("mod-gui")
 
 local helpers = scripts.helpers
 local _ = helpers.on
@@ -105,20 +105,20 @@ local function getParameters(template, name)
 	return parameters
 end
 
-local function getDefaultRoot(template, player)
-	if template.type == "button" or template.type == "sprite-button" then
-		return mod_gui.get_button_flow(player)
-	end
+-- local function getDefaultRoot(template, player)
+-- 	if template.type == "button" or template.type == "sprite-button" then
+-- 		return mod_gui.get_button_flow(player)
+-- 	end
 	
-	return mod_gui.get_frame_flow(player)
-end
+-- 	return mod_gui.get_frame_flow(player)
+-- end
 
 local function getRoot(template, player)
-	if template.root then
-		return template.root(player, getDefaultRoot(template, player))
-	end
+	-- if template.root then
+		return template.root(player) --, getDefaultRoot(template, player))
+	-- end
 	
-	return getDefaultRoot(template, player)
+	-- return getDefaultRoot(template, player)
 end
 
 function gui.create(player, template, data, parent, ID) -- recursively builds a gui from a template
