@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.0.0
+Date: 2024-10-21
+  Changes:
+    - Update for Factorio version 2.0 (still WIP, some features like quality are not fully supported yet)
+  Bugfixes:
+    - Fixed empty UI element in top-left corner #48
+---------------------------------------------------------------------------------------------------
 Version: 1.0.10
 Date: 2021-08-20
   Changes:
