@@ -26,9 +26,9 @@ end
 
 function this.distributeItems(player, entities, items, dropToChests, dropToOutput)
 	local offY, marked = 0, metatables.new("entityAsIndex")
-	dlog(items)
+	
 	items:each(function(item, totalItems)
-		dlog(item, totalItems)
+		
 		local entitiesToProcess = this.filterEntities(entities, item, dropToChests, dropToOutput)
 		
 		if #entitiesToProcess > 0 then

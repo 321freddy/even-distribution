@@ -207,7 +207,7 @@ function setup.addDefaultLogisticSlots(player)
 	
 	if logisticPoint:is("valid") then
 		local slotCount = 1
-		local section = logisticPoint.add_section("Even Distribution default trash items")
+		local section = logisticPoint.add_section("Even Distribution (default settings)")
 		-- section.active = false
 		logisticPoint.enabled = false
 
@@ -218,7 +218,6 @@ function setup.addDefaultLogisticSlots(player)
 					return prototype and storage.defaultTrash[item[1]] ~= item[2] * prototype.stack_size
 				end,
 				function(item,count)
-					dlog("setting slot " ,item,count)
 					section.set_slot(slotCount, {
 						value = item,
 						min = 0,
