@@ -28,7 +28,7 @@ function this.distributeItems(player, entities, items, dropToChests, dropToOutpu
 	local offY, marked = 0, metatables.new("entityAsIndex")
 	
 	items:each(function(item, totalItems)
-		
+
 		local entitiesToProcess = this.filterEntities(entities, item, dropToChests, dropToOutput)
 		
 		if #entitiesToProcess > 0 then
@@ -270,7 +270,7 @@ function this.filterEntities(entities, item, dropToChests, dropToOutput)
 				result[entity] = entity
 			elseif (entity.prototype.logistic_mode == "requester" or (entity.type == "spider-vehicle" and entity.get_logistic_point(defines.logistic_member_index.character_requester))) and entity:remainingRequest(item) > 0 then
 				result[entity] = entity
-			elseif dropToChests and (entity.type == "container" or entity.type == "logistic-container") and entity.get_item_count(item) > 0 then
+			elseif dropToChests and (entity.type == "container" or entity.type == "logistic-container") and entity:itemcount(item) > 0 then
 				result[entity] = entity
 			elseif entity.type == "lab" and entity:inventory("lab_input").can_insert(item) then
 				result[entity] = entity

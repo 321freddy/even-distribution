@@ -177,6 +177,9 @@ function this.on_selected_entity_changed(event)
 	local cache        = _(storage.cache[index])
 	local selected     = _(player.selected)    ; if selected:isnot("valid") or selected:isIgnored(player) then return end
 
+
+	if cursor_stack.quality.name ~= "normal" then return end -- TODO: Add support for quality
+
 	-- if not selected.can_insert{ name = cursor_stack.name, count = 1 } then return end
 	cache.selectedEvent = {
 		tick             = event.tick,

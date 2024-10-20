@@ -13,7 +13,7 @@ function control:request(item) -- fetch specific item request
 
         if filters then
             _(filters):each(function(__, filter)
-                if filter and filter.name == item and filter.count > count then 
+                if filter and filter.name == item and filter.count > count and (filter.quality == nil or filter.quality == "normal") then 
                     count = math.max(count, filter.count)
                 end
             end)
@@ -42,7 +42,7 @@ function control:logisticSlots() -- fetch all requests as a dict[name -> Compile
 
         if filters then
             _(filters):each(function(__, filter)
-                if filter and filter.name then
+                if filter and filter.name and (filter.quality == nil or filter.quality == "normal") then
                     logisticSlots[filter.name] = filter
                 end
             end)
@@ -52,16 +52,16 @@ function control:logisticSlots() -- fetch all requests as a dict[name -> Compile
 	return logisticSlots
 end
 
-function control:itemcount(...)
+function control:itemcount(item,...)
     if self.is_player() then 
-        return self:playeritemcount(...) 
+        return self:playeritemcount(item,...) 
     else
-        return self.get_item_count(...)
+        return self:contents()[item] or 0 --self.get_item_count(...)
     end
 end
 
 function control:remainingRequest(item)
-	return self:request(item) - self.get_item_count(item)
+	return self:request(item) - self:itemcount(item)
 end
 
 function control:inventory(name)
@@ -117,7 +117,9 @@ function control:contents(name)
     local contents = inv.get_contents()
     local contents_converted = {}
     for __, content in pairs(contents) do
-        contents_converted[content.name] = content.count
+        if content.quality == "normal" then
+            contents_converted[content.name] = content.count
+        end
     end
     return contents_converted
 end
