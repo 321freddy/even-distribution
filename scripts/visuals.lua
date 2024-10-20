@@ -10,6 +10,10 @@ local function getSprite(item)
     return "item/"..item
 end
 
+local function getQualitySprite(quality)
+    return "quality/"..quality
+end
+
 local function getShortCount(count)
     if count == nil then return 0 end
     if count >= 1000000000 then return (math.floor(count / 1000000) / 10).."G" end
@@ -26,7 +30,7 @@ local function getCountColor(count)
     end
 end
 
-function helpers:mark(player, item, count) -- create highlight-box marker with item and count
+function helpers:mark(player, item, quality, count) -- create highlight-box marker with item and count
     
     if item ~= nil then
 
@@ -47,8 +51,10 @@ function helpers:mark(player, item, count) -- create highlight-box marker with i
             bg = rendering.draw_sprite{
                 sprite = "utility/entity_info_dark_background",
                 render_layer = "selection-box",
-                target = self:toPlain(),
-                target_offset = self.type == "spider-vehicle" and {0,-box:boxheight()*3/4} or nil,
+                target = {
+                    entity = self:toPlain(),
+                    offset = self.type == "spider-vehicle" and {0,-height*3/4} or nil
+                },
                 players = player and {player:toPlain()},
                 surface = self.surface,
                 x_scale = scale,
@@ -57,17 +63,33 @@ function helpers:mark(player, item, count) -- create highlight-box marker with i
             icon = rendering.draw_sprite{
                 sprite = getSprite(item),
                 render_layer = "selection-box",
-                target = self:toPlain(),
-                target_offset = self.type == "spider-vehicle" and {0,-box:boxheight()*3/4} or nil,
+                target = {
+                    entity = self:toPlain(),
+                    offset = self.type == "spider-vehicle" and {0,-height*3/4} or nil
+                },
                 players = player and {player:toPlain()},
                 surface = self.surface,
                 x_scale = scale,
                 y_scale = scale,
             },
+            quality = rendering.draw_sprite{
+                sprite = getQualitySprite(quality),
+                render_layer = "selection-box",
+                target = {
+                    entity = self:toPlain(),
+                    offset = self.type == "spider-vehicle" and {-width/4,-height/2} or {-width/4,height/4}
+                },
+                players = player and {player:toPlain()},
+                surface = self.surface,
+                x_scale = scale/2,
+                y_scale = scale/2,
+            },
             text = rendering.draw_text({
                 text = getShortCount(count),
-                target = self:toPlain(),
-                target_offset = self.type == "spider-vehicle" and {0,-box:boxheight()*3/4} or nil,
+                target = {
+                    entity = self:toPlain(),
+                    offset = self.type == "spider-vehicle" and {0,-height*3/4} or nil
+                },
                 --target_offset = { -0.9 * width * 0.5, -0.9 * height * 0.5 },
                 players = player and {player:toPlain()},
                 surface = self.surface,
@@ -89,9 +111,10 @@ function helpers:mark(player, item, count) -- create highlight-box marker with i
     end
 end
 
-function this.update(marker, item, count, color)
+function this.update(marker, item, quality, count, color)
     if marker then
         marker.icon.sprite = getSprite(item)
+        marker.quality.sprite = getQualitySprite(quality)
         marker.text.text = getShortCount(count)
         marker.text.color = color or getCountColor(count)
     end

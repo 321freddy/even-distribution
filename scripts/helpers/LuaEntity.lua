@@ -12,7 +12,22 @@ function entity:isIgnored(player)
 end
 
 function entity:recipe()
-	return _(self.get_recipe() or (self.type == "furnace" and self.previous_recipe))
+	return _(self.get_recipe() or (self.type == "furnace" and self.previous_recipe.name))
+end
+
+function entity:recipeQuality()
+	local recipe, quality = self.get_recipe()
+	
+	if not quality and self.type == "furnace" and self.previous_recipe then
+		quality = self.previous_recipe.quality
+	end
+	if quality == nil then
+		return "normal"
+	elseif type(quality) == "string" then
+		return quality
+	end
+
+	return quality.name
 end
 
 -- for turrets
