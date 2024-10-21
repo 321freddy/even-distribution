@@ -29,7 +29,7 @@ end
 
 -- for furnace
 function entity:canSmelt(item)
-	return #game.get_filtered_recipe_prototypes({
+	return #prototypes.get_recipe_filtered({
 		unpack(_(self.prototype.crafting_categories):map(function(category)
 			return nil, {filter = "category", category = category, mode = "or"}
 		end):toPlain()),
