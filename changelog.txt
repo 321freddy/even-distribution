@@ -1,4 +1,12 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.0.1
+Date: 2024-10-21
+  Bugfixes:
+    - Fixed click drag not distributing evenly
+    - Fixed crash when inserting into furnaces
+    - Fixed crash with inventory cleanup when having filter set to infinity
+    - Fixed furnace recipe not correctly detected
+---------------------------------------------------------------------------------------------------
 Version: 2.0.0
 Date: 2024-10-21
   Changes:
