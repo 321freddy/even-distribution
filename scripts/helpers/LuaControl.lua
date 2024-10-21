@@ -52,11 +52,11 @@ function control:logisticSlots() -- fetch all requests as a dict[name -> Compile
 	return logisticSlots
 end
 
-function control:itemcount(item,...)
+function control:itemcount(...)
     if self.is_player() then 
-        return self:playeritemcount(item,...) 
+        return self:playeritemcount(...) 
     else
-        return self:contents()[item] or 0 --self.get_item_count(...)
+        return self.get_item_count(...)
     end
 end
 
