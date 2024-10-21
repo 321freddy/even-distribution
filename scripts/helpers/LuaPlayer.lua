@@ -48,7 +48,7 @@ function player:trashItems()
 		elseif cleanupRequestOverflow and slot.count > 0 then -- request overflow
 			targetAmount = slot.count
 
-		elseif slot.max_count < 4294967295 then -- max value set to infinity = no autotrash
+		elseif slot.max_count ~= nil then -- max value set to infinity = no autotrash
 			targetAmount = slot.max_count
 		end
 
