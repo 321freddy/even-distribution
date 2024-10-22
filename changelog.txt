@@ -1,4 +1,15 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.0.2
+Date: 2024-10-22
+  Changes:
+    - Added pt-BR translation (thanks to BM123499)
+    - Updated russian translation (thanks to Astorin)
+    - Added remote interface for reading limits (thanks to azaghal)
+    - Default requests are no longer added when changing settings
+  Bugfixes:
+    - Fixed crash when distributing with full inventory 
+    - Fixed crash when re-enabling settings
+---------------------------------------------------------------------------------------------------
 Version: 2.0.1
 Date: 2024-10-21
   Bugfixes:
