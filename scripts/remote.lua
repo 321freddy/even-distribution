@@ -1,4 +1,4 @@
--- Sets up the global table and parses settings
+-- Remote interfaces
 
 local this = {}
 
@@ -25,7 +25,7 @@ end
 -- Get the list of ignored entities
 -- Usage example: remote.call("even-distribution", "get_ignored_entities")
 --                  --> { ["wooden-chest"] = true, ["steel-chest"] = true }
-function this.get_ignored_entities(entity)
+function this.get_ignored_entities()
     return storage.remoteIgnoredEntities or {}
 end
 
@@ -33,7 +33,7 @@ end
 -- Usage example: remote.call("even-distribution", "get_fuel_limit", game.players[1])
 --                  --> { limit = 0.5, type = "stacks" }
 function this.get_fuel_limit(player)
-    local settings = global.settings[player.index]
+    local settings = storage.settings[player.index]
 
     return {
         limit = settings.fuelLimit,
@@ -45,7 +45,7 @@ end
 -- Usage example: remote.call("even-distribution", "get_ammo_limit", game.players[1])
 --                  --> { limit = 10, type = "items" }
 function this.get_ammo_limit(player)
-    local settings = global.settings[player.index]
+    local settings = storage.settings[player.index]
 
     return {
         limit = settings.ammoLimit,
