@@ -149,7 +149,13 @@ function player:returnItems(item, amount, takenFromCar, takenFromTrash)
 	end
 	
 	if remaining > 0 then
-		self.surface.spill_item_stack(self.position, { name = item, count = remaining }, false)
+		self.print({"cant-clear-cursor", {"item-name."..item}})
+		self.surface.spill_item_stack{
+			position = self.position, 
+			stack = { name = item, count = remaining }, 
+			enable_looted = false,
+			allow_belts = false
+		}
 	end
 end
 
