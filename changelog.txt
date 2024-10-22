@@ -1,8 +1,18 @@
 ---------------------------------------------------------------------------------------------------
-Version: 1.0.11
-Date: ????-??-??
+Version: 2.0.1
+Date: 2024-10-21
+  Bugfixes:
+    - Fixed click drag not distributing evenly
+    - Fixed crash when inserting into furnaces
+    - Fixed crash with inventory cleanup when having filter set to infinity
+    - Fixed furnace recipe not correctly detected
+---------------------------------------------------------------------------------------------------
+Version: 2.0.0
+Date: 2024-10-21
   Changes:
-    - Added remote interface for retrieving fuel and ammo limit configuration.
+    - Update for Factorio version 2.0 (still WIP, some features like quality are not fully supported yet)
+  Bugfixes:
+    - Fixed empty UI element in top-left corner #48
 ---------------------------------------------------------------------------------------------------
 Version: 1.0.10
 Date: 2021-08-20

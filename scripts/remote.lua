@@ -11,22 +11,22 @@ end
 -- Add an entity to be ignored by CTRL+Click Drag and SHIFT+C
 -- Usage example: remote.call("even-distribution", "add_ignored_entity", "wooden-chest")
 function this.add_ignored_entity(entity)
-    global.remoteIgnoredEntities = global.remoteIgnoredEntities or {}
-    global.remoteIgnoredEntities[entity] = true
+    storage.remoteIgnoredEntities = storage.remoteIgnoredEntities or {}
+    storage.remoteIgnoredEntities[entity] = true
 end
 
 -- Remove an entity from the ignored list
 -- Usage example: remote.call("even-distribution", "remove_ignored_entity", "wooden-chest")
 function this.remove_ignored_entity(entity)
-    global.remoteIgnoredEntities = global.remoteIgnoredEntities or {}
-    global.remoteIgnoredEntities[entity] = nil
+    storage.remoteIgnoredEntities = storage.remoteIgnoredEntities or {}
+    storage.remoteIgnoredEntities[entity] = nil
 end
 
 -- Get the list of ignored entities
 -- Usage example: remote.call("even-distribution", "get_ignored_entities")
 --                  --> { ["wooden-chest"] = true, ["steel-chest"] = true }
 function this.get_ignored_entities(entity)
-    return global.remoteIgnoredEntities or {}
+    return storage.remoteIgnoredEntities or {}
 end
 
 -- Get the configured fuel limit.
