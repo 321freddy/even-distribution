@@ -242,19 +242,19 @@ function setup.on_runtime_mod_setting_changed(event)
 			setup.enableLogisticsTab(force) 
 		end
 
-		-- add default logistic slots when enabling shift+c (if all slots are empty)
-		if settings.global["disable-inventory-cleanup"].value == false then
+		-- -- add default logistic slots when enabling shift+c (if all slots are empty)
+		-- if settings.global["disable-inventory-cleanup"].value == false then
 			
-			for __,player in pairs(game.players) do
-				local player = _(player)
-				if player:is("valid") and 
-				   player:setting("enableInventoryCleanupHotkey") and 
-				   _(player:logisticSlots()):is("empty") then 
+		-- 	for __,player in pairs(game.players) do
+		-- 		local player = _(player)
+		-- 		if player:is("valid") and 
+		-- 		   player:setting("enableInventoryCleanupHotkey") and 
+		-- 		   _(player:logisticSlots()):is("empty") then 
 
-					setup.addDefaultLogisticSlots(character)
-				end
-			end
-		end
+		-- 			setup.addDefaultLogisticSlots(player)
+		-- 		end
+		-- 	end
+		-- end
 	end
 end
 
