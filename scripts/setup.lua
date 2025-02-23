@@ -136,7 +136,7 @@ function setup.migrateSettings(player)
 		settings.distributionDelay      = player.mod_settings["distribution-delay"].value
 		settings.cleanupDropRange       = player.mod_settings["max-inventory-cleanup-drop-range"].value
 
-		if player:is("valid") then
+		if player:is("valid") and game.connected_players[player.index] then
 			local logisticPoint = _(player:requesterPoint())
 
 			-- move custom trash to logistic slots
