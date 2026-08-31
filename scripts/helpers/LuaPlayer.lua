@@ -65,7 +65,7 @@ function player:playeritemcount(item, includeInv, includeCar)
 	local count = 0
 	
 	local cursor_stack = self.cursor_stack
-	if cursor_stack and cursor_stack.valid_for_read and cursor_stack.name == item then
+	if cursor_stack and cursor_stack.valid_for_read and cursor_stack.name == item.name and item.quality == cursor_stack.quality.name then
 		count = count + cursor_stack.count
 	elseif not includeInv and not includeCar then
 		return storage.cache[self.index].cursorStackCount or 0
@@ -89,8 +89,8 @@ function player:playercontents()
 	local cursor_stack = self.cursor_stack
 	
 	if cursor_stack and cursor_stack.valid_for_read then
-		local item = cursor_stack.name
-		contents[item] = (contents[item] or 0) + cursor_stack.count
+		local item = {cursor_stack.name,cursor_stack.quality.name}
+		contents[item] = (contents[item] or 0)+ cursor_stack.count
 	end
 		   
 	return contents
@@ -101,21 +101,21 @@ function player:removeItems(item, amount, takeFromInv, takeFromCar, takeFromTras
 	if takeFromTrash then
 		local trash = self:inventory("character_trash")
 		if _(trash):is("valid") then
-			removed = trash.remove{ name = item, count = amount }
+			removed = trash.remove{ name = item.name, count = amount, quality = item.quality }
 			if amount <= removed then return removed end
 		end
-	end	
+	end
 
 	if takeFromInv then
 		local main = self:inventory()
 		if _(main):is("valid") then
-			removed = removed + main.remove{ name = item, count = amount - removed }
+			removed = removed + main.remove{ name = item.name, count = amount - removed,quality = item.quality }
 			if amount <= removed then return removed end
 		end
 	end
 	
 	local cursor_stack = self.cursor_stack
-	if cursor_stack and cursor_stack.valid_for_read and cursor_stack.name == item then
+	if cursor_stack and cursor_stack.valid_for_read and cursor_stack.name == item.name and cursor_stack.quality.name == item.quality then
 		local result = math.min(cursor_stack.count, amount - removed)
 		removed = removed + result
 		cursor_stack.count = cursor_stack.count - result
@@ -123,36 +123,36 @@ function player:removeItems(item, amount, takeFromInv, takeFromCar, takeFromTras
 	elseif not takeFromInv and not takeFromCar and not takeFromTrash then
 		local main = self:inventory()
 		if _(main):is("valid") then
-			return removed + main.remove{ name = item, count = amount - removed }
+			return removed + main.remove{ name = item.name, count = amount - removed,quality = item.quality }
 		end
 	end
 	
 	if takeFromCar and self.driving and self:has("valid", "vehicle") then
 		local vehicleInv = _(self.vehicle):inventory("car_trunk")
-		if _(vehicleInv):is("valid") then removed = removed + vehicleInv.remove{ name = item, count = amount - removed } end
+		if _(vehicleInv):is("valid") then removed = removed + vehicleInv.remove{ name = item.name, count = amount - removed,quality = item.quality } end
 	end
 	
 	return removed
 end
 
 function player:returnItems(item, amount, takenFromCar, takenFromTrash)
-	local remaining = amount - self.insert{ name = item, count = amount }
+	local remaining = amount - self.insert{ name = item.name, count = amount,quality = item.quality }
 	
 	if remaining > 0 and takenFromCar and self.driving and self:has("valid", "vehicle") then
         local vehicleInv = _(self.vehicle):inventory("car_trunk")
-        if _(vehicleInv):is("valid") then remaining = remaining - vehicleInv.insert{ name = item, count = remaining } end
+        if _(vehicleInv):is("valid") then remaining = remaining - vehicleInv.insert{ name = item.name, count = remaining,quality = item.quality } end
 	end
 	
 	if remaining > 0 and takenFromTrash then
         local trash = self:inventory("character_trash")
-        if _(trash):is("valid") then remaining = remaining - trash.insert{ name = item, count = remaining } end
+        if _(trash):is("valid") then remaining = remaining - trash.insert{ name = item.name, count = remaining,quality = item.quality } end
 	end
 	
 	if remaining > 0 then
 		self.print({"cant-clear-cursor", {"item-name."..item}})
 		self.surface.spill_item_stack{
 			position = self.position, 
-			stack = { name = item, count = remaining }, 
+			stack = { name = item.name, count = remaining,quality = item.quality },
 			enable_looted = false,
 			allow_belts = false
 		}

@@ -10,6 +10,10 @@ local function getSprite(item)
     return "item/"..item
 end
 
+local function getQualitySprite(quality)
+    return "quality/"..quality
+end
+
 local function getShortCount(count)
     if count == nil then return 0 end
     if count >= 1000000000 then return (math.floor(count / 1000000) / 10).."G" end
@@ -47,27 +51,45 @@ function helpers:mark(player, item, count) -- create highlight-box marker with i
             bg = rendering.draw_sprite{
                 sprite = "utility/entity_info_dark_background",
                 render_layer = "selection-box",
-                target = self:toPlain(),
-                target_offset = self.type == "spider-vehicle" and {0,-box:boxheight()*3/4} or nil,
+                target = {
+                    entity = self:toPlain(),
+                    offset = self.type == "spider-vehicle" and {0,-height*3/4} or nil
+                },
                 players = player and {player:toPlain()},
                 surface = self.surface,
                 x_scale = scale,
                 y_scale = scale,
             },
             icon = rendering.draw_sprite{
-                sprite = getSprite(item),
+                sprite = getSprite(item.name),
                 render_layer = "selection-box",
-                target = self:toPlain(),
-                target_offset = self.type == "spider-vehicle" and {0,-box:boxheight()*3/4} or nil,
+                target = {
+                    entity = self:toPlain(),
+                    offset = self.type == "spider-vehicle" and {0,-height*3/4} or nil
+                },
                 players = player and {player:toPlain()},
                 surface = self.surface,
                 x_scale = scale,
                 y_scale = scale,
             },
+            quality = rendering.draw_sprite{
+                sprite = getQualitySprite(item.quality),
+                render_layer = "selection-box",
+                target = {
+                    entity = self:toPlain(),
+                    offset = self.type == "spider-vehicle" and {-width/4,-height/2} or {-width/4,height/4}
+                },
+                players = player and {player:toPlain()},
+                surface = self.surface,
+                x_scale = scale/2,
+                y_scale = scale/2,
+            },
             text = rendering.draw_text({
                 text = getShortCount(count),
-                target = self:toPlain(),
-                target_offset = self.type == "spider-vehicle" and {0,-box:boxheight()*3/4} or nil,
+                target = {
+                    entity = self:toPlain(),
+                    offset = self.type == "spider-vehicle" and {0,-height*3/4} or nil
+                },
                 --target_offset = { -0.9 * width * 0.5, -0.9 * height * 0.5 },
                 players = player and {player:toPlain()},
                 surface = self.surface,
@@ -91,7 +113,8 @@ end
 
 function this.update(marker, item, count, color)
     if marker then
-        marker.icon.sprite = getSprite(item)
+        marker.icon.sprite = getSprite(item.name)
+        marker.quality.sprite = getQualitySprite(item.quality)
         marker.text.text = getShortCount(count)
         marker.text.color = color or getCountColor(count)
     end
@@ -115,9 +138,19 @@ end
 
 function helpers:spawnDistributionText(player, item, amount, offY, color) -- spawn distribution text on entity
 	local pos = self.position
+    local qualityText = ""
+    local leftbracket = ""
+    local rightbracket = ""
+    local quality = item.quality
+    if quality ~= "normal" then
+        qualityText =prototypes.quality[quality].localised_name
+        leftbracket = " ("
+        rightbracket = ")"
+        end
+
 
     player.create_local_flying_text{ -- spawn text
-        text = {"", "       ", -amount, " ", prototypes.item[item].localised_name},
+        text = {"", "       ", -amount, " ", prototypes.item[item.name].localised_name,leftbracket,qualityText,rightbracket},
 		position = { pos.x - 0.5, pos.y + (offY or 0) },
 		color = color or config.colors.default
 	}

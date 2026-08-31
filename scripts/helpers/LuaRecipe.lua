@@ -3,10 +3,10 @@ local _ = scripts.helpers.on
 
 -- Helper functions for LuaRecipe --
 
-function recipe:ingredientcount(item) -- get count of a specific item in recipe ingredients
-    if self:is("valid") then
+function recipe:ingredientcount(item,quality) -- get count of a specific item in recipe ingredients
+    if self:is("valid") then        
 		for __,ingredient in pairs(self.ingredients) do
-			if ingredient.name == item then return ingredient.amount end
+			if ingredient.name == item.name and quality == item.quality then return ingredient.amount end
 		end
     end
     
@@ -16,7 +16,7 @@ end
 function recipe:productcount(item) -- get count of a specific item in recipe products
     if self:is("valid") then
 		for __,product in pairs(self.products) do
-            if product.name == item then 
+            if product.name == item.name then 
                 return product.amount or product.amount_min or product.amount_max or product.probability or 1 
             end
 		end
@@ -25,8 +25,8 @@ function recipe:productcount(item) -- get count of a specific item in recipe pro
 	return 0
 end
 
-function recipe:hasIngredient(item)
-    return self:ingredientcount(item) > 0
+function recipe:hasIngredient(item,quality)
+    return self:ingredientcount(item,quality) > 0
 end
 
 function recipe:hasProduct(item)

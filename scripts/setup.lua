@@ -151,7 +151,7 @@ function setup.migrateSettings(player)
 							end, 
 							function(item,count)
 								section.set_slot(slotCount, {
-									name = item,
+									name = item.name,
 									min = 0,
 									max = count,
 								})

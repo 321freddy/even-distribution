@@ -28,9 +28,9 @@ function this.distributeItems(player, entities, items, dropToChests, dropToOutpu
 	local offY, marked = 0, metatables.new("entityAsIndex")
 	
 	items:each(function(item, totalItems)
-
-		local entitiesToProcess = this.filterEntities(entities, item, dropToChests, dropToOutput)
 		
+		local entitiesToProcess = this.filterEntities(entities, item, dropToChests, dropToOutput)
+
 		if #entitiesToProcess > 0 then
 			local itemCounts = metatables.new("entityAsIndex")
 			totalItems = player:removeItems(item, totalItems, true, false, true)
@@ -99,7 +99,7 @@ function this.balanceItems(player, entities, items, dropToChests, dropToOutput)
 	local offY, marked = 0, metatables.new("entityAsIndex")
 
 	items:each(function(item, totalItems)
-
+		
 		local entitiesToProcess = this.filterEntities(entities, item, dropToChests, dropToOutput)
 
 		if #entitiesToProcess > 0 then
@@ -111,7 +111,7 @@ function this.balanceItems(player, entities, items, dropToChests, dropToOutput)
 				local count = entity:itemcount(item)
 				local removed = 0
 				if count > 0 then
-					removed = entity.remove_item{ name = item, count = count }
+					removed = entity.remove_item{ name = item.name, count = count,quality = item.qualty }
 					totalItems = totalItems + removed
 				end
 
@@ -203,7 +203,7 @@ function this.insert(player, entity, item, amount)
 		return entity:customInsert(player, item, amount, false, true, false, useFuelLimit, useAmmoLimit, false, {
 			fuel     = true,
 			ammo     = false,
-			input    = entity:recipe():hasIngredient(item),
+			input    = entity:recipe():hasIngredient(item,entity:recipeQuality()),
 			output   = dropToOutput and entity.type ~= "rocket-silo" and entity:recipe():hasProduct(item),
 			modules  = false,
 			roboport = false,
@@ -258,15 +258,16 @@ end
 
 function this.filterEntities(entities, item, dropToChests, dropToOutput)
 	local result = metatables.new("entityAsIndex")
-	local prototype = prototypes.item[item]
+	local prototype = prototypes.item[item.name]
 	
 	_(entities):each(function(__, entity)
 		entity = _(entity)
 
 		if entity.can_insert(item) then
+		
 			if entity.burner and entity.burner.fuel_categories[prototype.fuel_category] and entity:inventory("fuel").can_insert(item) then
 				result[entity] = entity
-			elseif entity:is("crafting machine") and entity:recipe():hasIngredient(item) then
+			elseif entity:is("crafting machine") and entity:recipe():hasIngredient(item,entity:recipeQuality()) then
 				result[entity] = entity
 			elseif (entity.prototype.logistic_mode == "requester" or (entity.type == "spider-vehicle" and entity.get_logistic_point(defines.logistic_member_index.character_requester))) and entity:remainingRequest(item) > 0 then
 				result[entity] = entity
