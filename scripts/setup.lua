@@ -14,12 +14,12 @@ function setup.on_init()
 	storage.distrEvents = storage.distrEvents or {}
 	storage.settings = storage.settings or {}
 	storage.defaultTrash = setup.generateTrashItemList()
-	
+
 	storage.remoteIgnoredEntities = storage.remoteIgnoredEntities or {}
 	storage.allowedEntities = _(prototypes.entity)
 								:where(function(prototype)
-									return util.hasInventory(prototype) and 
-										   not config.ignoredEntities[prototype.type] and 
+									return util.hasInventory(prototype) and
+										   not config.ignoredEntities[prototype.type] and
 										   not config.ignoredEntities[prototype.name]
 								end)
 								:map(function(name)
@@ -28,8 +28,8 @@ function setup.on_init()
 								:toPlain()
 
 	-- GUI events are saved in storage.guiEvents["EVENT NAME"][PLAYER INDEX][GUI ELEMENT INDEX]
-	storage.guiEvents = storage.guiEvents or 
-	{ 
+	storage.guiEvents = storage.guiEvents or
+	{
 		onCheckedStateChanged   = {},
 		onClicked               = {},
 		onElementChanged        = {},
@@ -39,21 +39,26 @@ function setup.on_init()
 		onConfirmed             = {},
 		onSelectedTabChanged    = {},
 		onSwitchStateChanged    = {},
-		onLocationChanged       = {}, 
+		onLocationChanged       = {},
 	}
 
-	-- Fuel upgrade list (ascending fuel value)
-	storage.fuelList = _(prototypes.item)
-						:where("fuel")
-						:toArray()
-						:groupBy("fuel_category")
-						:sort(function(a,b)
-							return a.fuel_value < b.fuel_value or
-								   a.fuel_acceleration_multiplier < b.fuel_acceleration_multiplier or
-								   a.fuel_top_speed_multiplier < b.fuel_top_speed_multiplier or
-								   a.fuel_emissions_multiplier < b.fuel_emissions_multiplier
-						end)
-						:toPlain()
+	-- Fuel upgrade list (ascending fuel value), grouped by every fuel category an item belongs to
+	storage.fuelList = {}
+	for __, item in pairs(prototypes.item) do
+		for __, category in ipairs(item.fuel_categories or {}) do
+			storage.fuelList[category] = storage.fuelList[category] or {}
+			local group = storage.fuelList[category]
+			group[#group + 1] = item
+		end
+	end
+	for __, group in pairs(storage.fuelList) do
+		table.sort(group, function(a, b)
+			if a.fuel_value ~= b.fuel_value then return a.fuel_value < b.fuel_value end
+			if a.fuel_acceleration_multiplier ~= b.fuel_acceleration_multiplier then return a.fuel_acceleration_multiplier < b.fuel_acceleration_multiplier end
+			if a.fuel_top_speed_multiplier ~= b.fuel_top_speed_multiplier then return a.fuel_top_speed_multiplier < b.fuel_top_speed_multiplier end
+			return a.fuel_emissions_multiplier < b.fuel_emissions_multiplier
+		end)
+	end
 
 	-- Ammo upgrade list (ascending damage)
 	storage.ammoList = _(prototypes.item)
@@ -66,9 +71,9 @@ function setup.on_init()
 							return _(a):calculateDamage() < _(b):calculateDamage()
 						end)
 						:toPlain()
-	
+
 	for _,force in pairs(game.forces) do
-		setup.enableLogisticsTab(force) 
+		setup.enableLogisticsTab(force)
 	end
 
 	for player_index,player in pairs(game.players) do
@@ -85,7 +90,7 @@ end
 function setup.setupPlayer(player_index, player)
 	player = _(player or game.players[player_index])
 	setup.createPlayerCache(player_index)
-	setup.migrateSettings(player)			
+	setup.migrateSettings(player)
 end
 
 function setup.createPlayerCache(index)
@@ -141,14 +146,14 @@ function setup.migrateSettings(player)
 
 			-- move custom trash to logistic slots
 			if settings.customTrash and logisticPoint:is("valid") then
-				
+
 				local section = logisticPoint.add_section("Even Distribution (migrated settings)")
 				local slotCount = 1
-				
+
 				_(settings.customTrash)
 					:wherepair(function(item) -- {item,count}
 								return storage.defaultTrash[item[1]] ~= item[2]
-							end, 
+							end,
 							function(item,count)
 								section.set_slot(slotCount, {
 									name = item,
@@ -162,7 +167,7 @@ function setup.migrateSettings(player)
 			end
 
 			-- add default logistic slots
-			if player:setting("enableInventoryCleanupHotkey") and _(player:logisticSlots()):is("empty") then 
+			if player:setting("enableInventoryCleanupHotkey") and _(player:logisticSlots()):is("empty") then
 				setup.addDefaultLogisticSlots(player)
 			end
 		end
@@ -180,7 +185,7 @@ function setup.migrateSettings(player)
 	if settings.version == "1.0.2" then
 		settings.version = "1.0.3"
 
-		if settings.dropTrashToChests == nil then 
+		if settings.dropTrashToChests == nil then
 			settings.dropTrashToChests = settings.dropTrashTFueloChests
 		end
 		settings.dropTrashTFueloChests = nil
@@ -204,7 +209,7 @@ end
 
 function setup.addDefaultLogisticSlots(player)
 	local logisticPoint = _(player:requesterPoint())
-	
+
 	if logisticPoint:is("valid") then
 		local slotCount = 1
 		local section = logisticPoint.add_section("Even Distribution (default settings)")
@@ -239,17 +244,17 @@ function setup.on_runtime_mod_setting_changed(event)
 	if event.setting == "disable-inventory-cleanup" then
 
 		for _,force in pairs(game.forces) do
-			setup.enableLogisticsTab(force) 
+			setup.enableLogisticsTab(force)
 		end
 
 		-- -- add default logistic slots when enabling shift+c (if all slots are empty)
 		-- if settings.global["disable-inventory-cleanup"].value == false then
-			
+
 		-- 	for __,player in pairs(game.players) do
 		-- 		local player = _(player)
-		-- 		if player:is("valid") and 
-		-- 		   player:setting("enableInventoryCleanupHotkey") and 
-		-- 		   _(player:logisticSlots()):is("empty") then 
+		-- 		if player:is("valid") and
+		-- 		   player:setting("enableInventoryCleanupHotkey") and
+		-- 		   _(player:logisticSlots()):is("empty") then
 
 		-- 			setup.addDefaultLogisticSlots(player)
 		-- 		end
@@ -288,13 +293,13 @@ end
 
 function setup.generateTrashItemList()
 	local items = {}
-	
+
 	for name,item in pairs(prototypes.item) do
 		if not (item.place_result or item.place_as_equipment_result or item.hidden) then -- or item.place_as_tile_result
 			local default = defaultTrash[name] or defaultTrash[item.subgroup.name] or defaultTrash[item.group.name]
-			
+
 			if default and default ~= "ignore" then
-				if item.fuel_category and not defaultTrash[name] then -- fuels default to 2 stacks as desired amount
+				if item.fuel_categories and not defaultTrash[name] then -- fuels default to 2 stacks as desired amount
 					items[name] = 2 * item.stack_size
 				else
 					items[name] = default * item.stack_size
@@ -302,7 +307,7 @@ function setup.generateTrashItemList()
 			end
 		end
 	end
-	
+
 	return items
 end
 

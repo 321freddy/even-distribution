@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.1.1
+Date: 2026-09-22
+  Bugfixes:
+    - Fixed crash (on_configuration_changed) caused by Factorio 2.1.20 removing LuaItemPrototype::fuel_category - now uses fuel_categories
+
+---------------------------------------------------------------------------------------------------
 Version: 2.1.0
 Date: 2026-06-24
   Changes:
@@ -12,7 +18,7 @@ Date: 2024-10-22
     - Added remote interface for reading limits (thanks to azaghal)
     - Default requests are no longer added when changing settings
   Bugfixes:
-    - Fixed crash when distributing with full inventory 
+    - Fixed crash when distributing with full inventory
     - Fixed crash when re-enabling settings
 ---------------------------------------------------------------------------------------------------
 Version: 2.0.1
@@ -111,7 +117,7 @@ Date: 2020-11-25
     - Added fuel and ammo distribution limits
     - Added option to replace inferior fuel and ammo items when using CTRL+Click Drag
     - Added source inventory selection for CTRL+Click Drag (hand only/inventory/vehicle)
-    - Added ability to disable individual ED features globally and per player 
+    - Added ability to disable individual ED features globally and per player
     - Logistic slots are now always available from the start
     - Improved distribution visualization
   Bugfixes:

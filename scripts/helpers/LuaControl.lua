@@ -166,25 +166,37 @@ function control:customInsert(player, item, amount, takenFromCar, takenFromTrash
 
             -- no space left --> replace inferior items
             if replaceItems and limit > 0 then
-                for __,inferiorFuel in pairs(storage.fuelList[prototype.fuel_category]) do
-                    if inferiorFuel.name == prototype.name or limit <= 0 then break end
+                local replaced = {}
+                for __, category in ipairs(prototype.fuel_categories) do
+                    local fuelGroup = storage.fuelList[category]
+                    if fuelGroup then
+                        for __, inferiorFuel in ipairs(fuelGroup) do
+                            if limit <= 0 then break end
+                            if not replaced[inferiorFuel.name] then
+                                replaced[inferiorFuel.name] = true
 
-                    local returnToPlayer = 0
-                    while limit > 0 do
-                        local stack = inv.find_item_stack(inferiorFuel.name)
-                        local returnCount = stack and stack.count or 0
-                        if stack and stack.set_stack{ name = item, count = limit } then
-                            limit = limit - stack.count
-                            insertedHere = insertedHere + stack.count
-                            returnToPlayer = returnToPlayer + returnCount
-                        else
-                            break
+                                if inferiorFuel.name ~= prototype.name then
+                                    local returnToPlayer = 0
+                                    while limit > 0 do
+                                        local stack = inv.find_item_stack(inferiorFuel.name)
+                                        local returnCount = stack and stack.count or 0
+                                        if stack and stack.set_stack{ name = item, count = limit } then
+                                            limit = limit - stack.count
+                                            insertedHere = insertedHere + stack.count
+                                            returnToPlayer = returnToPlayer + returnCount
+                                        else
+                                            break
+                                        end
+                                    end
+
+                                    if returnToPlayer > 0 then
+                                        player:returnItems(inferiorFuel.name, returnToPlayer, takenFromCar, takenFromTrash)
+                                    end
+                                end
+                            end
                         end
                     end
-
-                    if returnToPlayer > 0 then
-                        player:returnItems(inferiorFuel.name, returnToPlayer, takenFromCar, takenFromTrash)
-                    end
+                    if limit <= 0 then break end
                 end
             end
 

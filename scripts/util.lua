@@ -32,6 +32,14 @@ function util.isValidStack(stack)
 	return util.isValid(stack) and stack.valid_for_read
 end
 
+-- whether the given burner accepts any of the item's fuel categories
+function util.acceptsFuel(burner, itemPrototype)
+	for __, category in ipairs(itemPrototype.fuel_categories or {}) do
+		if burner.fuel_categories[category] then return true end
+	end
+	return false
+end
+
 function util.isValidPlayer(player) -- valid, connected and alive player
 	return util.isValid(player) and 
 		   player.connected and (

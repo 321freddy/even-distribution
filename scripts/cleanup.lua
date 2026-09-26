@@ -264,7 +264,7 @@ function this.filterEntities(entities, item, dropToChests, dropToOutput)
 		entity = _(entity)
 
 		if entity.can_insert(item) then
-			if entity.burner and entity.burner.fuel_categories[prototype.fuel_category] and entity:inventory("fuel").can_insert(item) then
+			if entity.burner and util.acceptsFuel(entity.burner, prototype) and entity:inventory("fuel").can_insert(item) then
 				result[entity] = entity
 			elseif entity:is("crafting machine") and entity:recipe():hasIngredient(item) then
 				result[entity] = entity
