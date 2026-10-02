@@ -166,4 +166,23 @@ function util.epairs(tbl) -- iterator for tables with entity based indices
 	end
 end
 
+-- Factorio 2.1.20 replaced LuaItemPrototype::fuel_category with ::fuel_categories (array, nil when not a fuel)
+function util.fuelCategory(prototype) -- primary fuel category of an item, nil if it is not a fuel
+	local categories = prototype and prototype.fuel_categories
+	return categories and categories[1] or nil
+end
+
+function util.burnerAcceptsFuel(burner, prototype) -- true if the burner accepts any of the item's fuel categories
+	local categories = prototype and prototype.fuel_categories
+	if not (burner and categories) then return false end
+
+	local accepted = burner.fuel_categories
+
+	for __,category in pairs(categories) do
+		if accepted[category] then return true end
+	end
+
+	return false
+end
+
 return util

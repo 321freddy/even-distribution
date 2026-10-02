@@ -60,7 +60,7 @@ local conditions = {
 
     -- Custom type conditions
     ["crafting machine"] = util.isCraftingMachine,
-    ["fuel"] = function(obj) return obj.object_name == "LuaItemStack" and obj.prototype.fuel_category ~= nil or obj.fuel_category ~= nil end,
+    ["fuel"] = function(obj) return obj.object_name == "LuaItemStack" and util.fuelCategory(obj.prototype) ~= nil or util.fuelCategory(obj) ~= nil end,
     ["ammo"] = function(obj) return obj.type == "ammo" end,
 }
 
