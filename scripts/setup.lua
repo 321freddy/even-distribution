@@ -46,7 +46,7 @@ function setup.on_init()
 	storage.fuelList = _(prototypes.item)
 						:where("fuel")
 						:toArray()
-						:groupBy("fuel_category")
+						:groupBy(function(__,prototype) return util.fuelCategory(prototype) end)
 						:sort(function(a,b)
 							return a.fuel_value < b.fuel_value or
 								   a.fuel_acceleration_multiplier < b.fuel_acceleration_multiplier or
@@ -294,7 +294,7 @@ function setup.generateTrashItemList()
 			local default = defaultTrash[name] or defaultTrash[item.subgroup.name] or defaultTrash[item.group.name]
 			
 			if default and default ~= "ignore" then
-				if item.fuel_category and not defaultTrash[name] then -- fuels default to 2 stacks as desired amount
+				if util.fuelCategory(item) and not defaultTrash[name] then -- fuels default to 2 stacks as desired amount
 					items[name] = 2 * item.stack_size
 				else
 					items[name] = default * item.stack_size
