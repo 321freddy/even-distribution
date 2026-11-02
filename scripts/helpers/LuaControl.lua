@@ -1,4 +1,5 @@
 local config = require("config")
+local util = scripts.util
 local control = scripts.helpers
 local _ = scripts.helpers.on
 
@@ -166,7 +167,8 @@ function control:customInsert(player, item, amount, takenFromCar, takenFromTrash
 
             -- no space left --> replace inferior items
             if replaceItems and limit > 0 then
-                for __,inferiorFuel in pairs(storage.fuelList[prototype.fuel_category]) do
+                local category = util.burnerFuelCategory(self.object_name == "LuaEntity" and self.burner or nil, prototype) or (prototype.fuel_categories or {})[1]
+                for __,inferiorFuel in pairs(storage.fuelList[category] or {}) do
                     if inferiorFuel.name == prototype.name or limit <= 0 then break end
 
                     local returnToPlayer = 0

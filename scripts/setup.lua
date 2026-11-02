@@ -43,10 +43,15 @@ function setup.on_init()
 	}
 
 	-- Fuel upgrade list (ascending fuel value)
-	storage.fuelList = _(prototypes.item)
-						:where("fuel")
-						:toArray()
-						:groupBy("fuel_category")
+	local fuelsByCategory = {}
+	for __,item in pairs(prototypes.item) do
+		for __,category in pairs(item.fuel_categories or {}) do
+			fuelsByCategory[category] = fuelsByCategory[category] or {}
+			table.insert(fuelsByCategory[category], item)
+		end
+	end
+
+	storage.fuelList = _(fuelsByCategory)
 						:sort(function(a,b)
 							return a.fuel_value < b.fuel_value or
 								   a.fuel_acceleration_multiplier < b.fuel_acceleration_multiplier or
@@ -294,7 +299,7 @@ function setup.generateTrashItemList()
 			local default = defaultTrash[name] or defaultTrash[item.subgroup.name] or defaultTrash[item.group.name]
 			
 			if default and default ~= "ignore" then
-				if item.fuel_category and not defaultTrash[name] then -- fuels default to 2 stacks as desired amount
+				if item.fuel_categories and not defaultTrash[name] then -- fuels default to 2 stacks as desired amount
 					items[name] = 2 * item.stack_size
 				else
 					items[name] = default * item.stack_size

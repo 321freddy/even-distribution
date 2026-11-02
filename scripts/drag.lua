@@ -312,7 +312,7 @@ function this.isEntityEligible(entity, item)
 	
 	if entity.can_insert(item) then
 		return true
-	elseif entity.burner and entity.burner.fuel_categories[prototype.fuel_category] then
+	elseif util.burnsItem(entity.burner, prototype) then
 		return true
 	elseif entity:is("crafting machine") and entity:recipe():hasIngredient(item) then
 		return true

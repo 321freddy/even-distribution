@@ -20,6 +20,18 @@ function util.escape(str)
     return str:gsub(quotepattern, "%%%1")
 end
 
+-- first fuel category of the item that the burner accepts
+function util.burnerFuelCategory(burner, itemPrototype)
+  if not burner then return nil end
+  for __,category in pairs(itemPrototype.fuel_categories or {}) do
+    if burner.fuel_categories[category] then return category end
+  end
+end
+
+function util.burnsItem(burner, itemPrototype)
+  return util.burnerFuelCategory(burner, itemPrototype) ~= nil
+end
+
 function util.isValid(object)
 	return object and object.valid
 end
